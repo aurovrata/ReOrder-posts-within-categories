@@ -1,0 +1,91 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ReOrder Posts Within Category v1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-12-15 19:06+0100\n"
+"PO-Revision-Date: 2013-01-09 11:36+0100\n"
+"Last-Translator: David Bravo <dbravo@dimensionmultimedia.com>\n"
+"Language-Team: Dimensión Multimedia <dbravo@dimensionmultimedia.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2\n"
+"X-Poedit-Basepath: ../\n"
+"X-Textdomain-Support: yes\n"
+"X-Poedit-Language: Spanish\n"
+"X-Poedit-Country: SPAIN\n"
+"X-Poedit-SearchPath-0: .\n"
+
+# @ deefusereorder
+#: reorder-posts-within-category.php:543
+#, php-format
+msgid "Tri des articles de type \"%s\""
+msgstr "Ordenar elementos del tipo \"%s\""
+
+#: reorder-posts-within-category.php:545
+#, php-format
+msgid "Sélectionner une catégorie pour trier les articles de type <b>%s</b>. "
+msgstr "Selecciona una categoría para ordenar los elementos del tipo <b>%s</b>. "
+
+#: reorder-posts-within-category.php:592
+msgid "Les catégories grisées ne sont pas accessibles au tri car elle ne contiennent pas assez d'articles pour le moment. "
+msgstr "Las categorías en gris no pueden ser ordenadas de momento porque no contienen suficientes elementos."
+
+#: reorder-posts-within-category.php:606
+msgid "Utiliser le tri manuel pour cette catégorie ?"
+msgstr "¿Ordenar manualmente para esta categoría?"
+
+#: reorder-posts-within-category.php:619
+msgid "Oui"
+msgstr "Sí"
+
+#: reorder-posts-within-category.php:620
+msgid "Non"
+msgstr "No"
+
+#: reorder-posts-within-category.php:625
+#, php-format
+msgid "Listes des articles de type \"%s\", classé dans la catégorie \"%s\" :"
+msgstr "Lista de entradas del tipo \"%s\" clasificadas en la categoría \"%s\":"
+
+#: reorder-posts-within-category.php:674
+msgid "Options enregistrées."
+msgstr "Opciones guardadas."
+
+#: reorder-posts-within-category.php:674
+msgid "Vous pouvez retrouver maintenant dans le menu principal pour chaque type d'article, une page pour re-ordonner vos éléments à l'intérieur de chaque catégorie."
+msgstr "Puedes encontrar en el menú prinicipal para cada tipo de entrada una página para reordenar tus elementos dentro de cada categoría."
+
+# @ deefusereorder
+#: reorder-posts-within-category.php:681
+msgid "Trie des articles d'une catégorie"
+msgstr "Reordenar Entradas para cada categoría"
+
+#: reorder-posts-within-category.php:684
+msgid "Cocher les catégories dont vous voulez trier manuellement les articles. Une fois que vous aurez coché et validé ces informations, un nouveau menu apparaîtra dans chaque type de post concerné."
+msgstr "Selecciona las categorías en las que quieres ordenar manualmente los elementos. Una vez que hayas seleccionado y confirmado esta información, aparecerá un nuevo menú junto a cada tipo de entrada correspondiente."
+
+#: reorder-posts-within-category.php:685
+msgid "Types d'articles disponibles :"
+msgstr "Tipos de entrada disponibles: "
+
+#: reorder-posts-within-category.php:716
+msgid "Autoriser le tri pour les catégories cochées"
+msgstr "Permitir la ordenación de las categorías seleccionadas"
+
+#: reorder-posts-within-category.php:730
+msgid "ReOrder Post Within Categories"
+msgstr "ReOrder Post Within Categories"
+
+#: reorder-posts-within-category.php:739
+msgid "Paramètres"
+msgstr "Parámetros"
+
+#~ msgid ""
+#~ "Ce plugin permet de trier les articles (post) et les Custom Post Type au "
+#~ "sein d'une même catégorie (ou d'une même taxonomie) via une interface "
+#~ "intuitive de glissé-déposé."
+#~ msgstr "descryption"
+
