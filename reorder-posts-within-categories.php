@@ -59,10 +59,10 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	     
 	    add_action('deleteUnecessaryEntries', array(&$this, 'deleteUnecessaryEntries_callBack'));
 	    
-	    if(!is_admin()){
-			add_filter('posts_join', array(&$this, 'reOrder_query_join'), 10, 2 );
-			add_filter('posts_where', array(&$this, 'reOrder_query_where'), 10, 2 );
-			add_filter('posts_orderby', array(&$this, 'reOrder_query_orderby'), 10, 2 );
+	    if((defined('DOING_AJAX') && DOING_AJAX) || !is_admin()){
+				add_filter('posts_join', array(&$this, 'reOrder_query_join'), 10, 2 );
+				add_filter('posts_where', array(&$this, 'reOrder_query_where'), 10, 2 );
+				add_filter('posts_orderby', array(&$this, 'reOrder_query_orderby'), 10, 2 );
 	    }
 	}
 	
