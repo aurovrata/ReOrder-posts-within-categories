@@ -3,7 +3,7 @@
 Plugin Name: ReOrder Post Within Categories
 Plugin URI:   http://www.deefuse.fr/wordpress/nouveau-plugin-reorder-post-within-categories
 Description: Arrange Post and Custom Post Type through drag & drop interface of selected category (or custom taxonomies).
-Version: 1.1.6-patched-v2
+Version: 1.1.7
 Author: Aurelien Chappard
 Author URI: http://www.deefuse.fr/
 License: GPLv2
@@ -24,6 +24,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	public $custom_cat = 0;
 	public $stop_join = false;
 	
+	
 	/**
 	 * Constructor
 	 */
@@ -32,7 +33,8 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    
 	    // hook for activation
 	    register_activation_hook( __FILE__ , array(&$this, 'reOrder_install') );
-
+		//hook for new blog on multisite
+		add_action( 'wpmu_new_blog', 'multisite_new_blog', 10, 6);        
 	    // hook for desactivation
 	    register_deactivation_hook( __FILE__ , array(&$this, 'reOrder_uninstall') );
 	
@@ -137,7 +139,6 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 		$args = $table_name.".id ASC";
 		
 	    }
-	    
 	    return $args;
 	}
 	
@@ -238,29 +239,76 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	}
 	/**
 	 * Launched when the plugin is being activated
+	 * NOTE: Added multisite compatibility (wordpress.syllogic.in Dec 2015)
 	 */
-	public function reOrder_install()
-	{
-	   global $wpdb;
-	   $table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
-	   $sqlCreateTable = "CREATE TABLE IF NOT EXISTS $table_name (
-				`id` int(11) NOT NULL AUTO_INCREMENT,
-				`category_id` int(11) NOT NULL,
-				`post_id` int(11) NOT NULL,
-				`incl` tinyint(1) NOT NULL DEFAULT '1',
-				PRIMARY KEY (`id`)
-		    ) ;";
-	   require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-	   dbDelta($sqlCreateTable);
-	   
-	   add_option($this->deefuse_ReOrder_dbOptionVersionName, $this->deefuse_ReOrder_db_version);
+	public function reOrder_install($networkwide){
+		global $wpdb;  
+    if (function_exists('is_multisite') && is_multisite()) {
+        // check if it is a network activation - if so, run the activation function for each blog id
+        if ($networkwide) {
+            $old_blog = $wpdb->blogid;
+            // Get all blog ids
+            $blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+            foreach ($blogids as $blog_id) {
+                switch_to_blog($blog_id);
+                $this->_reOrder_install();
+            }
+            switch_to_blog($old_blog);
+            return;
+        }   
+    } 
+    $this->_reOrder_install();     
 	}
+		public function _reOrder_install(){
+				global $wpdb;
+				$table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
+				if ($wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'") != $table_name) {
+						$sqlCreateTable = "CREATE TABLE IF NOT EXISTS $table_name (
+							 `id` int(11) NOT NULL AUTO_INCREMENT,
+							 `category_id` int(11) NOT NULL,
+							 `post_id` int(11) NOT NULL,
+							 `incl` tinyint(1) NOT NULL DEFAULT '1',
+							 PRIMARY KEY (`id`)
+							 ) ;";
+						require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+						dbDelta($sqlCreateTable);
+				}
+				add_option($this->deefuse_ReOrder_dbOptionVersionName, $this->deefuse_ReOrder_db_version);
+		}
+ 
+		function multisite_new_blog($blog_id, $user_id, $domain, $path, $site_id, $meta ) {
+				global $wpdb;
+		 
+				if (is_plugin_active_for_network('reorder-post-within-categories/reorder-posts-within-categories.php')) {
+						$old_blog = $wpdb->blogid;
+						switch_to_blog($blog_id);
+						$this->_reOrder_install();
+						switch_to_blog($old_blog);
+				}
+		}
 	
 	/**
 	 * Launched when the plugin is being desactivated
 	 */
-	public function reOrder_uninstall()
-	{
+	 function reOrder_uninstall($networkwide){
+		global $wpdb;  
+    if (function_exists('is_multisite') && is_multisite()) {
+        // check if it is a network activation - if so, run the activation function for each blog id
+        if ($networkwide) {
+            $old_blog = $wpdb->blogid;
+            // Get all blog ids
+            $blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+            foreach ($blogids as $blog_id) {
+                switch_to_blog($blog_id);
+                $this->_reOrder_deactivate();
+            }
+            switch_to_blog($old_blog);
+            return;
+        }   
+    } 
+    $this->_reOrder_deactivate();  
+	}
+	private function _reOrder_deactivate(){
 	    global $wpdb;
 	    $table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
 
@@ -684,7 +732,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    ?>
 	    <div class="wrap">
 		<div class="icon32" id="icon-options-general"><br/></div>
-		<h2><?php _e('Trie des articles d\'une catÃ©gorie', 'deefusereorder'); ?></h2>
+		<h2><?php _e('Trie des articles d\'une catégorie', 'deefusereorder'); ?></h2>
 		<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
 		    <?php wp_nonce_field('updateOptionSettings','nounceUpdateOptionReorder'); ?>
 		    <p><?php _e("Check categories you want to sort. Once checked, lookout for the submenu in your post section to reorder each category.", "deefusereorder"); ?></p>
