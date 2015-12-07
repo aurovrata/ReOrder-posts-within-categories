@@ -29,6 +29,10 @@ It works with a selected category, each category can have different order of sam
 
 == Changelog ==
 
+= 1.2 = 
+* cleaned up, included better messages to ensure settings are saved after activation, else order menu is not shown
+* fixed a small bug
+
 = 1.1.7 = 
 * Bug fix to allow plugin to work with WP multisite network installation.
 * enable editor role access to re-order menu
