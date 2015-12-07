@@ -68,7 +68,8 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 				}
 		}
 		function admin_dashboard_notice() {
-				if(empty($this->getAdminOptions())) {
+				$options = $this->getAdminOptions();
+				if(empty($options)) {
 				?>
 				<div class="updated re_order">
 						<p><?php echo sprintf(__( 'Vous devez enregistrer <a href="%s">vos préférences <em>ReOrder Posts in Categories</em></a> au préalables.','deefusereorder' ), admin_url('options-general.php?page=reorder-posts-within-categories.php')); ?></p>
@@ -168,16 +169,16 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	 * We need to inspect all associated taxonomies
 	 * @param type $post_id
 	 */
-	public function savePost_callBack($post_id)
-	{
-		if(empty($this->getAdminOptions())) return; //order settings not saved yet
+	public function savePost_callBack($post_id){
+		$orderedSettingOptions = $this->getAdminOptions();
+		if(empty($orderedSettingOptions)) return; //order settings not saved yet
 	    //verify post is not a revision
 	    if ( !wp_is_post_revision( $post_id ) ) {
 		global $wpdb;
 		
 		$table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
 		//let's get the options first
-		$orderedSettingOptions = $this->getAdminOptions();
+		
 		// Type de post
 		$post_type = get_post_type($post_id);
 		$post_type = get_post_type_object($post_type);
