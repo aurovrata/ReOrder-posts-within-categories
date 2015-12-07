@@ -68,12 +68,13 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 				}
 		}
 		function admin_dashboard_notice() {
-				if(!empty($this->getAdminOptions())) return;
+				if(empty($this->getAdminOptions())) {
 				?>
 				<div class="updated re_order">
 						<p><?php echo sprintf(__( 'Vous devez enregistrer <a href="%s">vos préférences <em>ReOrder Posts in Categories</em></a> au préalables.','deefusereorder' ), admin_url('options-general.php?page=reorder-posts-within-categories.php')); ?></p>
 				</div>
 				<?php
+				}
 		}
 		public function reOrder_query_join($args, $wp_query){
 				
