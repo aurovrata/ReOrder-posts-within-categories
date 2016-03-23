@@ -97,8 +97,8 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 				
 				$userOrderOptionSetting = $this->getOrderedCategoriesOptions();
 				if(!empty($userOrderOptionSetting[$theID]) && $userOrderOptionSetting[$theID] == "true" && $this->stop_join == false){
-			$args .= " INNER JOIN $table_name ON ".$wpdb->posts.".ID = ".$table_name.".post_id and incl = 1  ";
-			//echo $args;
+						$args .= " INNER JOIN $table_name ON ".$wpdb->posts.".ID = ".$table_name.".post_id and incl = 1  ";
+						//echo $args;
 				}
 				
 				return $args;
@@ -111,20 +111,20 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    $queriedObj = $wp_query->get_queried_object();
 	    
 	    if (isset($queriedObj->slug) && isset($queriedObj->term_id)){
-			$category_id = $queriedObj->slug;
-			$theID = $queriedObj->term_id;
-		}else return $args;
+				$category_id = $queriedObj->slug;
+				$theID = $queriedObj->term_id;
+		  }else return $args;
 	    
 	    
 	    if(!$category_id) {
-		$category_id = $this->custom_cat;
+				$category_id = $this->custom_cat;
 	    }
 	    
 	    $userOrderOptionSetting = $this->getOrderedCategoriesOptions();
 	    if(!empty($userOrderOptionSetting[$theID]) && $userOrderOptionSetting[$theID] == "true" && $this->stop_join == false){
-		//$args .= " INNER JOIN $table_name ON ".$wpdb->posts.".ID = ".$table_name.".post_id and incl = 1  ";
-		$args .= " AND $table_name".".category_id = '".$theID."'";
-		//echo $args;
+				//$args .= " INNER JOIN $table_name ON ".$wpdb->posts.".ID = ".$table_name.".post_id and incl = 1  ";
+				$args .= " AND $table_name".".category_id = '".$theID."'";
+				//echo $args;
 	    }
 	    
 	    return $args;
@@ -537,9 +537,8 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	}
 	
 	
-	public function printOrderPage()
-	{
-	    // On rÃ©cupÃ¨re le VPT sur lequel on travaille
+	public function printOrderPage(){
+		  // On rÃ©cupÃ¨re le VPT sur lequel on travaille
 	    $page_name = $_GET['page'];
 	    $cpt_name = substr($page_name, 13, strlen($page_name));
 	    $post_type = get_post_types(array('name' => $cpt_name), 'objects');
@@ -550,55 +549,54 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    $settingsOptions = $this->getAdminOptions();
 	    
 	    // Si le formulaire a Ã©tÃ© soumis
-	    if ( !empty($_POST) && check_admin_referer('loadPostInCat', 'nounceLoadPostCat') && isset($_POST['nounceLoadPostCat']) && wp_verify_nonce($_POST['nounceLoadPostCat'],'loadPostInCat') )
-	    {
-		if (isset($_POST['cat_to_retrive']) && !empty($_POST['cat_to_retrive']) && $_POST['cat_to_retrive'] != null) {
-		    $cat_to_retrieve_post = $_POST['cat_to_retrive'];
-		    $taxonomySubmitted = $_POST['taxonomy'];
+	    if ( !empty($_POST) && check_admin_referer('loadPostInCat', 'nounceLoadPostCat') && isset($_POST['nounceLoadPostCat']) && wp_verify_nonce($_POST['nounceLoadPostCat'],'loadPostInCat') ){
+				if (isset($_POST['cat_to_retrive']) && !empty($_POST['cat_to_retrive']) && $_POST['cat_to_retrive'] != null) {
+						$cat_to_retrieve_post = $_POST['cat_to_retrive'];
+						$taxonomySubmitted = $_POST['taxonomy'];
 		    
-		    // Si il y a une catÃ©gorie
-		    if($cat_to_retrieve_post > 0)
-		    {
-			global $wpdb;
+						// Si il y a une catÃ©gorie
+						if($cat_to_retrieve_post > 0){
+								global $wpdb;
+								
+								// On sÃ©lectionne les posts trie dans notre table pour la catÃ©gorie concernÃ©.
+								$table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
+								$sql = $wpdb->prepare("select * from $table_name where category_id = '%d' order by id", $cat_to_retrieve_post);
+								$order_result = $wpdb->get_results($sql);
+								$nbResult = count($order_result);
+								
+								for($k =0 ;$k < $nbResult; ++$k) {
+										$order_result_incl[$order_result[$k]->post_id] = $order_result[$k]->incl;
+								}
 			
-			// On sÃ©lectionne les posts trie dans notre table pour la catÃ©gorie concernÃ©.
-			$table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
-			$sql = $wpdb->prepare("select * from $table_name where category_id = '%d' order by id", $cat_to_retrieve_post);
-			$order_result = $wpdb->get_results($sql);
-			$nbResult = count($order_result);
-			
-			for($k =0 ;$k < $nbResult; ++$k) {
-			    $order_result_incl[$order_result[$k]->post_id] = $order_result[$k]->incl;
-			}
-			
-			// arguments pour la requete des post de la catÃ©gory $taxonomySubmitted classÃ© dans la taxonomy d'id $category;
-			$args = array(
-				'tax_query' => array(
-						    array('taxonomy' => $taxonomySubmitted, 'operator' => 'IN', 'field' => 'id', 'terms' => $cat_to_retrieve_post)
-					    ),
-				'posts_per_page'			=> -1,
-				'post_type'       => $post_type_detail->name,
-				'orderby'            => 'title',
-				'post_status'     => 'publish',
-				'order' => 'ASC' 	
-			);
-
-
-			$this->stop_join = true;
-			$this->custom_cat = $cat_to_retrieve_post;
-			$query = new WP_Query( $args );
-			$this->stop_join = false;
-			$this->custom_cat = 0;
-			$posts_array = $query->posts;
-			
-			// CrÃ©ation d'un tableau dont les clÃ© sont les ID des posts et les valeur les posts eux-mÃªme
-			$temp_order = array();
-			for($j = 0; $j < count($posts_array); ++$j) {
-			   $temp_order[$posts_array[$j]->ID] = $posts_array[$j];
-			}
-			
-		    }
-		}
+								// arguments pour la requete des post de la catÃ©gory $taxonomySubmitted classÃ© dans la taxonomy d'id $category;
+								$args = array(
+									'tax_query' => array(
+													array('taxonomy' => $taxonomySubmitted, 'operator' => 'IN', 'field' => 'id', 'terms' => $cat_to_retrieve_post)
+												),
+									'posts_per_page'			=> -1,
+									'post_type'       => $post_type_detail->name,
+									'orderby'            => 'title',
+									'post_status'     => 'publish',
+									'order' => 'ASC' 	
+								);
+					
+								if(has_filter('reorder_post_within_category_query_args')) {
+										$args = apply_filters('reorder_post_within_category_query_args', $args);
+								}
+								$this->stop_join = true;
+								$this->custom_cat = $cat_to_retrieve_post;
+								$query = new WP_Query( $args );
+								$this->stop_join = false;
+								$this->custom_cat = 0;
+								$posts_array = $query->posts;
+								
+								// CrÃ©ation d'un tableau dont les clÃ© sont les ID des posts et les valeur les posts eux-mÃªme
+								$temp_order = array();
+								for($j = 0; $j < count($posts_array); ++$j) {
+									 $temp_order[$posts_array[$j]->ID] = $posts_array[$j];
+								}
+						}
+				}
 		
 	    }
 	    ?>
@@ -628,28 +626,23 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 
 			    // On liste maintenant les terms disponibles pour la taxonomie concernÃ©e
 			    $list_terms = get_terms( $taxonomy->name );
-			    if(count($list_terms) > 0)
-			    {
-				echo '<optgroup id="'.$taxonomy->name.'" label="'.$taxonomy->labels->name.'">';
-				    foreach ($list_terms as $term)
-				    {
-					$selected = '';
-					if( isset($cat_to_retrieve_post) && ($cat_to_retrieve_post == $term->term_id))
-					{
-					    $selected = ' selected = "selected"';
-					    $term_selected = $term->name;
-					}
-					$disabled = '';
-					if($term->count < 2){
-					    $disabled = ' disabled = "disabled"';
-					    $catDisabled = true;
-					}
-					echo '<option' . $selected . $disabled.' value="'.$term->term_id.'">' . $term->name . '</option>';
+			    if(count($list_terms) > 0){
+						echo '<optgroup id="'.$taxonomy->name.'" label="'.$taxonomy->labels->name.'">';
+				    foreach ($list_terms as $term){
+								$selected = '';
+								if( isset($cat_to_retrieve_post) && ($cat_to_retrieve_post == $term->term_id)){
+										$selected = ' selected = "selected"';
+										$term_selected = $term->name;
+								}
+								$disabled = '';
+								if($term->count < 2){
+										$disabled = ' disabled = "disabled"';
+										$catDisabled = true;
+								}
+								echo '<option' . $selected . $disabled.' value="'.$term->term_id.'">' . $term->name . '</option>';
 				    }
-				echo '</optgroup>';
+						echo '</optgroup>';
 			    }
-
-
 			}
 			echo '</select>';
 			if($catDisabled)
