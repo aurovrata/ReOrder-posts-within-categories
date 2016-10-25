@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: ReOrder Post Within Categories
-Plugin URI:   http://www.deefuse.fr/wordpress/nouveau-plugin-reorder-post-within-categories
+Plugin URI:   https://github.com/aurovrata/ReOrder-posts-within-categories/
 Description: Arrange Post and Custom Post Type through drag & drop interface of selected category (or custom taxonomies).
-Version: 1.2
-Author: Aurelien Chappard
+Version: 1.2.1
+Author: Aurélien Chappard, Aurovrata Venet
 Author URI: http://www.deefuse.fr/
 License: GPLv2
-Copyright: Aurelien Chappard
+Copyright: Aurélien Chappard
 Text Domain: deefusereorder
 Domain Path: /languages
 */
@@ -16,51 +16,51 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
     class ReOrderPostWithinCategory {
 	public $adminOptionsName = "deefuse_ReOrderSettingAdminOptions";
 	public $orderedCategoriesOptionName = "deefuse_ReOrderOrderedCategoriesOptions";
-	
+
 	public $deefuse_ReOrder_db_version = "1.0";
 	public $deefuse_ReOrder_dbOptionVersionName = "deefuse_ReOrder_db_version";
 	public $deefuse_ReOrder_tableName = "reorder_post_rel";
-	
+
 	public $custom_cat = 0;
 	public $stop_join = false;
-	
-	
+
+
 	/**
 	 * Constructor
 	 */
 		function ReOrderPostWithinCategory() {
 				load_plugin_textdomain('deefusereorder', false, basename(dirname(__FILE__)) . '/languages');
-				
+
 				// hook for activation
 				register_activation_hook( __FILE__ , array(&$this, 'reOrder_install') );
 				//hook for new blog on multisite
-				add_action( 'wpmu_new_blog', 'multisite_new_blog', 10, 6);        
+				add_action( 'wpmu_new_blog', 'multisite_new_blog', 10, 6);
 				// hook for desactivation
 				register_deactivation_hook( __FILE__ , array(&$this, 'reOrder_uninstall') );
-		
+
 				// Link to the setting page
-				$plugin = plugin_basename(__FILE__); 
+				$plugin = plugin_basename(__FILE__);
 				add_filter("plugin_action_links_$plugin", array(&$this,'display_settings_link') );
-				
+
 				//hook for notices
 				add_action( 'admin_notices', array(&$this, 'admin_dashboard_notice') );
 				//Action qui sauvegardera le paamÃ©trage du plugin
 				add_action('init', array(&$this, 'saveOptionPlugin'));
 				// Ajout de la page de paramÃ©trage du plugins
 				add_action('admin_menu', array(&$this, 'add_setting_page'));
-				
+
 				// Ajout des pages de classement des post pour les post et custom post type concernÃ©s
 				add_action('admin_menu', array(&$this, 'add_order_pages'));
-				
+
 				add_action('wp_ajax_cat_ordered_changed', array(&$this, 'cat_orderedChangeTraiment'));
 				add_action('wp_ajax_user_ordering', array(&$this, 'user_orderingTraiment'));
-				
+
 				add_action( 'save_post', array(&$this, 'savePost_callBack') );
 				add_action ('before_delete_post', array(&$this, 'deletePost_callBack'));
 				add_action ('trashed_post', array(&$this, 'deletePost_callBack'));
-				 
+
 				add_action('deleteUnecessaryEntries', array(&$this, 'deleteUnecessaryEntries_callBack'));
-				
+
 				if((defined('DOING_AJAX') && DOING_AJAX) || !is_admin()){
 					add_filter('posts_join', array(&$this, 'reOrder_query_join'), 10, 2 );
 					add_filter('posts_where', array(&$this, 'reOrder_query_where'), 10, 2 );
@@ -78,82 +78,82 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 				}
 		}
 		public function reOrder_query_join($args, $wp_query){
-				
+
 				global $wpdb;
-				
+
 				$table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
-				
+
 				$queriedObj = $wp_query->get_queried_object();
-				
+
 				if (isset($queriedObj->slug) && isset($queriedObj->term_id)){
 				$category_id = $queriedObj->slug;
 				$theID = $queriedObj->term_id;
 			}else return $args;
-				
-				
+
+
 				if(!$category_id) {
 			$category_id = $this->custom_cat;
 				}
-				
+
 				$userOrderOptionSetting = $this->getOrderedCategoriesOptions();
 				if(!empty($userOrderOptionSetting[$theID]) && $userOrderOptionSetting[$theID] == "true" && $this->stop_join == false){
 						$args .= " INNER JOIN $table_name ON ".$wpdb->posts.".ID = ".$table_name.".post_id and incl = 1  ";
 						//echo $args;
 				}
-				
+
 				return $args;
 		}
 	public function reOrder_query_where($args, $wp_query){
 	    global $wpdb;
-	    
+
 	    $table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
-	    
+
 	    $queriedObj = $wp_query->get_queried_object();
-	    
+
 	    if (isset($queriedObj->slug) && isset($queriedObj->term_id)){
 				$category_id = $queriedObj->slug;
 				$theID = $queriedObj->term_id;
 		  }else return $args;
-	    
-	    
+
+
 	    if(!$category_id) {
 				$category_id = $this->custom_cat;
 	    }
-	    
+
 	    $userOrderOptionSetting = $this->getOrderedCategoriesOptions();
 	    if(!empty($userOrderOptionSetting[$theID]) && $userOrderOptionSetting[$theID] == "true" && $this->stop_join == false){
 				//$args .= " INNER JOIN $table_name ON ".$wpdb->posts.".ID = ".$table_name.".post_id and incl = 1  ";
 				$args .= " AND $table_name".".category_id = '".$theID."'";
 				//echo $args;
 	    }
-	    
+
 	    return $args;
 	}
 	public function reOrder_query_orderby($args, $wp_query){
 	    global $wpdb;
-	    
+
 	    $table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
-	    
+
 	    $queriedObj = $wp_query->get_queried_object();
-	    
+
 		if (isset($queriedObj->slug) && isset($queriedObj->term_id)){
 			$category_id = $queriedObj->slug;
 			$theID = $queriedObj->term_id;
 		}else return $args;
-	    
+
 	    if(!$category_id) {
 		$category_id = $this->custom_cat;
 	    }
-	    
+
 	    $userOrderOptionSetting = $this->getOrderedCategoriesOptions();
 	    if(!empty($userOrderOptionSetting[$theID]) && $userOrderOptionSetting[$theID] == "true" && $this->stop_join == false){
 		$args = $table_name.".id ASC";
-		
+
 	    }
 	    return $args;
 	}
-	
-	
+
+
 	/**
 	 * When a post is deleted we remove all entries from the custom table
 	 * @param type $post_id
@@ -175,28 +175,28 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    //verify post is not a revision
 	    if ( !wp_is_post_revision( $post_id ) ) {
 		global $wpdb;
-		
+
 		$table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
 		//let's get the options first
-		
+
 		// Type de post
 		$post_type = get_post_type($post_id);
 		$post_type = get_post_type_object($post_type);
 		//echo "<h1>Enregistrement d'un article ".$post_type->name."</h1>";
 		// Liste des taxonomies associÃ©e Ã  ce post
 		$taxonomies = get_object_taxonomies($post_type->name, 'objects');
-		
+
 		if(count($taxonomies) > 0 && array_key_exists($post_type->name,$orderedSettingOptions['categories_checked'])){
 		    //echo "<p>On liste maintenant toutes les taxonomies associÃ© au post_type <strong>".$post_type->name.'</strong></p>';
 		    //echo '<ul>';
 		    $orderedSettingOptions = $orderedSettingOptions['categories_checked'][$post_type->name];
 		    // for each CPT taxonomy, look at only the hierarchical ones
 		    foreach ($taxonomies as $taxonomie){
-			
+
 			if($taxonomie->hierarchical == 1 && is_array($orderedSettingOptions) && in_array($taxonomie->name, $orderedSettingOptions)){
 			     //echo "<li>".$taxonomie->name."</li>";
 			     $terms = get_terms( $taxonomie->name );
-			     
+
 			     $terms_of_the_post = wp_get_post_terms( $post_id, $taxonomie->name );
 			     $term_ids_of_the_post = wp_list_pluck( $terms_of_the_post, 'term_id' );
 			     //echo "<pre>";
@@ -227,7 +227,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 					    }
 					}
 					else
-					{   
+					{
 					    $wpdb->query( $wpdb->prepare("DELETE FROM $table_name WHERE post_id=%d AND category_id=%d", $post_id, $term->term_id) );
 					    // Une fois supprimÃ©, on regarde combien il reste de post en base dont on trie;
 					    //S'il reste moins de deux poste, alors on le supprime
@@ -241,7 +241,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 				 }
 				 //echo "</ul>";
 			     }
-			}			
+			}
 		     }
 		     //echo '</ul>';
 		}
@@ -252,7 +252,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	 * NOTE: Added multisite compatibility (wordpress.syllogic.in Dec 2015)
 	 */
 		public function reOrder_install($networkwide){
-			global $wpdb;  
+			global $wpdb;
 			if (function_exists('is_multisite') && is_multisite()) {
 					// check if it is a network activation - if so, run the activation function for each blog id
 					if ($networkwide) {
@@ -265,9 +265,9 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 							}
 							switch_to_blog($old_blog);
 							return;
-					}   
-			} 
-			$this->_reOrder_install();     
+					}
+			}
+			$this->_reOrder_install();
 		}
 		private function _reOrder_install(){
 				global $wpdb;
@@ -285,10 +285,10 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 				}
 				add_option($this->deefuse_ReOrder_dbOptionVersionName, $this->deefuse_ReOrder_db_version);
 		}
- 
+
 		public function multisite_new_blog($blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 				global $wpdb;
-		 
+
 				if (is_plugin_active_for_network('reorder-post-within-categories/reorder-posts-within-categories.php')) {
 						$old_blog = $wpdb->blogid;
 						switch_to_blog($blog_id);
@@ -296,12 +296,12 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 						switch_to_blog($old_blog);
 				}
 		}
-	
+
 	/**
 	 * Launched when the plugin is being desactivated
 	 */
 	 public function reOrder_uninstall($networkwide){
-		global $wpdb;  
+		global $wpdb;
     if (function_exists('is_multisite') && is_multisite()) {
         // check if it is a network activation - if so, run the activation function for each blog id
         if ($networkwide) {
@@ -314,9 +314,9 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
             }
             switch_to_blog($old_blog);
             return;
-        }   
-    } 
-    $this->_reOrder_deactivate();  
+        }
+    }
+    $this->_reOrder_deactivate();
 	}
 	private function _reOrder_deactivate(){
 	    global $wpdb;
@@ -326,26 +326,26 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    $wpdb->query($sqlDropTable);
 	    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 	    dbDelta($sqlDropTable);
-	    
+
 	    delete_option($this->deefuse_ReOrder_dbOptionVersionName);
-	    
+
 	    $sqlClearOption = "delete from  wp_options where option_name like 'deefuse_ReOrder%'";
 	    $wpdb->query($sqlClearOption);
 	    dbDelta($sqlClearOption);
 	}
-	
+
 	public function user_orderingTraiment()
 	{
 	    if( !isset($_POST['deefuseNounceUserOrdering']) || !wp_verify_nonce($_POST['deefuseNounceUserOrdering'], 'nonce-UserOrderingChange') )
 		return;
-	    
+
 	    global $wpdb;
 	    $order = explode(",",$_POST['order']);
 	    $category = $_POST['category'];
-	    
+
 	    $table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
 	    $total = $wpdb->get_var( $wpdb->prepare("select count(*) as total from `$table_name` where category_id = %d", $category) );
-	    
+
 	    // if category has not been sorted as yet
 	    if($total == 0)
 	    {
@@ -372,33 +372,33 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 		    $wpdb->query($sql);
 		}
 	    }
-	    
-	    
-	    
+
+
+
 	    die();
 	}
-	
-	
+
+
 	public function cat_orderedChangeTraiment()
 	{
 	    if( !isset($_POST['deefuseNounceOrder']) || !wp_verify_nonce($_POST['deefuseNounceOrder'], 'nonce-CatOrderedChange') )
 		return;
-	    
-	    $orderedSettingOptions = $this->getOrderedCategoriesOptions();	  
+
+	    $orderedSettingOptions = $this->getOrderedCategoriesOptions();
 	    $orderedSettingOptions[$_POST['current_cat']] = $_POST['valueForManualOrder'];
 	    update_option($this->orderedCategoriesOptionName, $orderedSettingOptions);
-	    
+
 	    // Toujours laisser le die() final;
 	    die();
 	}
-	
-	
+
+
 	/**
 	 * Returns an array of admin options
 	 */
 	public function getAdminOptions() {
 	    $adminOptions = array();
-	    $settingsOptions = get_option($this->adminOptionsName); 
+	    $settingsOptions = get_option($this->adminOptionsName);
 	    if (!empty($settingsOptions)) {
 		    foreach ($settingsOptions as $key => $option)
 			    $adminOptions[$key] = $option;
@@ -406,7 +406,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    update_option($this->adminOptionsName, $adminOptions);
 	    return $adminOptions;
 	}
-	
+
 	public function getOrderedCategoriesOptions(){
 	    $orderedOptions = array();
 	    $orderedSettingOptions = get_option($this->orderedCategoriesOptionName);
@@ -417,7 +417,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    update_option($this->orderedCategoriesOptionName, $orderedOptions);
 	    return $orderedOptions;
 	}
-	
+
 	/**
 	 * Show admin pages for sorting posts
 	 * (as per settings options of plugin);
@@ -461,7 +461,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    $post_types = get_post_types( array( 'show_in_nav_menus' => true,'public'=>true, 'show_ui'=>true, 'hierarchical' => false ), 'object' );
 	    $categories_checked = $this->getAdminOptions();
 	    $categories_checked = $categories_checked['categories_checked'];
-	    
+
 	    $taxoPostToDelete = array();
 	    if( $post_types ) :
 		foreach ( $post_types as $post_type ) {
@@ -507,13 +507,13 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 		}
 
 		$sql.= ")";
-		$wpdb->query($sql);		    
+		$wpdb->query($sql);
 	    }
 
 	    $nbligne = $wpdb->get_var( "SELECT COUNT(*) FROM $table_name" );
-	    if($nbligne == 0){ 
+	    if($nbligne == 0){
 		$sql = "ALTER TABLE $table_name AUTO_INCREMENT =1";
-		$wpdb->query($sql);	
+		$wpdb->query($sql);
 	    }
 	}
 	public function saveOptionPlugin()
@@ -528,15 +528,15 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 		{
 		    $categories_checked = array();
 		}
-		
-		
+
+
 		$settingsOptions['categories_checked'] = $categories_checked;
-		
+
 		update_option($this->adminOptionsName, $settingsOptions);
 	    }
 	}
-	
-	
+
+
 	public function printOrderPage(){
 		  // On rÃ©cupÃ¨re le VPT sur lequel on travaille
 	    $page_name = $_GET['page'];
@@ -544,30 +544,30 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    $post_type = get_post_types(array('name' => $cpt_name), 'objects');
 	    $post_type_detail  = $post_type[$cpt_name];
 	    unset($post_type, $page_name, $cpt_name);
-	    
+
 	    // On charge les prÃ©fÃ©rences
 	    $settingsOptions = $this->getAdminOptions();
-	    
+
 	    // Si le formulaire a Ã©tÃ© soumis
 	    if ( !empty($_POST) && check_admin_referer('loadPostInCat', 'nounceLoadPostCat') && isset($_POST['nounceLoadPostCat']) && wp_verify_nonce($_POST['nounceLoadPostCat'],'loadPostInCat') ){
 				if (isset($_POST['cat_to_retrive']) && !empty($_POST['cat_to_retrive']) && $_POST['cat_to_retrive'] != null) {
 						$cat_to_retrieve_post = $_POST['cat_to_retrive'];
 						$taxonomySubmitted = $_POST['taxonomy'];
-		    
+
 						// Si il y a une catÃ©gorie
 						if($cat_to_retrieve_post > 0){
 								global $wpdb;
-								
+
 								// On sÃ©lectionne les posts trie dans notre table pour la catÃ©gorie concernÃ©.
 								$table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
 								$sql = $wpdb->prepare("select * from $table_name where category_id = '%d' order by id", $cat_to_retrieve_post);
 								$order_result = $wpdb->get_results($sql);
 								$nbResult = count($order_result);
-								
+
 								for($k =0 ;$k < $nbResult; ++$k) {
 										$order_result_incl[$order_result[$k]->post_id] = $order_result[$k]->incl;
 								}
-			
+
 								// arguments pour la requete des post de la catÃ©gory $taxonomySubmitted classÃ© dans la taxonomy d'id $category;
 								$args = array(
 									'tax_query' => array(
@@ -577,9 +577,9 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 									'post_type'       => $post_type_detail->name,
 									'orderby'            => 'title',
 									'post_status'     => 'publish',
-									'order' => 'ASC' 	
+									'order' => 'ASC'
 								);
-					
+
 								if(has_filter('reorder_post_within_category_query_args')) {
 										$args = apply_filters('reorder_post_within_category_query_args', $args);
 								}
@@ -589,7 +589,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 								$this->stop_join = false;
 								$this->custom_cat = 0;
 								$posts_array = $query->posts;
-								
+
 								// CrÃ©ation d'un tableau dont les clÃ© sont les ID des posts et les valeur les posts eux-mÃªme
 								$temp_order = array();
 								for($j = 0; $j < count($posts_array); ++$j) {
@@ -597,7 +597,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 								}
 						}
 				}
-		
+
 	    }
 	    ?>
 	    <div class="wrap">
@@ -606,12 +606,12 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 		<p>
 		    <?php echo sprintf(__('Sélectionner une catégorie pour trier les articles de type <b>%s</b>. ','deefusereorder'), $post_type_detail->labels->name);?>
 		</p>
-		
+
 		<form method="post" id="chooseTaxomieForm">
 		<?php
 		    wp_nonce_field('loadPostInCat','nounceLoadPostCat');
 		    $listCategories = $settingsOptions['categories_checked'][$post_type_detail->name];
-		    
+
 		    $taxonomies= '';
 		    $taxonomy= '';
 		    $term_selected = '';
@@ -622,7 +622,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 			$catDisabled = false;
 			foreach($listCategories as $categorie){
 			    $taxonomies = get_taxonomies(array('name'=> $categorie), 'object');
-			    $taxonomy = $taxonomies[$categorie]; 
+			    $taxonomy = $taxonomies[$categorie];
 
 			    // On liste maintenant les terms disponibles pour la taxonomie concernÃ©e
 			    $list_terms = get_terms( $taxonomy->name );
@@ -647,7 +647,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 			echo '</select>';
 			if($catDisabled)
 			    echo '<br/><span class="description">' . __("Les catégories grisées ne sont pas accessibles au tri car elle ne contiennent pas assez d'articles pour le moment. ","deefusereorder") .'</span>';
-			    
+
 			$valueTaxonomyField = ( isset($taxonomySubmitted) ? $taxonomySubmitted : '' );
 			echo '<input type="hidden" id="taxonomyHiddenField" name="taxonomy" value="'.$valueTaxonomyField.'"/>';
 		    }
@@ -662,7 +662,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 			echo '<div id="sorter_box">';
 			    echo '<h3>' . __('Utiliser le tri manuel pour cette catégorie ?', 'deefusereorder') .'</h3>';
 			    echo '<div id="catOrderedRadioBox">';
-				
+
 				// on regarde si un des radio est cochÃ©
 				$checkedRadio1 = '';
 				$checkedRadio2 = ' checked = "checked"';
@@ -672,40 +672,40 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 				    $checkedRadio1 = $checkedRadio2;
 				    $checkedRadio2 = '';
 				}
-				 
+
 				echo '<label for="yes"><input type="radio"'.$checkedRadio1.' class="option_order" id="yes" value="true" name="useForThisCat"/> <span>'.__('Oui', 'deefusereorder').'</span></label><br/>';
 				echo '<label for="no"><input type="radio"'.$checkedRadio2.' class="option_order" id="no" value="false" name="useForThisCat"/> <span>'.__('Non', 'deefusereorder').'</span></label>';
 				echo '<input type="hidden" name="termID" id="termIDCat" value="'.$cat_to_retrieve_post.'">';
 				echo '<span class="spinner" id="spinnerAjaxRadio"></span>';
 			    echo '</div>';
-			   
+
 			    echo '<h3 class="floatLeft">' . sprintf(__('Listes des articles de type "%s", classé dans la catégorie "%s" :', 'deefusereorder'), $post_type_detail->labels->name, $term_selected) . '</h3>';
 			    echo '<span id="spinnerAjaxUserOrdering" class="spinner"></span><div class="clearBoth"></div>';
 			echo '<ul id="sortable-list" class="order-list" rel ="'.$cat_to_retrieve_post.'">';
-		    
+
 			// On liste les posts du tableau $posts_array pour le trie
 			for($i = 0; $i < count( $order_result); ++$i) {
 			    $post_id = $order_result[$i]->post_id;
 			    $post = $temp_order[$post_id];
 			    unset($temp_order[$post_id]);
 			    $od = $order_result_incl[$post->ID];
-			    
+
 			    echo '<li id="'.$post->ID.'">';
 			    echo '<span class="title">'.$post->post_title.'</span>';
 			    echo '</li>';
 			}
-			
+
 			// On liste maintenant les posts qu'il reste et qui ne sont pas encore dans notre table
 			foreach($temp_order as $temp_order_id => $temp_order_post) {
 			    $post_id = $temp_order_id;
 			    $post = $temp_order_post;
-			    
+
 			    echo '<li id="'.$post->ID.'">';
 			    echo '<span class="title">'.$post->post_title.'</span>';
 			    echo '</li>';
-			    
+
 			}
-			
+
 			echo "</ul>";
 			echo '</div>';
 			echo '</div>';
@@ -713,14 +713,14 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 		?>
 		</form>
 		<div id="debug">
-		    
+
 		</div>
 	    </div>
 	    <?php
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function printAdminPage()
 	{
@@ -743,14 +743,14 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 		    <?php
 			// On liste tout les post_types
 			$post_types = get_post_types( array( 'show_in_nav_menus' => true,'public'=>true, 'show_ui'=>true, 'hierarchical' => false ), 'object' );
-			if( $post_types ) :			    
+			if( $post_types ) :
 			    // Pour chaque post_type, on regarde s'il y a des taxonomies associÃ©es
 			    foreach ( $post_types as $post_type ) {
 			       $taxonomies = get_object_taxonomies($post_type->name, 'objects');
 			       if(count($taxonomies) > 0)
 			       {
 				    echo "<strong>" . $post_type->labels->menu_name . "</strong>";
-				   
+
 				    // Pour chaque taxonomie associÃ© au CPT, on ne liste que celles qui ont la propriÃ©tÃ© hierarchical Ã©gale Ã  1 (ie comme les catÃ©gorie)
 				    foreach ($taxonomies as $taxonomie)
 				    {
@@ -765,9 +765,9 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 					    }
 					    echo '<p>&nbsp;&nbsp;<label><input type="checkbox"'.$ischecked.' value="'.$taxonomie->name.'" name="selection['.$post_type->name.'][]"> '. $taxonomie->labels->name .'</label></p>';
 					}
-					
+
 				    }
-				   
+
 			       }
 			    }
 			    echo '<p class="submit"><input id="submit" class="button button-primary" type="submit" value="'.__('Autoriser le tri pour les catégories cochées', 'deefusereorder').'" name="submit"/>';
@@ -777,7 +777,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    </div>
 	    <?php
 	}
-	
+
 	/**
 	 * Add an option page link for the administrator only
 	 */
@@ -787,20 +787,20 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 		add_options_page(__('ReOrder Post within Categories', 'deefusereorder'), __('ReOrder Post', 'deefusereorder'), 'manage_options', basename(__FILE__), array(&$this, 'printAdminPage'));
 	    }
 	}
-	
+
 	/**
 	 * Dispplay a link to setting page inside the plugin description
 	 */
 	public function display_settings_link($links)
 	{
-	    $settings_link = '<a href="options-general.php?page=reorder-posts-within-categories.php">' . __('Paramètres', 'deefusereorder') . '</a>'; 
-	    array_unshift($links, $settings_link); 
+	    $settings_link = '<a href="options-general.php?page=reorder-posts-within-categories.php">' . __('Paramètres', 'deefusereorder') . '</a>';
+	    array_unshift($links, $settings_link);
 	    return $links;
 	}
-			
+
     }
-    
-    
+
+
     /* Instantiate the plugin */
     $ReOrderPostWithinCategory_instance = new ReOrderPostWithinCategory();
 }

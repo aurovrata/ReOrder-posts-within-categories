@@ -1,9 +1,9 @@
 === Plugin Name ===
 Tags: order, reorder, re order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies
 Requires at least: 3.4
-Tested up to: 3.5
-Stable tag: 1.1.7
-License: GPLv2 
+Tested up to: 4.6
+Stable tag: 1.2.1
+License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Sort Post and Custom Post Type through drag & drop interface of selected category (or custom selected taxonomies).
@@ -27,13 +27,28 @@ It works with a selected category, each category can have different order of sam
 1. Plugin page settings
 2. Re-order your post through a drag & drop interface
 
+== FAQ ==
+
+= Modify the reorder category query =
+
+A filter allows you to hook into the query of the categories before your reorder them in the dashboard.  This is useful is you want to order parent terms and not children.  WP taxonomy query by default include children terms, which will show up in the order list.  So by excluding them you are able to only order the parent terms,
+`
+add_filter('reorder_post_within_category_query_args', 'exclude_children');
+function exclude_children($args) {
+    $args['tax_query'][0]['include_children']=false;
+    return $args;
+}`
+
 == Changelog ==
 
-= 1.2 = 
+= 1.2.1 =
+* added filter 'reorder_post_within_category_query_args'
+
+= 1.2 =
 * cleaned up, included better messages to ensure settings are saved after activation, else order menu is not shown
 * fixed a small bug
 
-= 1.1.7 = 
+= 1.1.7 =
 * Bug fix to allow plugin to work with WP multisite network installation.
 * enable editor role access to re-order menu
 * fixed some languages translation issues
