@@ -1,4 +1,5 @@
 === Plugin Name ===
+Contributors: aurelien, aurovrata
 Tags: order, reorder, re order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies
 Requires at least: 3.4
 Tested up to: 4.6
@@ -31,7 +32,7 @@ It works with a selected category, each category can have different order of sam
 
 = Modify the reorder category query =
 
-A filter allows you to hook into the query of the categories before your reorder them in the dashboard.  This is useful is you want to order parent terms and not children.  WP taxonomy query by default include children terms, which will show up in the order list.  So by excluding them you are able to only order the parent terms,
+A filter allows you to hook into the query of the posts before your reorder them in the dashboard.  This is useful is you want to order parent terms posts and not children.  WP post category query by default include post from children terms, which will show up in the order list.  So by excluding them you are able to order only the posts of parent terms,
 `
 add_filter('reorder_post_within_category_query_args', 'exclude_children');
 function exclude_children($args) {
