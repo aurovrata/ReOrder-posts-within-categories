@@ -28,7 +28,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	/**
 	 * Constructor
 	 */
-		function ReOrderPostWithinCategory() {
+		function __construct() {
 				load_plugin_textdomain('deefusereorder', false, basename(dirname(__FILE__)) . '/languages');
 
 				// hook for activation
