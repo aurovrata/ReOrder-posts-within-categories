@@ -3,7 +3,7 @@
 Plugin Name: ReOrder Post Within Categories
 Plugin URI:   https://github.com/aurovrata/ReOrder-posts-within-categories/
 Description: Arrange Post and Custom Post Type through drag & drop interface of selected category (or custom taxonomies).
-Version: 1.2.1
+Version: 1.2.2
 Author: Aurélien Chappard, Aurovrata Venet
 Author URI: http://www.deefuse.fr/
 License: GPLv2
@@ -427,23 +427,24 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    //On liste toutes les catÃ©gorie dont on veut avoir la main sur le trie
 	    $settingsOptions = $this->getAdminOptions();
 
-	    //On liste tous les Post Type et leur catÃ©gorie associÃ©
-	    $post_types = get_post_types( array( 'show_in_nav_menus' => true, 'hierarchical' => false ), 'object' );
-	    if( $post_types ) :
-		// Pour chaque post_type, on regarde s'il y a des options de trie associÃ©
-		foreach ( $post_types as $post_type ) {
-		    if (isset($settingsOptions['categories_checked'][$post_type->name])){
-			if($post_type->name != "post"){
-			    $the_page =  add_submenu_page('edit.php?post_type='.$post_type->name, 'Re-order', 'Reorder', 'manage_categories', 're-orderPost-'.$post_type->name, array(&$this,'printOrderPage'));
-			}
-			else
-			{
-			    $the_page = add_submenu_page( 'edit.php', 'Re-order', 'Reorder', 'manage_categories', 're-orderPost-'.$post_type->name, array(&$this,'printOrderPage'));
-			}
-			add_action('admin_head-'. $the_page, array(&$this,'myplugin_admin_header'));
-		    }
-		}
-	    endif;
+
+  		// Pour chaque post_type, on regarde s'il y a des options de trie associÃ©
+      //debug_msg($settingsOptions);
+  		foreach ( $settingsOptions['categories_checked'] as $post_type=>$taxonomies) {
+        switch($post_type){
+  	      case 'attachment':
+            $the_page = add_submenu_page( 'upload.php', 'Re-order', 'Reorder', 'manage_categories', 're-orderPost-'.$post_type, array(&$this,'printOrderPage'));
+            break;
+          case 'post':
+  	        $the_page = add_submenu_page( 'edit.php', 'Re-order', 'Reorder', 'manage_categories', 're-orderPost-'.$post_type, array(&$this,'printOrderPage'));
+            break;
+          default:
+            $the_page =  add_submenu_page('edit.php?post_type='.$post_type, 'Re-order', 'Reorder', 'manage_categories', 're-orderPost-'.$post_type, array(&$this,'printOrderPage'));
+            break;
+	      }
+		    add_action('admin_head-'. $the_page, array(&$this,'myplugin_admin_header'));
+  		}
+
 	}
 	public function myplugin_admin_header()
 	{
@@ -580,9 +581,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 									'order' => 'ASC'
 								);
 
-								if(has_filter('reorder_post_within_category_query_args')) {
-										$args = apply_filters('reorder_post_within_category_query_args', $args);
-								}
+								$args = apply_filters('reorder_post_within_category_query_args', $args);
 								$this->stop_join = true;
 								$this->custom_cat = $cat_to_retrieve_post;
 								$query = new WP_Query( $args );
@@ -611,7 +610,6 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 		<?php
 		    wp_nonce_field('loadPostInCat','nounceLoadPostCat');
 		    $listCategories = $settingsOptions['categories_checked'][$post_type_detail->name];
-
 		    $taxonomies= '';
 		    $taxonomy= '';
 		    $term_selected = '';
@@ -742,13 +740,31 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 		    <h3><?php _e("Types d'articles disponibles :", "deefusereorder"); ?></h3>
 		    <?php
 			// On liste tout les post_types
-			$post_types = get_post_types( array( 'show_in_nav_menus' => true,'public'=>true, 'show_ui'=>true, 'hierarchical' => false ), 'object' );
+			//$post_types = get_post_types( array( 'show_in_nav_menus' => true,'public'=>true, 'show_ui'=>true, 'hierarchical' => false ), 'object' );
+      /**
+      * improve the post selection, select post with taxobnomies only
+      * @since 1.2.2
+      */
+      $args = array(
+        'show_ui' => true,
+        // '_builtin' => false
+      );
+	    $post_types = get_post_types( $args, 'object' );
 			if( $post_types ) :
 			    // Pour chaque post_type, on regarde s'il y a des taxonomies associÃ©es
 			    foreach ( $post_types as $post_type ) {
 			       $taxonomies = get_object_taxonomies($post_type->name, 'objects');
-			       if(count($taxonomies) > 0)
-			       {
+			       if(empty($taxonomies)) continue; //no taxonomies to order post in terms.
+             else{
+               $taxonomy_ui = false;
+               foreach($taxonomies as $taxonomy){
+                 if($taxonomy->show_ui){
+                   $taxonomy_ui = true;
+                 }
+               }
+               if(!$taxonomy_ui) continue; //no taxonomies to oder post in terms.
+             }
+
 				    echo "<strong>" . $post_type->labels->menu_name . "</strong>";
 
 				    // Pour chaque taxonomie associÃ© au CPT, on ne liste que celles qui ont la propriÃ©tÃ© hierarchical Ã©gale Ã  1 (ie comme les catÃ©gorie)
@@ -768,7 +784,6 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 
 				    }
 
-			       }
 			    }
 			    echo '<p class="submit"><input id="submit" class="button button-primary" type="submit" value="'.__('Autoriser le tri pour les catégories cochées', 'deefusereorder').'" name="submit"/>';
 			endif;

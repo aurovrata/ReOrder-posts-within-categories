@@ -2,8 +2,8 @@
 Contributors: aurelien, aurovrata
 Tags: order, reorder, re order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies
 Requires at least: 3.4
-Tested up to: 4.6
-Stable tag: 1.2.1
+Tested up to: 4.7
+Stable tag: 1.2.2
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,17 +30,19 @@ It works with a selected category, each category can have different order of sam
 
 == FAQ ==
 
-= Modify the reorder category query =
+= My Custom Post type isn't listed in the settings page =
+By default the plugin allows you to order posts that are shown in the dashboard menu (else you can't oder them), and are non-hierarchical. eg pages.  This is because by default pages don't have categories.  However, some uses have custom posts types that are hierarchical as well as having custom taxonomy.  Therefore they expect their post to appear and it doesn't.  To overcome this, a new filter has been added in v1.2.2 which allows to filter posts that are hierarchical as well,
 
-A filter allows you to hook into the query of the posts before your reorder them in the dashboard.  This is useful is you want to order parent terms posts and not children.  WP post category query by default include post from children terms, which will show up in the order list.  So by excluding them you are able to order only the posts of parent terms,
+`add_filter('reorder_post_within_category_query_custom_post', 'show_my_posts');
+function show_my_posts($query_args){
+  $query_args['hierarchical'] = true;
+  return $query_args;
+}
 `
-add_filter('reorder_post_within_category_query_args', 'exclude_children');
-function exclude_children($args) {
-    $args['tax_query'][0]['include_children']=false;
-    return $args;
-}`
-
+Keep in mind that you will now see `Pages` as a post type to re-order, selecting such post types which do not have any categories associated with it.
 == Changelog ==
+= 1.2.2 =
+* improved custom post selection in settings
 
 = 1.2.1 =
 * added filter 'reorder_post_within_category_query_args'
