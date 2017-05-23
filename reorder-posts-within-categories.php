@@ -768,9 +768,9 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 				    echo "<strong>" . $post_type->labels->menu_name . "</strong>";
 
 				    // Pour chaque taxonomie associÃ© au CPT, on ne liste que celles qui ont la propriÃ©tÃ© hierarchical Ã©gale Ã  1 (ie comme les catÃ©gorie)
-				    foreach ($taxonomies as $taxonomie)
-				    {
-					if($taxonomie->hierarchical == 1)
+				    foreach ($taxonomies as $taxonomie){
+              if(!$taxonomie->show_ui) continue;
+					if( $taxonomie->hierarchical == 1 || apply_filters('reorder_post_within_categories_and_tags', false))
 					{
 					    $ischecked = '';
 					    if(isset($settingsOptions['categories_checked'][$post_type->name])){
