@@ -29,7 +29,8 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	 * Constructor
 	 */
 		function __construct() {
-				load_plugin_textdomain('deefusereorder', false, basename(dirname(__FILE__)) . '/languages');
+				load_plugin_textdomain('deefusereorder', false, plugin_basename( __DIR__ ) . '/languages');
+
 
 				// hook for activation
 				register_activation_hook( __FILE__ , array(&$this, 'reOrder_install') );
@@ -427,7 +428,7 @@ if( !class_exists('ReOrderPostWithinCategory') ) {
 	    //On liste toutes les catÃ©gorie dont on veut avoir la main sur le trie
 	    $settingsOptions = $this->getAdminOptions();
 
-
+      if(!isset($settingsOptions['categories_checked'])) return;
   		// Pour chaque post_type, on regarde s'il y a des options de trie associÃ©
       //debug_msg($settingsOptions);
   		foreach ( $settingsOptions['categories_checked'] as $post_type=>$taxonomies) {
