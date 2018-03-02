@@ -16,6 +16,8 @@ Sort Post and Custom Post Type through drag & drop interface of selected categor
 ReOrder Post Within Categories is used to sort posts (and custom post type) in any custom order by drag & drop interface.
 It works with a selected category, each category can have different order of same post.
 
+= Thanks to =
+[Nikita Spivak](https://wordpress.org/support/users/nikitasp/) for the Russian translation.
 
 == Installation ==
 
@@ -62,6 +64,8 @@ function enable_editors($capability, $post_type){
 if an unknown capability is returned, the plugin will default back to 'manage_categories' which is an administrator's capability.
 
 == Changelog ==
+= 1.4.0 =
+* added russian locale.
 =1.3.0=
 * added filter to change capability of reorder post submenu access.
 =1.2.3=
