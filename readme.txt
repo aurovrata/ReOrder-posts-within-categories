@@ -2,7 +2,7 @@
 Contributors: aurelien, aurovrata
 Tags: order, reorder, re order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies
 Requires at least: 3.4
-Tested up to: 4.8.1
+Tested up to: 4.9.4
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
