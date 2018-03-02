@@ -43,7 +43,7 @@ function exclude_children($args) {
 = I want to order posts in non-hierarchical taxonomies (tags) =
 By default the plugin allows you to order posts only within hierarchical taxonomies (categories).  This is done as a means to ensure one doesn't have spurious orders as allowing both tags and category ordering could lead to users trying to order a post in both and this would create issues which have not been tested by this author.  Hence tread with caution if you enable this in your functions.php file,
 
-`add_filter('reorder_post_within_categories_and_tags', '__return__false');`
+`add_filter('reorder_post_within_categories_and_tags', '__return__true');`
 
 Keep in mind that you will now see `Pages` as a post type to re-order, selecting such post types which do not have any categories associated with it.
 
