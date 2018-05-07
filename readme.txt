@@ -2,7 +2,7 @@
 Contributors: aurelien, aurovrata
 Tags: order, reorder, re order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies
 Requires at least: 3.4
-Tested up to: 4.9.4
+Tested up to: 4.9.5
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -64,6 +64,8 @@ function enable_editors($capability, $post_type){
 if an unknown capability is returned, the plugin will default back to 'manage_categories' which is an administrator's capability.
 
 == Changelog ==
+= 1.4.1 =
+* changed text-domain to include plugin in translate.wordpress.org.
 = 1.4.0 =
 * added russian locale.
 =1.3.0=
