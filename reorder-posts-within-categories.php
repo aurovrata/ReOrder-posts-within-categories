@@ -31,15 +31,17 @@ if (!class_exists('ReOrderPostWithinCategory')) {
          */
         public function __construct()
         {
-            load_plugin_textdomain('reorder-post-within-categories', false, basename(dirname(__FILE__)) . '/languages');
+            add_action('init', function(){
+                load_plugin_textdomain('reorder-post-within-categories', false, basename(dirname(__FILE__)) . '/languages');
+            });
 
-            // hook for activation
-            register_activation_hook(__FILE__, array(&$this, 'reOrder_install'));
+
             //hook for new blog on multisite
             add_action('wpmu_new_blog', 'multisite_new_blog', 10, 6);
             // hook for desactivation
             register_deactivation_hook(__FILE__, array(&$this, 'reOrder_uninstall'));
-
+            // hook for activation
+            register_activation_hook(__FILE__, array(&$this, 'reOrder_install'));
             // Link to the setting page
             $plugin = plugin_basename(__FILE__);
             add_filter("plugin_action_links_$plugin", array(&$this,'display_settings_link'));
