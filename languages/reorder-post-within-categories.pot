@@ -1,0 +1,97 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ReOrder Post in Categories\n"
+"POT-Creation-Date: 2018-03-02 22:07+0530\n"
+"PO-Revision-Date: 2018-03-02 22:07+0530\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.6\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: _e(;__(;__;_e\n"
+"X-Poedit-SearchPath-0: reorder-posts-within-categories.php\n"
+
+#: reorder-posts-within-categories.php:78
+#, php-format
+msgid ""
+"Vous devez enregistrer <a href=\"%s\">vos préférences <em>ReOrder Posts in "
+"Categories</em></a> au préalables."
+msgstr ""
+
+#: reorder-posts-within-categories.php:629
+#, php-format
+msgid "Tri des articles de type \"%s\""
+msgstr ""
+
+#: reorder-posts-within-categories.php:631
+#, php-format
+msgid "Sélectionner une catégorie pour trier les articles de type <b>%s</b>. "
+msgstr ""
+
+#: reorder-posts-within-categories.php:671
+msgid ""
+"Les catégories grisées ne sont pas accessibles au tri car elle ne "
+"contiennent pas assez d'articles pour le moment. "
+msgstr ""
+
+#: reorder-posts-within-categories.php:683
+msgid "Utiliser le tri manuel pour cette catégorie ?"
+msgstr ""
+
+#: reorder-posts-within-categories.php:695
+msgid "Oui"
+msgstr ""
+
+#: reorder-posts-within-categories.php:696
+msgid "Non"
+msgstr ""
+
+#: reorder-posts-within-categories.php:701
+#, php-format
+msgid "Listes des articles de type \"%s\", classé dans la catégorie \"%s\" :"
+msgstr ""
+
+#: reorder-posts-within-categories.php:746
+msgid "Options enregistrées."
+msgstr ""
+
+#: reorder-posts-within-categories.php:746
+msgid ""
+"Vous pouvez retrouver maintenant dans le menu principal pour chaque type "
+"d'article, une page pour re-ordonner vos éléments à l'intérieur de chaque "
+"catégorie."
+msgstr ""
+
+#: reorder-posts-within-categories.php:752
+msgid "Trie des articles d'une catégorie"
+msgstr ""
+
+#: reorder-posts-within-categories.php:755
+msgid ""
+"Cocher les catégories dont vous voulez trier manuellement les articles. Une "
+"fois que vous aurez coché et validé ces informations, un nouveau menu "
+"apparaîtra dans chaque type de post concerné."
+msgstr ""
+
+#: reorder-posts-within-categories.php:756
+msgid "Types d'articles disponibles :"
+msgstr ""
+
+#: reorder-posts-within-categories.php:806
+msgid "Autoriser le tri pour les catégories cochées"
+msgstr ""
+
+#: reorder-posts-within-categories.php:819
+msgid "ReOrder Post within Categories"
+msgstr ""
+
+#: reorder-posts-within-categories.php:819
+msgid "ReOrder Post"
+msgstr ""
+
+#: reorder-posts-within-categories.php:828
+msgid "Paramètres"
+msgstr ""

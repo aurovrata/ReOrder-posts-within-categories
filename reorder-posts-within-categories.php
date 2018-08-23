@@ -3,7 +3,7 @@
 Plugin Name: ReOrder Post Within Categories
 Plugin URI:   https://github.com/aurovrata/ReOrder-posts-within-categories/
 Description: Arrange Post and Custom Post Type through drag & drop interface of selected category (or custom taxonomies).
-Version: 1.4.0
+Version: 1.5.0
 Author: Aurélien Chappard, Aurovrata Venet
 Author URI: http://www.deefuse.fr/
 License: GPLv2
@@ -32,7 +32,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
         public function __construct()
         {
             add_action('init', function(){
-                load_plugin_textdomain('reorder-post-within-categories', false, basename(dirname(__FILE__)) . '/languages');
+                load_plugin_textdomain('reorder-post-within-categories', false,  'reorder-post-within-categories/languages/');
             });
 
 
@@ -312,29 +312,29 @@ if (!class_exists('ReOrderPostWithinCategory')) {
         }
 
         /**
-         * Launched when the plugin is being desactivated
-         */
-        public function reOrder_uninstall($networkwide)
-        {
-            global $wpdb;
-            if (function_exists('is_multisite') && is_multisite()) {
-                // check if it is a network activation - if so, run the activation function for each blog id
-                if ($networkwide) {
-                    $old_blog = $wpdb->blogid;
-                    // Get all blog ids
-                    $blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
-                    foreach ($blogids as $blog_id) {
-                        switch_to_blog($blog_id);
-                        $this->_reOrder_deactivate();
-                    }
-                    switch_to_blog($old_blog);
-                    return;
-                }
+        * Launched when the plugin is being desactivated
+        */
+        public function reOrder_uninstall($networkwide){
+          global $wpdb;
+          if (function_exists('is_multisite') && is_multisite()) {
+            // check if it is a network activation - if so, run the activation function for each blog id
+            if ($networkwide) {
+              $old_blog = $wpdb->blogid;
+              // Get all blog ids
+              $blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+              foreach ($blogids as $blog_id) {
+                switch_to_blog($blog_id);
+                $this->_reOrder_deactivate();
+              }
+              switch_to_blog($old_blog);
+              return;
             }
-            $this->_reOrder_deactivate();
+          }
+          $this->_reOrder_deactivate();
         }
-        private function _reOrder_deactivate()
-        {
+        private function _reOrder_deactivate(){
+          $delete_data = apply_filters('reorder_post_within_categories_delete_custom_table', false);
+          if($delete_data){
             global $wpdb;
             $table_name = $wpdb->prefix . $this->deefuse_ReOrder_tableName;
 
@@ -348,6 +348,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
             $sqlClearOption = "delete from  wp_options where option_name like 'deefuse_ReOrder%'";
             $wpdb->query($sqlClearOption);
             dbDelta($sqlClearOption);
+          }
         }
 
         public function user_orderingTraiment()
@@ -441,46 +442,45 @@ if (!class_exists('ReOrderPostWithinCategory')) {
          * Show admin pages for sorting posts
          * (as per settings options of plugin);
          */
-        public function add_order_pages()
-        {
-            //On liste toutes les catÃ©gorie dont on veut avoir la main sur le trie
-            $settingsOptions = $this->getAdminOptions();
+        public function add_order_pages(){
+          //On liste toutes les catÃ©gorie dont on veut avoir la main sur le trie
+          $settingsOptions = $this->getAdminOptions();
 
-            if (!isset($settingsOptions['categories_checked'])) {
-                return;
-            }
-            // Pour chaque post_type, on regarde s'il y a des options de trie associÃ©
-            //debug_msg($settingsOptions);
-
-            foreach ($settingsOptions['categories_checked'] as $post_type=>$taxonomies) {
-                /**
-                *filter to allow other capabilities for managing orders.
-                * @since 1.3.0
-                **/
-                $cabability = apply_filters('reorder_post_within_categories_capability', 'manage_categories', $post_type);
-                if('manage_categories'!== $cabability){ //validate capability.
-                    $roles = wp_roles();
-                    $is_valid=false;
-                    foreach($roles as $role){
-                        if(in_array($capability, $role['capabilities'])){
-                            $is_valid=true;
-                            break;
-                        }
-                    }
-                    if(!$is_valid) $cabability = 'manage_categories';
-                }
-                switch ($post_type) {
-          case 'attachment':
-            $the_page = add_submenu_page('upload.php', 'Re-order', 'Reorder', $cabability, 're-orderPost-'.$post_type, array(&$this,'printOrderPage'));
-            break;
-          case 'post':
-            $the_page = add_submenu_page('edit.php', 'Re-order', 'Reorder', $cabability, 're-orderPost-'.$post_type, array(&$this,'printOrderPage'));
-            break;
-          default:
-            $the_page =  add_submenu_page('edit.php?post_type='.$post_type, 'Re-order', 'Reorder', $cabability, 're-orderPost-'.$post_type, array(&$this,'printOrderPage'));
-            break;
+          if (!isset($settingsOptions['categories_checked'])) {
+              return;
           }
-                add_action('admin_head-'. $the_page, array(&$this,'myplugin_admin_header'));
+          // Pour chaque post_type, on regarde s'il y a des options de trie associÃ©
+          //debug_msg($settingsOptions);
+
+          foreach ($settingsOptions['categories_checked'] as $post_type=>$taxonomies) {
+            /**
+            *filter to allow other capabilities for managing orders.
+            * @since 1.3.0
+            **/
+            $capability = apply_filters('reorder_post_within_categories_capability', 'manage_categories', $post_type);
+            if('manage_categories'!== $capability){ //validate capability.
+                $roles = wp_roles();
+                $is_valid=false;
+                foreach($roles->roles as $role){
+                    if(in_array($capability, $role['capabilities'])){
+                        $is_valid=true;
+                        break;
+                    }
+                }
+                if(!$is_valid) $capability = 'manage_categories';
+            }
+            switch ($post_type) {
+              case 'attachment':
+                $the_page = add_submenu_page('upload.php', 'Re-order', 'Reorder', $capability, 're-orderPost-'.$post_type, array(&$this,'printOrderPage'));
+                break;
+              case 'post':
+                $the_page = add_submenu_page('edit.php', 'Re-order', 'Reorder', $capability, 're-orderPost-'.$post_type, array(&$this,'printOrderPage'));
+                break;
+              default:
+                $the_page =  add_submenu_page('edit.php?post_type='.$post_type, 'Re-order', 'Reorder', $capability, 're-orderPost-'.$post_type, array(&$this,'printOrderPage'));
+                break;
+              }
+              add_action('admin_head-'. $the_page, array(&$this,'myplugin_admin_header'));
             }
         }
         public function myplugin_admin_header()

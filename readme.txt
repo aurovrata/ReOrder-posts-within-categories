@@ -2,7 +2,7 @@
 Contributors: aurelien, aurovrata
 Tags: order, reorder, re order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies
 Requires at least: 3.4
-Tested up to: 4.9.5
+Tested up to: 4.9.8
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -49,7 +49,7 @@ By default the plugin allows you to order posts only within hierarchical taxonom
 
 Keep in mind that you will now see `Pages` as a post type to re-order, selecting such post types which do not have any categories associated with it.
 
-= I want liimt/enable roles that can re-order posts =
+= I want limit/enable roles that can re-order posts =
 
 Since v1.3.0 a new filter has been added that allows you to do that.  Make sure you return a [valid capability](https://codex.wordpress.org/Roles_and_Capabilities#Capabilities),
 
@@ -63,7 +63,15 @@ function enable_editors($capability, $post_type){
 }`
 if an unknown capability is returned, the plugin will default back to 'manage_categories' which is an administrator's capability.
 
+= I am uninstalling this plugin, how do I removed the custom table data ? =
+You can now flag the custom sql table to be deleted when you disable the plugin from your dashboard with the following filter,
+` add-filter('reorder_post_within_categories_delete_custom_table', '__return__true')`
+
 == Changelog ==
+= 1.5.0 =
+* fixed capability bug.
+* added filter to delete custom sql table when uninstalling.
+
 = 1.4.1 =
 * changed text-domain to include plugin in translate.wordpress.org.
 = 1.4.0 =
