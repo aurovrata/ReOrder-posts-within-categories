@@ -2,7 +2,7 @@
 Contributors: aurelien, aurovrata
 Tags: order, reorder, re order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies
 Requires at least: 3.4
-Tested up to: 4.9.8
+Tested up to: 5.0.3
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -68,6 +68,8 @@ You can now flag the custom sql table to be deleted when you disable the plugin 
 ` add-filter('reorder_post_within_categories_delete_custom_table', '__return__true')`
 
 == Changelog ==
+= 1.6.0 =
+* added term query filter 'reorder_post_within_category_taxonomy_term_query_args'
 = 1.5.0 =
 * fixed capability bug.
 * added filter to delete custom sql table when uninstalling.

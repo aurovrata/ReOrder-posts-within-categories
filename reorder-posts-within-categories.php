@@ -3,7 +3,7 @@
 Plugin Name: ReOrder Post Within Categories
 Plugin URI:   https://github.com/aurovrata/ReOrder-posts-within-categories/
 Description: Arrange Post and Custom Post Type through drag & drop interface of selected category (or custom taxonomies).
-Version: 1.5.0
+Version: 1.6.0
 Author: Aurélien Chappard, Aurovrata Venet
 Author URI: http://www.deefuse.fr/
 License: GPLv2
@@ -649,7 +649,10 @@ if (!class_exists('ReOrderPostWithinCategory')) {
                     $taxonomy = $taxonomies[$categorie];
 
                     // On liste maintenant les terms disponibles pour la taxonomie concernÃ©e
-                    $list_terms = get_terms($taxonomy->name);
+                    /** @since 1.5.0 allow term query to be filtered.*/
+                    $term_query = array('taxonomy'=>$taxonomy->name);
+                    $term_query = apply_filters('reorder_post_within_category_taxonomy_term_query_args', $term_query, $taxonomy->name);
+                    $list_terms = get_terms($term_query);
                     if (count($list_terms) > 0) {
                         echo '<optgroup id="'.$taxonomy->name.'" label="'.$taxonomy->labels->name.'">';
                         foreach ($list_terms as $term) {
