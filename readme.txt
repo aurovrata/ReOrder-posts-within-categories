@@ -65,9 +65,11 @@ if an unknown capability is returned, the plugin will default back to 'manage_ca
 
 = I am uninstalling this plugin, how do I removed the custom table data ? =
 You can now flag the custom sql table to be deleted when you disable the plugin from your dashboard with the following filter,
-` add-filter('reorder_post_within_categories_delete_custom_table', '__return__true')`
-
+` add_filter('reorder_post_within_categories_delete_custom_table', '__return__true')`
+note that this filter is fired when you disable the plugin in the dashboard.  So make sure it is activated when you set this filter.
 == Changelog ==
+= 1.7.0 =
+* introduce admin post link in order list.
 = 1.6.0 =
 * added term query filter 'reorder_post_within_category_taxonomy_term_query_args'
 = 1.5.0 =

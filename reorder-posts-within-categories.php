@@ -3,7 +3,7 @@
 Plugin Name: ReOrder Post Within Categories
 Plugin URI:   https://github.com/aurovrata/ReOrder-posts-within-categories/
 Description: Arrange Post and Custom Post Type through drag & drop interface of selected category (or custom taxonomies).
-Version: 1.6.0
+Version: 1.7.0
 Author: Aurélien Chappard, Aurovrata Venet
 Author URI: http://www.deefuse.fr/
 License: GPLv2
@@ -715,7 +715,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
                     $od = $order_result_incl[$post->ID];
 
                     echo '<li id="'.$post->ID.'">';
-                    echo '<span class="title">'.$post->post_title.'</span>';
+                    echo '<span class="title"><a href="'.admin_url('post.php?post='.$post_id.'&action=edit').'">'.$post->post_title.'</a></span>';
                     echo '</li>';
                 }
 
@@ -725,7 +725,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
                     $post = $temp_order_post;
 
                     echo '<li id="'.$post->ID.'">';
-                    echo '<span class="title">'.$post->post_title.'</span>';
+                    echo '<span class="title"><a href="'.admin_url('post.php?post='.$post_id.'&action=edit').'">'.$post->post_title.'</a></span>';
                     echo '</li>';
                 }
 
