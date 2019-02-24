@@ -672,7 +672,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
                 }
                 echo '</select>';
                 if ($catDisabled) {
-                    echo '<br/><span class="description">' . __('Gray-colored categories contain too few posts and aren’t available for sorting.', "reorder-post-within-categories") .'</span>';
+                    echo '<br/><span class="description">' . __('Greyed-out categories contain too few posts and aren’t available for sorting.', "reorder-post-within-categories") .'</span>';
                 }
 
                 $valueTaxonomyField = (isset($taxonomySubmitted) ? $taxonomySubmitted : '');
@@ -748,7 +748,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
         {
             if (!empty($_POST) && check_admin_referer('updateOptionSettings', 'nounceUpdateOptionReorder') && wp_verify_nonce($_POST['nounceUpdateOptionReorder'], 'updateOptionSettings')) {
                 do_action("deleteUnecessaryEntries"); ?>
-		<div class="updated"><p><strong><?php _e("Options saved.", "reorder-post-within-categories"); ?></strong> <?php _e("Vous pouvez retrouver maintenant dans le menu principal pour chaque type d'article, une page pour re-ordonner vos éléments à l'intérieur de chaque catégorie.", "reorder-post-within-categories"); ?></p></div>
+		<div class="updated"><p><strong><?php _e("Options saved.", "reorder-post-within-categories"); ?></strong> <?php _e("A sub-menu is now placed under each post type menu in your dashbaord to access the sorting page.", "reorder-post-within-categories"); ?></p></div>
 		<?php
             }
             $settingsOptions = $this->getAdminOptions(); ?>
@@ -757,7 +757,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
 		<h2><?php _e('Re-Order Posts within category', 'reorder-post-within-categories'); ?></h2>
 		<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
 		    <?php wp_nonce_field('updateOptionSettings', 'nounceUpdateOptionReorder'); ?>
-		    <p><?php _e("Select the categories you want to manually sort the items. Once you have checked and confirmed this information, a new menu will appear in each post type concerned.", "reorder-post-within-categories"); ?></p>
+		    <p><?php _e("Select the categories you want to manually sort the items. Once you have checked and confirmed this information, a sub-menu will appear under each post type menu.", "reorder-post-within-categories"); ?></p>
 		    <h3><?php _e("Post Types available:", "reorder-post-within-categories"); ?></h3>
 		    <?php
             // On liste tout les post_types
