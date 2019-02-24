@@ -70,6 +70,8 @@ You can now flag the custom sql table to be deleted when you disable the plugin 
 note that this filter is fired when you disable the plugin in the dashboard.  So make sure it is activated when you set this filter.
 
 == Changelog ==
+= 1.8.1 =
+* english corrections.
 = 1.8.0 =
 * I18N: Changed language of translatable strings in the code to en_US. Inline code comments are still in French.
 = 1.7.0 =
