@@ -5,9 +5,8 @@ Plugin URI:   https://github.com/aurovrata/ReOrder-posts-within-categories/
 Description: Arrange Post and Custom Post Type through drag & drop interface of selected category (or custom taxonomies).
 Version: 1.8.0
 Author: Aurélien Chappard, Aurovrata Venet
-Author URI: http://www.deefuse.fr/
+Author URI: https://profiles.wordpress.org/aurovrata/
 License: GPLv2
-Copyright: Aurélien Chappard
 Text Domain: reorder-post-within-categories
 Domain Path: /languages
 */

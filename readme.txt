@@ -18,6 +18,7 @@ It works with a selected category, each category can have different order of sam
 
 = Thanks to =
 [Nikita Spivak](https://wordpress.org/support/users/nikitasp/) for the Russian translation.
+[Tor-Bjorn Fjellner](https://profiles.wordpress.org/tobifjellner/) for the swedish translation and i18n clean-up.
 
 == Installation ==
 
@@ -67,6 +68,7 @@ if an unknown capability is returned, the plugin will default back to 'manage_ca
 You can now flag the custom sql table to be deleted when you disable the plugin from your dashboard with the following filter,
 ` add_filter('reorder_post_within_categories_delete_custom_table', '__return__true')`
 note that this filter is fired when you disable the plugin in the dashboard.  So make sure it is activated when you set this filter.
+
 == Changelog ==
 = 1.8.0 =
 * I18N: Changed language of translatable strings in the code to en_US. Inline code comments are still in French.
