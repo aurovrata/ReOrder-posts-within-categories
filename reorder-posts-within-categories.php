@@ -3,7 +3,7 @@
 Plugin Name: ReOrder Post Within Categories
 Plugin URI:   https://github.com/aurovrata/ReOrder-posts-within-categories/
 Description: Arrange Post and Custom Post Type through drag & drop interface of selected category (or custom taxonomies).
-Version: 1.7.0
+Version: 1.8.0
 Author: Aurélien Chappard, Aurovrata Venet
 Author URI: http://www.deefuse.fr/
 License: GPLv2
@@ -77,7 +77,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
             if (empty($options)) {
                 ?>
 				<div class="updated re_order">
-						<p><?php echo sprintf(__('Vous devez enregistrer <a href="%s">vos préférences <em>ReOrder Posts in Categories</em></a> au préalables.', 'reorder-post-within-categories'), admin_url('options-general.php?page=reorder-posts-within-categories.php')); ?></p>
+						<p><?php echo sprintf(__('First of all, you need to <a href="%s">save your settings for <em>ReOrder Posts in Categories</em></a>.', 'reorder-post-within-categories'), admin_url('options-general.php?page=reorder-posts-within-categories.php')); ?></p>
 				</div>
 				<?php
             }
@@ -628,9 +628,9 @@ if (!class_exists('ReOrderPostWithinCategory')) {
             } ?>
 	    <div class="wrap">
 	    	<div class="icon32 icon32-posts-<?php echo $post_type_detail->name; ?>" id="icon-edit"><br></div>
-		<h2><?php echo sprintf(__('Tri des articles de type "%s"', 'reorder-post-within-categories'), $post_type_detail->labels->menu_name); ?></h2>
+		<h2><?php echo sprintf(__('Sort items such as "%s"', 'reorder-post-within-categories'), $post_type_detail->labels->menu_name); ?></h2>
 		<p>
-		    <?php echo sprintf(__('Sélectionner une catégorie pour trier les articles de type <b>%s</b>. ', 'reorder-post-within-categories'), $post_type_detail->labels->name); ?>
+		    <?php echo sprintf(__('Select a category to sort the items of type <b>%s</b>.', 'reorder-post-within-categories'), $post_type_detail->labels->name); ?>
 		</p>
 
 		<form method="post" id="chooseTaxomieForm">
@@ -673,7 +673,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
                 }
                 echo '</select>';
                 if ($catDisabled) {
-                    echo '<br/><span class="description">' . __("Les catégories grisées ne sont pas accessibles au tri car elle ne contiennent pas assez d'articles pour le moment. ", "reorder-post-within-categories") .'</span>';
+                    echo '<br/><span class="description">' . __('Gray-colored categories contain too few posts and aren’t available for sorting.', "reorder-post-within-categories") .'</span>';
                 }
 
                 $valueTaxonomyField = (isset($taxonomySubmitted) ? $taxonomySubmitted : '');
@@ -685,7 +685,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
             if (isset($posts_array)) {
                 echo '<div id="result">';
                 echo '<div id="sorter_box">';
-                echo '<h3>' . __('Utiliser le tri manuel pour cette catégorie ?', 'reorder-post-within-categories') .'</h3>';
+                echo '<h3>' . __('Use the manual sorting for this category?', 'reorder-post-within-categories') .'</h3>';
                 echo '<div id="catOrderedRadioBox">';
 
                 // on regarde si un des radio est cochÃ©
@@ -697,13 +697,14 @@ if (!class_exists('ReOrderPostWithinCategory')) {
                     $checkedRadio2 = '';
                 }
 
-                echo '<label for="yes"><input type="radio"'.$checkedRadio1.' class="option_order" id="yes" value="true" name="useForThisCat"/> <span>'.__('Oui', 'reorder-post-within-categories').'</span></label><br/>';
-                echo '<label for="no"><input type="radio"'.$checkedRadio2.' class="option_order" id="no" value="false" name="useForThisCat"/> <span>'.__('Non', 'reorder-post-within-categories').'</span></label>';
+                echo '<label for="yes"><input type="radio"'.$checkedRadio1.' class="option_order" id="yes" value="true" name="useForThisCat"/> <span>'.__('Yes', 'reorder-post-within-categories').'</span></label><br/>';
+				// translators: Opposite of Yes
+                echo '<label for="no"><input type="radio"'.$checkedRadio2.' class="option_order" id="no" value="false" name="useForThisCat"/> <span>'.__('No', 'reorder-post-within-categories').'</span></label>';
                 echo '<input type="hidden" name="termID" id="termIDCat" value="'.$cat_to_retrieve_post.'">';
                 echo '<span class="spinner" id="spinnerAjaxRadio"></span>';
                 echo '</div>';
 
-                echo '<h3 class="floatLeft">' . sprintf(__('Listes des articles de type "%s", classé dans la catégorie "%s" :', 'reorder-post-within-categories'), $post_type_detail->labels->name, $term_selected) . '</h3>';
+                echo '<h3 class="floatLeft">' . sprintf(__('List of "%s" posts, classified as "%s":', 'reorder-post-within-categories'), $post_type_detail->labels->name, $term_selected) . '</h3>';
                 echo '<span id="spinnerAjaxUserOrdering" class="spinner"></span><div class="clearBoth"></div>';
                 echo '<ul id="sortable-list" class="order-list" rel ="'.$cat_to_retrieve_post.'">';
 
@@ -748,17 +749,17 @@ if (!class_exists('ReOrderPostWithinCategory')) {
         {
             if (!empty($_POST) && check_admin_referer('updateOptionSettings', 'nounceUpdateOptionReorder') && wp_verify_nonce($_POST['nounceUpdateOptionReorder'], 'updateOptionSettings')) {
                 do_action("deleteUnecessaryEntries"); ?>
-		<div class="updated"><p><strong><?php _e("Options enregistrées.", "reorder-post-within-categories"); ?></strong> <?php _e("Vous pouvez retrouver maintenant dans le menu principal pour chaque type d'article, une page pour re-ordonner vos éléments à l'intérieur de chaque catégorie.", "reorder-post-within-categories"); ?></p></div>
+		<div class="updated"><p><strong><?php _e("Options saved.", "reorder-post-within-categories"); ?></strong> <?php _e("Vous pouvez retrouver maintenant dans le menu principal pour chaque type d'article, une page pour re-ordonner vos éléments à l'intérieur de chaque catégorie.", "reorder-post-within-categories"); ?></p></div>
 		<?php
             }
             $settingsOptions = $this->getAdminOptions(); ?>
 	    <div class="wrap">
 		<div class="icon32" id="icon-options-general"><br/></div>
-		<h2><?php _e('Trie des articles d\'une catégorie', 'reorder-post-within-categories'); ?></h2>
+		<h2><?php _e('Re-Order Posts within category', 'reorder-post-within-categories'); ?></h2>
 		<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
 		    <?php wp_nonce_field('updateOptionSettings', 'nounceUpdateOptionReorder'); ?>
-		    <p><?php _e("Cocher les catégories dont vous voulez trier manuellement les articles. Une fois que vous aurez coché et validé ces informations, un nouveau menu apparaîtra dans chaque type de post concerné.", "reorder-post-within-categories"); ?></p>
-		    <h3><?php _e("Types d'articles disponibles :", "reorder-post-within-categories"); ?></h3>
+		    <p><?php _e("Select the categories you want to manually sort the items. Once you have checked and confirmed this information, a new menu will appear in each post type concerned.", "reorder-post-within-categories"); ?></p>
+		    <h3><?php _e("Post Types available:", "reorder-post-within-categories"); ?></h3>
 		    <?php
             // On liste tout les post_types
             //$post_types = get_post_types( array( 'show_in_nav_menus' => true,'public'=>true, 'show_ui'=>true, 'hierarchical' => false ), 'object' );
@@ -808,7 +809,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
                         }
                     }
                 }
-            echo '<p class="submit"><input id="submit" class="button button-primary" type="submit" value="'.__('Autoriser le tri pour les catégories cochées', 'reorder-post-within-categories').'" name="submit"/>';
+            echo '<p class="submit"><input id="submit" class="button button-primary" type="submit" value="'.__('Allow sorting for selected categories', 'reorder-post-within-categories').'" name="submit"/>';
             endif; ?>
 		</form>
 	    </div>
@@ -830,7 +831,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
          */
         public function display_settings_link($links)
         {
-            $settings_link = '<a href="options-general.php?page=reorder-posts-within-categories.php">' . __('Paramètres', 'reorder-post-within-categories') . '</a>';
+            $settings_link = '<a href="options-general.php?page=reorder-posts-within-categories.php">' . __('Settings', 'reorder-post-within-categories') . '</a>';
             array_unshift($links, $settings_link);
             return $links;
         }
