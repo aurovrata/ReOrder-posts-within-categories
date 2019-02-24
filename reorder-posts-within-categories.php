@@ -748,7 +748,7 @@ if (!class_exists('ReOrderPostWithinCategory')) {
         {
             if (!empty($_POST) && check_admin_referer('updateOptionSettings', 'nounceUpdateOptionReorder') && wp_verify_nonce($_POST['nounceUpdateOptionReorder'], 'updateOptionSettings')) {
                 do_action("deleteUnecessaryEntries"); ?>
-		<div class="updated"><p><strong><?php _e("Options saved.", "reorder-post-within-categories"); ?></strong> <?php _e("A sub-menu is now placed under each post type menu in your dashbaord to access the sorting page.", "reorder-post-within-categories"); ?></p></div>
+		<div class="updated"><p><strong><?php _e("Options saved.", "reorder-post-within-categories"); ?></strong> <?php _e("A sub-menu is now placed under each post type menu in your dashboard to access the sorting page.", "reorder-post-within-categories"); ?></p></div>
 		<?php
             }
             $settingsOptions = $this->getAdminOptions(); ?>
