@@ -2,7 +2,7 @@
 Contributors: aurelien, aurovrata
 Tags: order, reorder, re order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies
 Requires at least: 3.4
-Tested up to: 5.0.3
+Tested up to: 5.2.0
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -33,7 +33,7 @@ It works with a selected category, each category can have different order of sam
 2. Re-order your post through a drag & drop interface
 
 == FAQ ==
-= Modify the reorder category query =
+= 1.Modify the reorder category query =
 
 A filter allows you to hook into the query of the posts before your reorder them in the dashboard.  This is useful is you want to order parent terms posts and not children.  WP post category query by default include post from children terms, which will show up in the order list.  So by excluding them you are able to order only the posts of parent terms,
 `
@@ -43,14 +43,14 @@ function exclude_children($args) {
     return $args;
 }`
 
-= I want to order posts in non-hierarchical taxonomies (tags) =
+= 2.I want to order posts in non-hierarchical taxonomies (tags) =
 By default the plugin allows you to order posts only within hierarchical taxonomies (categories).  This is done as a means to ensure one doesn't have spurious orders as allowing both tags and category ordering could lead to users trying to order a post in both and this would create issues which have not been tested by this author.  Hence tread with caution if you enable this in your functions.php file,
 
 `add_filter('reorder_post_within_categories_and_tags', '__return__true');`
 
 Keep in mind that you will now see `Pages` as a post type to re-order, selecting such post types which do not have any categories associated with it.
 
-= I want limit/enable roles that can re-order posts =
+= 3.I want limit/enable roles that can re-order posts =
 
 Since v1.3.0 a new filter has been added that allows you to do that.  Make sure you return a [valid capability](https://codex.wordpress.org/Roles_and_Capabilities#Capabilities),
 
@@ -64,12 +64,33 @@ function enable_editors($capability, $post_type){
 }`
 if an unknown capability is returned, the plugin will default back to 'manage_categories' which is an administrator's capability.
 
-= I am uninstalling this plugin, how do I removed the custom table data ? =
+= 4.I am uninstalling this plugin, how do I removed the custom table data ? =
 You can now flag the custom sql table to be deleted when you disable the plugin from your dashboard with the following filter,
 ` add_filter('reorder_post_within_categories_delete_custom_table', '__return__true')`
 note that this filter is fired when you disable the plugin in the dashboard.  So make sure it is activated when you set this filter.
 
+= 5.Can newly published posts be ranked first rather than last? =
+Yes, as of v2.0 newly published posts can be ranked first instead of last by default using the follwoing filter,
+
+`add-filter('reorder_post_within_categories_new_post_first', 'rank_new_posts', 10, 3);
+function rank_new_posts($is_first, $post, $term){
+    $is_first = true;
+    //you can filter by taxonomy term, or other post parameters.
+    //WP_Post $post;
+    //WP_Term $term.
+    return $is_first;
+}
+`
+NOTE: the post-type must already have a manual ranking for that category term for this hook to fire.  TO ensure this, go to the post ReOrder admin page, select the category term and manually order a couple of post, this is enough to ensure this hook fires.  Even if you have the manual ranking radio-toggle to 'No', this hook will still fire.
+
 == Changelog ==
+= 2.0.0 =
+* complete re-write of the plugin file structure.
+* removal of custom DB table, post rank is now saved as a postmeta key.
+* addition of a new filter 'reorder_post_within_categories_new_post_first' to allow new posts to be ranked first instead of last by default.
+* proper handling of post_type for order ranking.
+
+
 = 1.8.1 =
 * english corrections.
 = 1.8.0 =
