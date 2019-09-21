@@ -2,25 +2,50 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
- ul.order-list{
-
+ h3.floatLeft {margin-bottom: 0}
+ .display-block{display:block}
+p.instructions, p#range-text {margin:2px 0;}
+ .manual-order {
+   position: absolute;
  }
- ul.order-list li{
- 	background: #FFF;
- 	display: block;
- 	border: 1px solid #D6D6D6;
- 	padding: 5px 5px;
- 	cursor: ns-resize;
- }
- ul.order-list li.ui-sortable-placeholder{
- 	background: #E4E4E4;
- 	visibility: visible !important;
- }
-
- ul.order-list li .title{
- 	font-weight: bold;
- 	text-decoration: none;
- }
+ span.error{color:red}
+div.sortable-items {
+  width: 150px;
+  height: 150px;
+  display: inline-block;
+  margin: 10px;
+  border: 1px solid gray;
+  padding: 2px;
+  position: relative;
+  background-color: white;
+}
+div.sortable-items.selected{
+  border: 2px solid #206bef;
+  box-shadow: 0px 0px 9px 0px #144bbec7;
+}
+.sortable-items img {
+    max-width: 150px;
+}
+.manual-order input[type="number"] {
+  max-width: 75px;
+  display: none;
+}
+input.input-range {
+  max-width: 75px;
+}
+.sortable-items .title{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 2px;
+  background-color: #091242bf;
+  width: 150px;
+  min-height: 18px;
+}
+.sortable-items .title a {
+  color: white;
+  text-decoration: none;
+}
  #catOrderedRadioBox{
  	width: 90px;
 

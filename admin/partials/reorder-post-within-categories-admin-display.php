@@ -68,9 +68,11 @@
   ?>
 		<input type="hidden" id="taxonomyHiddenField" name="taxonomy" value="<?=$valueTaxonomyField?>"/>
   <?php endif;//if (count($listCategories) > 0).?>
-</form>
-<form id="form_result" method="post">
+	</form>
+	<form id="form_result" method="post">
 <?php if (isset($posts_array)):?>
+  <input id="post-type" type="hidden" name="post-type" value="<?=$post_type_detail->name?>">
+
 	<div id="result">
 		<div id="sorter_box">
 			<h3><?= __('Use the manual sorting for this category?', 'reorder-post-within-categories')?></h3>
@@ -97,34 +99,42 @@
 					<input type="hidden" name="termID" id="termIDCat" value="<?=$cat_to_retrieve_post?>">
 					<span class="spinner" id="spinnerAjaxRadio"></span>
 				</div>
-				<h3 class="floatLeft"><?=sprintf( __('List of "%s" posts, classified as "%s":', 'reorder-post-within-categories'), $post_type_detail->labels->name, $term_selected)?></h3>
+				<h3 class="floatLeft"><?=sprintf( __('Grid of %s, classified as %s:', 'reorder-post-within-categories'), $post_type_detail->labels->name, $term_selected)?></h3>
 				<span id="spinnerAjaxUserOrdering" class="spinner"></span>
 				<div class="clearBoth"></div>
-				<ul id="sortable-list" class="order-list" rel ="<?=$cat_to_retrieve_post?>">
+				<p id="range-text">
+					<span class="title"><?=__('Post range:')?></span>
+					<input id="range-min" min="1" max="<?=$total -1?>" class="input-range" type="number">&#8212;<input id="range-max" max="<?=$total?>" min="<?=$total -1?>"  class="input-range" type="number"/>
+					<span id="remove-items" style="display:none">
+						<label for="insert-order"><?= __('Move items to rank:','reorder-post-within-categories')?>
+							<input type="number" min="1" max="<?=$total?>" name="insert-order" value=""/>
+						</label><span class="error"></span>
+						<span class="display-block"><?= __('Select single/multiple items to move out of the current displayed range and insert towards the beginning or end of your list by selecting a suitable rank','reorder-post-within-categories')?></span>
+					</span>
+				</p>
+				<div id="slider-range" data-max="<?=$total?>"></div>
+        <p class="instructions"><?= sprintf(__('<em>Use</em> %s <em>and/or</em> %s keys to select multiple items.','reorder-post-within-categories'),'<strong>CTRL</strong>','<strong>SHIFT</strong>')?></p>
+				<div id="sortable-list" class="order-list" rel ="<?=$cat_to_retrieve_post?>" data-count="<?=$total?>">
 					<?php
-					// On liste les posts du tableau $posts_array pour le trie
-					foreach ($ranking as $post_id):
-						$post = $temp_order[$post_id];
-						unset($temp_order[$post_id]);?>
+					foreach ($ranking as $idx=>$post_id):
+						$post = $posts[$post_id];
+						$img = get_the_post_thumbnail_url( $post, 'thumbnail' );
+						if(!$img) $img = plugin_dir_url(__DIR__).'../assets/logo.png';
+						?>
 
-					<li id="<?=$post_id?>">
-					 <span class="title">
-						 <a href="<?=admin_url('post.php?post='.$post_id.'&action=edit')?>"><?=$post->post_title?></a>
-					 </span>
-					</li>
-				<?php endforeach;
-					// On liste maintenant les posts qu'il reste et qui ne sont pas encore dans notre table
-					foreach ($temp_order as $post_id => $post) :?>
-	  			<li id="<?=$post_id?>">
-	  				<span class="title">
-	            <a href="<?= admin_url('post.php?post='.$post_id.'&action=edit')?>"><?=$post->post_title?></a>
-	          </span>
-				  </li>
-		<?php endforeach;?>
-				</ul>
+					<div data-id="<?=$post_id?>" class="sortable-items">
+						<img src="<?=$img?>">
+					 	<span class="title">
+						 	<a href="<?=admin_url('post.php?post='.$post_id.'&action=edit')?>">
+								<?=apply_filters('reorder_posts_within_category_card_text',get_the_title($post), $post, $cat_to_retrieve_post)?>
+							</a>
+					 	</span>
+				</div>
+	 <?php	endforeach;?>
 			</div>
 		</div>
+	</div>
 <?php endif; ?>
-	</form>
-	<div id="debug"></div>
+</form>
+<div id="debug"></div>
 </div>

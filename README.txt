@@ -1,6 +1,7 @@
 === Plugin Name ===
-Contributors: aurelien, aurovrata
-Tags: order, reorder, re order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies
+Contributors: aurovrata, aurelien
+Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
+Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 3.4
 Tested up to: 5.2.0
 Requires PHP: 5.6
@@ -15,6 +16,8 @@ Sort Post and Custom Post Type through drag & drop interface of selected categor
 
 ReOrder Post Within Categories is used to sort posts (and custom post type) in any custom order by drag & drop interface.
 It works with a selected category, each category can have different order of same post.
+
+New enhanced **version 2.0** with grid-layout and multi-drag itnerface to ease sorting of large list of posts.  Makes use of [SortableJS](https://sortablejs.github.io/Sortable/) plugin.  If you are using this plugin for a commercial website, please consider making a donation to the authors of the SortableJS plugin to continue its development.
 
 = Thanks to =
 [Nikita Spivak](https://wordpress.org/support/users/nikitasp/) for the Russian translation.
@@ -83,13 +86,70 @@ function rank_new_posts($is_first, $post, $term){
 `
 NOTE: the post-type must already have a manual ranking for that category term for this hook to fire.  TO ensure this, go to the post ReOrder admin page, select the category term and manually order a couple of post, this is enough to ensure this hook fires.  Even if you have the manual ranking radio-toggle to 'No', this hook will still fire.
 
+= 6. Is it possible to customise the text on the sortable cards? =
+Yes. On v2+ of this plugin, the sortable cards are now displaying the thumbnail of each posts along with the title.  The title text can be changed or added to in case you require additional meta fields to be displayed to help you manually rank your posts.  To achieve this, hook the following filter,
+`
+add_filter ('reorder_posts_within_category_card_text', 'custom_card_text', 10,3 );
+function custom_card_text($text, $post,$term_id){
+  //the $text is set to the title fo the post by default.
+  //$post is the WP_Post object.
+  //$term_id is the taxonomy term being sorted.
+  $text = '<div>'.$text.'</div><div>'.get_post_meta($post->ID, 'custom-field', true).'</div>';
+  return $text;
+}
+`
+= 7. The intial order of post is chronolical, can it be changed? =
+Yes, by default the first time you manually sort your posts, they will be presented in the same order as your post table, namely by post data.  There are 3 possible alternative default order you can set,
+ 1. reverse chronogical by hooking this filter,
+`
+add_filter('reorder_posts_within_category_initial_order', 'reverse_order', 10, 3);
+function reverse_order($reverse, $post_type, $term_id){
+  //$reverse is a boolean flag.
+  //$post_type for the current posts being ranked.
+  //$term_id of the taxonomy term for which the posts are being ranked.
+  return true;
+}
+`
+ 2. by alphabetical title order, using the following hook,
+`
+add_filter('reorder_posts_within_category_initial_orderby', 'chronoligcal_or_alaphabetical_order', 10, 3);
+function chronoligcal_or_alaphabetical_order($is_chrono, $post_type, $term_id){
+  //$is_chrono is a boolean flag.
+  //$post_type for the current posts being ranked.
+  //$term_id of the taxonomy term for which the posts are being ranked.
+  return true;
+}
+`
+ 3. or by reverse alphabetical title order, using both of the above hooks,
+`
+add_filter('reorder_posts_within_category_initial_order', 'reverse_order', 10, 3);
+function reverse_order($reverse, $post_type, $term_id){
+  //$reverse is a boolean flag.
+  //$post_type for the current posts being ranked.
+  //$term_id of the taxonomy term for which the posts are being ranked.
+  return true;
+}
+add_filter('reorder_posts_within_category_initial_orderby', 'chronoligcal_or_alaphabetical_order', 10, 3);
+function chronoligcal_or_alaphabetical_order($is_chrono, $post_type, $term_id){
+  //$is_chrono is a boolean flag.
+  //$post_type for the current posts being ranked.
+  //$term_id of the taxonomy term for which the posts are being ranked.
+  return true;
+}
+`
+
 == Changelog ==
 = 2.0.0 =
 * complete re-write of the plugin file structure.
 * removal of custom DB table, post rank is now saved as a postmeta key.
 * addition of a new filter 'reorder_post_within_categories_new_post_first' to allow new posts to be ranked first instead of last by default.
 * proper handling of post_type for order ranking.
-
+* ability to reset/delete data from settings page.
+* added filter 'reorder_posts_within_category_card_text'.
+* added filter 'reorder_posts_within_category_initial_orderby'.
+* added filter 'reorder_posts_within_category_initial_order'.
+* using sortableJS plugin for Grid layout using multi-grid sorting for large lists.
+* additiona of thumbnails on sortable cards for better visual representation of posts.
 
 = 1.8.1 =
 * english corrections.

@@ -56,7 +56,7 @@ class Reorder_Post_Within_Categories {
 	 * @var      string    $version    The current version of the plugin.
 	 */
 	protected $version;
-		
+
 	/**
 	 * Define the core functionality of the plugin.
 	 *
@@ -171,7 +171,9 @@ class Reorder_Post_Within_Categories {
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_order_pages');
 
 		$this->loader->add_action('wp_ajax_cat_ordered_changed', $plugin_admin, 'category_order_change');
-		$this->loader->add_action('wp_ajax_user_ordering', $plugin_admin, 'save_order');
+    $this->loader->add_action('wp_ajax_user_ordering', $plugin_admin, 'save_order');
+    $this->loader->add_action('wp_ajax_user_shuffle', $plugin_admin, 'shuffle_order');
+		$this->loader->add_action('wp_ajax_get_more_posts', $plugin_admin, 'load_posts');
 
 		$this->loader->add_action('transition_post_status', $plugin_admin, 'save_post', 10, 3);
 		$this->loader->add_action('before_delete_post', $plugin_admin, 'unrank_post');
