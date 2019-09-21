@@ -17,7 +17,7 @@ Sort Post and Custom Post Type through drag & drop interface of selected categor
 ReOrder Post Within Categories is used to sort posts (and custom post type) in any custom order by drag & drop interface.
 It works with a selected category, each category can have different order of same post.
 
-New enhanced **version 2.0** with grid-layout and multi-drag itnerface to ease sorting of large list of posts.  Makes use of [SortableJS](https://sortablejs.github.io/Sortable/) plugin.  If you are using this plugin for a commercial website, please consider making a donation to the authors of the SortableJS plugin to continue its development.
+New enhanced **version 2.0** with grid-layout and multi-drag interface to ease sorting of large list of posts.  Makes use of [SortableJS](https://sortablejs.github.io/Sortable/) plugin.  If you are using this plugin for a commercial website, please consider making a donation to the authors of the SortableJS plugin to continue its development.
 
 = Thanks to =
 [Nikita Spivak](https://wordpress.org/support/users/nikitasp/) for the Russian translation.
@@ -32,8 +32,8 @@ New enhanced **version 2.0** with grid-layout and multi-drag itnerface to ease s
 
 == Screenshots ==
 
-1. Plugin page settings
-2. Re-order your post through a drag & drop interface
+1. Plugin page settings, if you uninstall this plugin for good, delete all data using this settings page first before deactivating the plugin.
+2. Re-order your post through a drag & drop grid-layout interface with multi-select capabilities.  For large sets of posts, a range slider will appear allowing you to view your posts in sub-sets by moving the slider range accordingly and sorting posts in smaller more manageable groups.  You can also multi-select the posts and enter a rank value to which you want to send those selected posts too.  For example, if you are sorting posts between the ranks fo 100 and 150 and you want to send 3 posts to the beginning of the order, simply select them and enter 1 in the rank input field and press enter.
 
 == FAQ ==
 = 1.Modify the reorder category query =
@@ -73,7 +73,7 @@ You can now flag the custom sql table to be deleted when you disable the plugin 
 note that this filter is fired when you disable the plugin in the dashboard.  So make sure it is activated when you set this filter.
 
 = 5.Can newly published posts be ranked first rather than last? =
-Yes, as of v2.0 newly published posts can be ranked first instead of last by default using the follwoing filter,
+Yes, as of v2.0 newly published posts can be ranked first instead of last by default using the following filter,
 
 `add-filter('reorder_post_within_categories_new_post_first', 'rank_new_posts', 10, 3);
 function rank_new_posts($is_first, $post, $term){
@@ -98,9 +98,9 @@ function custom_card_text($text, $post,$term_id){
   return $text;
 }
 `
-= 7. The intial order of post is chronolical, can it be changed? =
+= 7. The initial order of post is chronological, can it be changed? =
 Yes, by default the first time you manually sort your posts, they will be presented in the same order as your post table, namely by post data.  There are 3 possible alternative default order you can set,
- 1. reverse chronogical by hooking this filter,
+ 1. reverse chronological by hooking this filter,
 `
 add_filter('reorder_posts_within_category_initial_order', 'reverse_order', 10, 3);
 function reverse_order($reverse, $post_type, $term_id){
@@ -149,7 +149,7 @@ function chronoligcal_or_alaphabetical_order($is_chrono, $post_type, $term_id){
 * added filter 'reorder_posts_within_category_initial_orderby'.
 * added filter 'reorder_posts_within_category_initial_order'.
 * using sortableJS plugin for Grid layout using multi-grid sorting for large lists.
-* additiona of thumbnails on sortable cards for better visual representation of posts.
+* addition of thumbnails on sortable cards for better visual representation of posts.
 
 = 1.8.1 =
 * english corrections.
