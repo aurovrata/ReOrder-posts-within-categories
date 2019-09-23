@@ -17,10 +17,10 @@
  $term_selected = '';
 ?>
 <div class="wrap">
-	<div class="icon32 icon32-posts-<?= $post_type_detail->name; ?>" id="icon-edit"><br></div>
-  <h2><?= sprintf(__('Manually rank your "%s"', 'reorder-post-within-categories'), $post_type_detail->labels->menu_name); ?></h2>
+	<div class="icon32 icon32-posts-<?= $post_type_detail->name;?>" id="icon-edit"><br></div>
+  <h2><?= sprintf(__('Manually rank your "%s"', 'reorder-post-within-categories'), $post_type_detail->labels->menu_name);?></h2>
   <p>
-  	<?= sprintf(__('Select a taxonomy to sort <b>%s</b>.', 'reorder-post-within-categories'), $post_type_detail->labels->name); ?>
+  	<?= sprintf(__('Select a taxonomy to sort <b>%s</b>.', 'reorder-post-within-categories'), $post_type_detail->labels->name);?>
   </p>
 
   <form method="post" id="chooseTaxomieForm">
@@ -64,8 +64,7 @@
   <?php if ($catDisabled):?>
 		<br/><span class="description"><?= __('Greyed-out categories contain too few posts and aren’t available for sorting.', "reorder-post-within-categories")?></span>
 	<?php endif;
-    $valueTaxonomyField = (isset($taxonomySubmitted) ? $taxonomySubmitted : '');
-  ?>
+    $valueTaxonomyField = (isset($taxonomySubmitted) ? $taxonomySubmitted : '');?>
 		<input type="hidden" id="taxonomyHiddenField" name="taxonomy" value="<?=$valueTaxonomyField?>"/>
   <?php endif;//if (count($listCategories) > 0).?>
 	</form>
@@ -85,8 +84,7 @@
 					if (isset($tax_options[$cat_to_retrieve_post]) && $tax_options[$cat_to_retrieve_post] == 'true') {
 							$checkedRadio1 = $checkedRadio2;
 							$checkedRadio2 = '';
-					}
-          ?>
+					}?>
 					<label for="yes">
             <input type="radio"<?=$checkedRadio1?> class="option_order" id="yes" value="true" name="useForThisCat"/>
             <span><?=__('Yes', 'reorder-post-within-categories')?></span>
@@ -134,7 +132,7 @@
 			</div>
 		</div>
 	</div>
-<?php endif; ?>
+<?php endif;?>
 </form>
 <div id="debug"></div>
 </div>

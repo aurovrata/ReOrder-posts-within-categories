@@ -11,45 +11,42 @@ if (!empty($_POST) && check_admin_referer('updateOptionSettings', 'nounceUpdateO
     $this->_delete_custom_table();
   }
   switch(true):
-    case $delete_data:
-  ?>
+    case $delete_data:?>
 <div class="updated">
   <p>
-    <strong><?= __("Data reset complete.", "reorder-post-within-categories"); ?></strong> <?= __("All manually ranked order data has been deleted inclusing settings options.", "reorder-post-within-categories"); ?>
+    <strong><?= __("Data reset complete.", "reorder-post-within-categories");?></strong> <?= __("All manually ranked order data has been deleted inclusing settings options.", "reorder-post-within-categories");?>
   </p>
 </div>
 <?php
       break;
-    case $delete_table:
-  ?>
+    case $delete_table:?>
 <div class="updated">
   <p>
-    <strong><?= __("Old custom table deleted.", "reorder-post-within-categories"); ?></strong> <?= __("The previous version 1.x custom table used for storing manually ranked orders has been deleted.", "reorder-post-within-categories"); ?>
+    <strong><?= __("Old custom table deleted.", "reorder-post-within-categories");?></strong> <?= __("The previous version 1.x custom table used for storing manually ranked orders has been deleted.", "reorder-post-within-categories");?>
   </p>
 </div>
 <?php
       break;
-    default:
-  ?>
+    default:?>
 <div class="updated">
   <p>
-    <strong><?= __("Options saved.", "reorder-post-within-categories"); ?></strong> <?= __("A sub-menu is now placed under each post type menu in your dashboard to access the sorting page.", "reorder-post-within-categories"); ?>
+    <strong><?= __("Options saved.", "reorder-post-within-categories");?></strong> <?= __("A sub-menu is now placed under each post type menu in your dashboard to access the sorting page.", "reorder-post-within-categories");?>
   </p>
 </div>
 <?php
       break;
   endswitch;
 endif;
-$settingsOptions = $this->get_admin_options(); ?>
+$settingsOptions = $this->get_admin_options();?>
 <div class="wrap">
   <div class="icon32" id="icon-options-general"><br/></div>
-  <h2><?= __('Re-Order Posts within category', 'reorder-post-within-categories'); ?></h2>
-  <form method="post" action="<?= $_SERVER["REQUEST_URI"]; ?>">
-    <?php wp_nonce_field('updateOptionSettings', 'nounceUpdateOptionReorder'); ?>
+  <h2><?= __('Re-Order Posts within category', 'reorder-post-within-categories');?></h2>
+  <form method="post" action="<?= $_SERVER["REQUEST_URI"];?>">
+    <?php wp_nonce_field('updateOptionSettings', 'nounceUpdateOptionReorder');?>
     <p>
-      <?= __("Select the categories you want to manually sort the items. Once you have checked and confirmed this information, a sub-menu will appear under each post type menu.", "reorder-post-within-categories"); ?>
+      <?= __("Select the categories you want to manually sort the items. Once you have checked and confirmed this information, a sub-menu will appear under each post type menu.", "reorder-post-within-categories");?>
     </p>
-    <h3><?= __("Post Types available:", "reorder-post-within-categories"); ?></h3>
+    <h3><?= __("Post Types available:", "reorder-post-within-categories");?></h3>
     <?php
     // On liste tout les post_types
     //$post_types = get_post_types( array( 'show_in_nav_menus' => true,'public'=>true, 'show_ui'=>true, 'hierarchical' => false ), 'object' );
@@ -85,7 +82,7 @@ $settingsOptions = $this->get_admin_options(); ?>
           }?>
     <p>&nbsp;&nbsp;
       <label>
-        <input type="checkbox"<?=$ischecked?> value="<?=$taxonomie->name?>" name="selection[<?=$post_type->name?>][]"><?= $taxonomie->labels->name ?>
+        <input type="checkbox"<?=$ischecked?> value="<?=$taxonomie->name?>" name="selection[<?=$post_type->name?>][]"><?= $taxonomie->labels->name?>
       </label>
     </p>
       <?php
@@ -108,7 +105,7 @@ $settingsOptions = $this->get_admin_options(); ?>
     </p>
     <?php
     $settings = get_option(self::$settings_option_name, array());
-    if(isset($settings['upgraded']) && $settings['upgraded']): ?>
+    if(isset($settings['upgraded']) && $settings['upgraded']):?>
       <h3><?=__('Delete old custom table from plugin v1.x', 'reorder-post-within-categories')?></h3>
       <p class="delete-table submit">
         <label>
@@ -121,7 +118,7 @@ $settingsOptions = $this->get_admin_options(); ?>
         </script>
         <input id="delete-table" class="button" type="submit" value="<?=__('Delete table', 'reorder-post-within-categories')?>" name="delete_table" disabled="disabled"/>
       </p>
-    <?php endif; ?>
-<?php endif; ?>
+    <?php endif;?>
+<?php endif;?>
   </form>
 </div>
