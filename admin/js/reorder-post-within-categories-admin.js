@@ -36,6 +36,9 @@
 	 });
 
 	 function sortableItems(){
+		 var min = 0;
+		 if($( "#range-min" ).is(':visible')) min = $( "#range-min" ).val()*1-1;
+
 		 $sortable.sortable({
  			handle:'img',
  			animation:150,
@@ -56,7 +59,7 @@
   				var data = {
   					'action'					: 'user_ordering',
   					'order'						: this.toArray().toString(),
- 					'start'           :$( "#range-min" ).val()-1,
+ 					  'start'           : min,
   					'category'				: $(this.el).attr("rel"),
   					'deefuseNounceUserOrdering'	: rpwc2.deefuseNounceUserOrdering
   				}

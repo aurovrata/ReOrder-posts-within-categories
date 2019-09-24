@@ -144,15 +144,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 * Returns an array of admin options
 	 */
 	public function get_admin_options(){
-		$adminOptions = array();
-		$settingsOptions = get_option($this->adminOptionsName);
-		if (!empty($settingsOptions)) {
-				foreach ($settingsOptions as $key => $option) {
-						$adminOptions[$key] = $option;
-				}
-		}
-		update_option($this->adminOptionsName, $adminOptions);
-		return $adminOptions;
+		return get_option($this->adminOptionsName, array());;
 	}
 
 	/**
@@ -186,8 +178,21 @@ class Reorder_Post_Within_Categories_Admin {
 	*/
 	private function _upgrade(){
 		$settings = get_option(self::$settings_option_name, array());
-		// debug_msg('upgrading...');
-		switch(empty($settings)){
+		// debug_msg($settings, 'upgrading...');
+		/** @since 2.0.1*/
+		$upgrade = false;
+		switch(true){
+			case empty($settings): //either first install or new upgrade.
+				$upgrade = true;
+				break;
+			case isset($settings['version']) &&  $settings['version']=="2.0.0": //reset order.
+				global $wpdb;
+				// debug_msg('deleting all ranks');
+				$wpdb->delete($wpdb->postmeta, array('meta_key'=>'_rpwc2'), array('%s'));
+				$upgrade = true;
+				break;
+		}
+		switch($upgrade){
 		 	case false:
 				$settings['version']=$this->version;
 				if( !isset($settings['upgraded']) ) $settings['upgraded']=false;
@@ -199,6 +204,7 @@ class Reorder_Post_Within_Categories_Admin {
 				global $wpdb;
 				$table_name = $wpdb->prefix . $this->old_table_name;
 				$categories = $wpdb->get_col("SELECT DISTINCT category_id FROM {$table_name}");
+        debug_msg($categories, 'found categories ');
 				if(!empty($wpdb->last_error)) debug_msg($wpdb->last_error, 'SQL ERROR: ');
 				else{ //update db.
 					foreach($categories as $cid){
@@ -210,6 +216,7 @@ class Reorder_Post_Within_Categories_Admin {
 						//for each category insert a meta_field for the post in the ranking order.
 						$sql = sprintf("insert into $wpdb->postmeta (post_id, meta_key, meta_value) values %s", implode(",", $values));
 						$wpdb->query($sql);
+            debug_msg($values, 'stored existing order for cid: '.$cid);
 					}
 					$settings['upgraded']=true; //upgrade settings.
 				}
@@ -275,6 +282,7 @@ class Reorder_Post_Within_Categories_Admin {
 		if (!isset($_POST['deefuseNounceUserOrdering']) || !wp_verify_nonce($_POST['deefuseNounceUserOrdering'], 'nonce-UserOrderingChange')) {
 				wp_die('nonce failed, reload your page');
 		}
+		// debug_msg($_POST['order'], 'saving order ');
 		$this->_save_order(explode(",", $_POST['order']), $_POST['category'], $_POST['start']);
 		wp_die();
 	}
@@ -383,15 +391,15 @@ class Reorder_Post_Within_Categories_Admin {
 			/** @since 2.0.0 allow for partial ranking.*/
 			$old_start = 0;
 			$values = array();
-			$shuffle = array();
 			$end = sizeof($order);
 			$last = sizeof($ranked_rows); //the last rows retain the same order.
+			// debug_msg($ranked_rows, 'current ranked rows ');
 			foreach($ranked_rows as $idx=>$row) {
 				if( $idx>=$start && ($idx-$start)<$end){ //replace current order.
 					$values[] = "({$row->meta_id}, {$order[$idx-$start]}, '_rpwc2', {$term_id})";
 				}
 			}
-
+			// debug_msg($values, 'saving rank '.$start.' to '.$end);
 			$sql = sprintf("REPLACE INTO {$wpdb->postmeta} VALUES %s", implode(",", $values));
 			$wpdb->query($sql);
 			if( !empty($wpdb->last_error)){
@@ -422,12 +430,10 @@ class Reorder_Post_Within_Categories_Admin {
     	$terms_used = wp_list_pluck($terms_used, 'term_id');
     }
 		global $wpdb;
-
-		$terms_ordered = $wpdb->get_col("SELECT DISTINCT meta_value FROM $wpdb->postmeta WHERE meta_key='_rpwc2'");
+		$terms_ordered = $wpdb->get_col("SELECT DISTINCT meta_value FROM $wpdb->postmeta WHERE meta_key LIKE '_rpwc2'");
 		/** @TODO delete ranking by post type */
 		foreach($terms_ordered as $term_id){
 			if(empty($terms_used) || !in_array($term_id, $terms_used)){
-				// debug_msg('deleting order for term id '.$term_id);
 				$wpdb->delete($wpdb->postmeta, array('meta_key'=>'_rpwc2', 'meta_value'=>$term_id), array('%s','%d'));
 			}
 		}
@@ -647,4 +653,7 @@ class Reorder_Post_Within_Categories_Admin {
 	public function unrank_post($post_id){
 		delete_post_meta($post_id, '_rpwc2', false);
 	}
+	/**
+	* Delete all data.
+	*/
 }

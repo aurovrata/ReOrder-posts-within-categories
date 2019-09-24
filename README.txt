@@ -139,6 +139,9 @@ function chronoligcal_or_alaphabetical_order($is_chrono, $post_type, $term_id){
 `
 
 == Changelog ==
+= 2.0.1 =
+* js bug fix preventing proper saving of orders.
+
 = 2.0.0 =
 * complete re-write of the plugin file structure.
 * removal of custom DB table, post rank is now saved as a postmeta key.
