@@ -139,6 +139,10 @@ function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
 `
 
 == Changelog ==
+= 2.1.1 =
+* fix slider post loading.
+* max posts loaded to form square grid.
+ 
 = 2.1.0 =
 * deprecated filter 'reorder_post_within_category_taxonomy_term_query_args'.
 * improved helper text on reorder pages.

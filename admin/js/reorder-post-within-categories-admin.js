@@ -130,10 +130,23 @@
         values: [ 1, 20 ],
         slide: function( event, ui ) {
 					sliderChange = true;
+					var gridw = $sortable.width()/$sortable.children().first().outerWidth(true);
+					gridw = Math.floor(gridw);
+					gridw = gridw*gridw-1;
+					var low= ui.value, hi = ui.values[1]-1;
+					if(ui.values[1]-ui.values[0]>gridw){
+						if(ui.value == ui.values[1]){
+							low = ui.values[0]+1;
+							hi = ui.value;
+						}
+						$(this).slider('option','values',[low, hi]);
+					}
 					$( "#range-min" ).val( ui.values[ 0 ]);
           $( "#range-max" ).val( ui.values[ 1 ]);
+        },
+				stop: function( event, ui) {
 					updatePosts(ui.values[ 0 ], ui.values[ 1 ]);
-        }
+				}
       });
       $rangeMin.val($slider.slider( "values", 0 ));
       $rangeMax.val($slider.slider( "values", 1 ));
