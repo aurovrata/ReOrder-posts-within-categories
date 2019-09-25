@@ -236,12 +236,17 @@ class Reorder_Post_Within_Categories_Admin {
     if(isset($_POST['start'])) $start=$_POST['start'];
     $offset = 20;
     if(isset($_POST['offset'])) $offset=$_POST['offset'];
+    if($offset<0) $offset = 20;
     $post_type = '';
     if(isset($_POST['post-type'])) $post_type=$_POST['post-type'];
     $term_id = 0;
     if(isset($_POST['term'])) $term_id=$_POST['term'];
+		$reset = false;
+		if(isset($_POST['reset'])) $reset=$_POST['reset'];
     $results = array();
     if(!empty($post_type) && $term_id>0){
+			/** @since 2.1.0. allow rank reset*/
+			if($reset) $this->_unrank_all_posts($term_id, $post_type);
       $results = $this->_get_ranked_posts($post_type, $term_id, $start, $offset);
     }
 		wp_send_json_success($results);
@@ -364,6 +369,7 @@ class Reorder_Post_Within_Categories_Admin {
 				AND tr.term_taxonomy_id=%d
 				ORDER BY {$orderby} {$order}", $post_type, $term_id);
 			$ranking = $wpdb->get_col($sql);
+      // debug_msg($sql);
 			$this->_save_order($ranking, $term_id);
 		}
 		if( $length> sizeof($ranking)) $length=sizeof($ranking);
@@ -654,6 +660,26 @@ class Reorder_Post_Within_Categories_Admin {
 		delete_post_meta($post_id, '_rpwc2', false);
 	}
 	/**
-	* Delete all data.
+	* Delete all ranks for a given term.
+	* @since 2.1.0.
+	* @param $term_id term id to unrank posts
+	* @param $post_type post type for which to unrank posts.
+	* @return boolean false if there was an issue.
 	*/
+	protected function _unrank_all_posts($term_id, $post_type){
+		if(empty($term_id) || empty($post_type)){
+			debug_msg('UNABLE to Unrank, not term ID and/or post_type defined');
+			return false;
+		}
+		if(is_array($post_type) ) $post_type = implode("','",$post_type);
+		global $wpdb;
+		$sql = $wpdb->prepare("DELETE meta FROM {$wpdb->postmeta} as meta JOIN {$wpdb->posts} as post ON post.ID=meta.post_id WHERE meta.meta_key LIKE '_rpwc2' AND meta.meta_value LIKE %s AND post.post_type IN ('{$post_type}')", $term_id);
+		$wpdb->query($sql);
+		if(!empty($wpdb->last_error)){
+			debug_msg($wpdb->last_error, 'SQL ERROR:');
+			return false;
+		}
+		// debug_msg($sql, 'deleted '.$post_type.' term '.$term_id);
+		return true;
+	}
 }

@@ -36,9 +36,7 @@
 				$taxonomy = $taxonomies[$categorie];
 
 				// On liste maintenant les terms disponibles pour la taxonomie concernÃ©e
-				/** @since 1.5.0 allow term query to be filtered.*/
 				$term_query = array('taxonomy'=>$taxonomy->name);
-				$term_query = apply_filters('reorder_post_within_category_taxonomy_term_query_args', $term_query, $taxonomy->name);
 				$list_terms = get_terms($term_query);
 				if (count($list_terms) > 0) :?>
 			<optgroup id="<?=$taxonomy->name?>" label="<?=$taxonomy->labels->name?>">
@@ -74,7 +72,10 @@
 
 	<div id="result">
 		<div id="sorter_box">
-			<h3><?= __('Use the manual sorting for this category?', 'reorder-post-within-categories')?></h3>
+			<h3 style="margin: 5px 0"><?= __('Use the manual sorting for this category?', 'reorder-post-within-categories')?></h3>
+			<p style="margin:2px 0">
+				<?= __('This switches the manual sorting on the front-end on or off.  You can switch it off and manually sort your posts below until the new order is ready and you can then proceed to switch this on to showcase the new order on the front-end.', 'reorder-post-within-categories')?>
+			</p>
 				<div id="catOrderedRadioBox">
           <?php
 					// on regarde si un des radio est cochÃ©
@@ -94,6 +95,16 @@
             <input type="radio"<?=$checkedRadio2?> class="option_order" id="no" value="false" name="useForThisCat"/>
             <span><?=__('No', 'reorder-post-within-categories')?></span>
           </label>
+          <div id="reset-order">
+						<h4 style="margin:5px 0"><?=__('Reset the order!', 'reorder-post-within-categories')?></h4>
+            <label for="reset-button">
+              <input type="checkbox" value="reset-button" id="enable-reset"/>
+              <?=__('reset order for all posts, <strong>careful</strong>, this cannot be undone!','reorder-post-within-categories')?>
+            </label>
+            <div>
+							<a class="button disabled"><?=__('Reset order','reorder-post-within-categories')?></a>
+						</div>
+          </div>
 					<input type="hidden" name="termID" id="termIDCat" value="<?=$cat_to_retrieve_post?>">
 					<span class="spinner" id="spinnerAjaxRadio"></span>
 				</div>

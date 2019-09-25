@@ -146,7 +146,6 @@ class Reorder_Post_Within_Categories_Public {
 	*/
   public function filter_posts_orderby($args, $wp_query){
     $queriedObj = $wp_query->get_queried_object();
-
     if (isset($queriedObj->taxonomy) && isset($queriedObj->term_id)) {
         $term_id = $queriedObj->term_id;
     } else {

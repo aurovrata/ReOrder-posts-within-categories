@@ -47,8 +47,6 @@ input.input-range {
   text-decoration: none;
 }
  #catOrderedRadioBox{
- 	width: 90px;
-
  	position: relative;
  }
  #catOrderedRadioBox .spinner{

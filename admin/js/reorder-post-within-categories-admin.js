@@ -87,7 +87,8 @@
 	 /** @since 2.0.0.
 	 *retrieve more posts for sorting.
 	 */
-	 function updatePosts(start, end){
+	 function updatePosts(start, end, reset=false){
+
 		 $('#spinnerAjaxUserOrdering').show();
 		 var total = $sortable.data('count');
 		 var data = {
@@ -98,6 +99,7 @@
 			 'post-type'      : $('#post-type').val(),
 			 'deefuseNounceUserOrdering'	: rpwc2.deefuseNounceUserOrdering
 		 }
+     if(reset) data['reset'] = true;
 		$.post(ajaxurl, data, function (response){
 			$('#spinnerAjaxUserOrdering').hide();
 			updateSortableList(response);
@@ -115,6 +117,8 @@
 			$rangeMin = $( "#range-min" ),
 			$rangeMax = $( "#range-max" ),
 			$slider = $( "#slider-range" ),
+			$reset = $('input#enable-reset'),
+			$resetButton = $('div#reset-order').find('div a.button'),
 			totalPosts = $( "#slider-range" ).data('max');
     upperRange = 20;
 		sliderChange = false;
@@ -153,6 +157,17 @@
       $slider.hide();
       $( "#range-text" ).hide();
     }
+		$reset.on('click', function(e){
+			if($reset.is(':checked')){
+				$resetButton.removeClass('disabled');
+			}else{
+				$resetButton.addClass('disabled');
+			}
+		});
+		$resetButton.on('click', function(e){
+			if($resetButton.is('.disabled')) return false;
+			updatePosts(1,-5, true); //negative will take all.
+		});
 	 	// On rend la liste triable.
 		sortableItems();
 	 	// Au clic sur les boutons radio on enrehistre les préférences //1,9,11,7,14

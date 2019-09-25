@@ -33,7 +33,7 @@ New enhanced **version 2.0** with grid-layout and multi-drag interface to ease s
 == Screenshots ==
 
 1. Plugin page settings, if you uninstall this plugin for good, delete all data using this settings page first before deactivating the plugin.
-2. Re-order your post through a drag & drop grid-layout interface with multi-select capabilities.  For large sets of posts, a range slider will appear allowing you to view your posts in sub-sets by moving the slider range accordingly and sorting posts in smaller more manageable groups.  You can also multi-select the posts and enter a rank value to which you want to send those selected posts too.  For example, if you are sorting posts between the ranks fo 100 and 150 and you want to send 3 posts to the beginning of the order, simply select them and enter 1 in the rank input field and press enter.
+2. Re-order your post through a drag & drop grid-layout interface with multi-select capabilities.  For large sets of posts, a range slider will appear allowing you to view your posts in sub-sets by moving the slider range accordingly and sorting posts in smaller more manageable groups.  You can also multi-select the posts and enter a rank value to which you want to send those selected posts too.  For example, if you are sorting posts between the ranks fo 100 and 150 and you want to send 3 posts to the beginning of the order, simply select them and enter 1 in the rank input field and press enter. A rest button is introduced in v2.1 so an order can be reset.  Using the filters described in faq #7 it is possible to reset the default ranking to various initial ordered lists.
 
 == FAQ ==
 = 1.Modify the reorder category query =
@@ -112,9 +112,9 @@ function reverse_order($reverse, $post_type, $term_id){
 `
  2. by alphabetical title order, using the following hook,
 `
-add_filter('reorder_posts_within_category_initial_orderby', 'chronoligcal_or_alaphabetical_order', 10, 3);
-function chronoligcal_or_alaphabetical_order($is_chrono, $post_type, $term_id){
-  //$is_chrono is a boolean flag.
+add_filter('reorder_posts_within_category_initial_orderby', 'chronological_or_alphabetical_order', 10, 3);
+function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
+  //$is_alpha is a boolean flag set to false by default.
   //$post_type for the current posts being ranked.
   //$term_id of the taxonomy term for which the posts are being ranked.
   return true;
@@ -129,9 +129,9 @@ function reverse_order($reverse, $post_type, $term_id){
   //$term_id of the taxonomy term for which the posts are being ranked.
   return true;
 }
-add_filter('reorder_posts_within_category_initial_orderby', 'chronoligcal_or_alaphabetical_order', 10, 3);
-function chronoligcal_or_alaphabetical_order($is_chrono, $post_type, $term_id){
-  //$is_chrono is a boolean flag.
+add_filter('reorder_posts_within_category_initial_orderby', 'chronological_or_alphabetical_order', 10, 3);
+function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
+  //$is_alpha is a boolean flag set to false by default.
   //$post_type for the current posts being ranked.
   //$term_id of the taxonomy term for which the posts are being ranked.
   return true;
@@ -139,6 +139,11 @@ function chronoligcal_or_alaphabetical_order($is_chrono, $post_type, $term_id){
 `
 
 == Changelog ==
+= 2.1.0 =
+* deprecated filter 'reorder_post_within_category_taxonomy_term_query_args'.
+* improved helper text on reorder pages.
+* added a rest button on order page.
+
 = 2.0.1 =
 * js bug fix preventing proper saving of orders.
 
