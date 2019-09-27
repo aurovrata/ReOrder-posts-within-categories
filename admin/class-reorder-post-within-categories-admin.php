@@ -65,8 +65,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles($page) {
-		debug_msg($page);
+	public function enqueue_styles() {
 		/**
 		 * This function is provided for demonstration purposes only.
 		 *
