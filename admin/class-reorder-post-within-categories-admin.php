@@ -150,27 +150,20 @@ class Reorder_Post_Within_Categories_Admin {
 	* Update to new process: extract order from old custom table and insert into postmeta table.
 	* @since 2.0.0
 	*/
-  private function _upgrade_to_v2(){
-      global $wpdb;
-			if (function_exists('is_multisite') && is_multisite()) {
-				$settings = get_network_option('wpms_'.self::$settings_option_name, array());
-				switch(isset($settings['multisite_upgraded'])){
-					case false:
-            $old_blog = $wpdb->blogid;
-            // Get all blog ids
-            $blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
-            foreach ($blogids as $blog_id) {
-                switch_to_blog($blog_id);
-                $this->_upgrade();
-            }
-            switch_to_blog($old_blog);
-						$settings['multisite_upgraded'] = true;
-						update_network_option('wpms_'.self::$settings_option_name,$settings);
-            break;
-        }
-      }else $this->_upgrade();
+   private function _upgrade_to_v2(){
+     /** simplified @since 2.1.2 */
+		if (function_exists('is_multisite') && is_multisite()) {
+			global $wpdb;
+			$old_blog = $wpdb->blogid;
+			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+			/** simplified @since 2.1.2 */
+			foreach ($blogids as $blog_id) {
+				switch_to_blog($blog_id);
+        $this->_upgrade();
+			}
+			switch_to_blog($old_blog);
+    }else $this->_upgrade();
   }
-
 	/**
 	* Update to new process: extract order from old custom table and insert into postmeta table.
 	* @since 2.0.0
@@ -208,6 +201,7 @@ class Reorder_Post_Within_Categories_Admin {
 				else{ //update db.
 					foreach($categories as $cid){
 						$ranking = $wpdb->get_results($wpdb->prepare("select * from {$table_name} where category_id = %d order by id", $cid));
+            debug_msg($wpdb->last_query, 'query old table');
 						$values = array();
 						foreach($ranking as $idx=>$row){
 							$values[] = "($row->post_id, '_rpwc2', $cid)";
@@ -575,6 +569,7 @@ class Reorder_Post_Within_Categories_Admin {
 					$the_page =  add_submenu_page('edit.php?post_type='.$post_type, 'Re-order', 'Reorder', $capability, 're-orderPost-'.$post_type, array(&$this,'print_order_page'));
 					break;
 			}
+			//enqueue styles on scripts on page specific hook.
 			add_action('admin_head-'. $the_page, array($this,'enqueue_styles'));
 			add_action('admin_head-'. $the_page, array($this,'enqueue_scripts'));
 		}
