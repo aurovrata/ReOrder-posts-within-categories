@@ -347,6 +347,7 @@ class Reorder_Post_Within_Categories_Admin {
 			AND pm.meta_value=%d
 			AND pm.post_id=p.ID
 			AND p.post_type=%s", $term_id, $post_type));
+			// debug_msg($ranking, $term_id.':'.$start.'->'.$length);
 		if(empty($ranking)){ //retrieve the default ranking.
 			$orderby = 'p.post_date';
 			if(apply_filters('reorder_posts_within_category_initial_orderby', false, $post_type, $term_id)){
@@ -365,7 +366,7 @@ class Reorder_Post_Within_Categories_Admin {
       // debug_msg($sql);
 			$this->_save_order($ranking, $term_id);
 		}
-		if( $length> sizeof($ranking)) $length=sizeof($ranking);
+		if( empty($length) || $length> sizeof($ranking)) $length=sizeof($ranking);
 		return array_splice($ranking, $start, $length);
 	}
 	/**
@@ -599,7 +600,8 @@ class Reorder_Post_Within_Categories_Admin {
 	 */
 	public function save_post( $new_status, $old_status, $post){
 		$public=array('publish', 'private', 'future');
-		if( in_array($old_status, $public) ){
+		// debug_msg($new_status.'->'.$old_status );
+		if( in_array($old_status, $public) && !in_array($new_status, $public)){
 			if( !in_array($new_status, $public) ) $this->unrank_post($post->ID);
 			return; //no actions required.
 		}
@@ -613,6 +615,7 @@ class Reorder_Post_Within_Categories_Admin {
 		$taxonomies = get_object_taxonomies($post->post_type, 'objects');
 		if(empty($taxonomies)) return;
 		// for each CPT taxonomy, look at only the hierarchical ones
+		$post_ranks = get_post_meta($post_id, '_rpwc2', false);
 		foreach ($taxonomies as $taxonomie) {
 			if (!in_array($taxonomie->name, $settings)) continue;
 			$terms = get_terms($taxonomie->name);
@@ -620,16 +623,21 @@ class Reorder_Post_Within_Categories_Admin {
 
 			$terms_of_the_post = wp_get_post_terms($post_id, $taxonomie->name);
 			$term_ids_of_the_post = wp_list_pluck($terms_of_the_post, 'term_id');
-			$post_ranks = get_post_meta($post_id, '_rpwc2', false);
 
 			foreach ($terms as $term) {
-				if (in_array($term->term_id, $term_ids_of_the_post)) continue; //post not in term.
+				if (!in_array($term->term_id, $term_ids_of_the_post)){
+					if(in_array($term->term_id, $post_ranks)){
+						$this->unrank_post($post_id, $term->term_id);
+					}
+					continue; //post not in term.
+				}
 				if(in_array($term->term_id, $post_ranks)) continue; //post already ranked.
 
 				$ranking = $this->_get_order($post->post_type, $term->term_id);
 				if(!empty($ranking)){ //post_type is manually ranked.
 					//add new rank at the bottom of the order.
 					add_post_meta($post_id, '_rpwc2', $term->term_id, false);
+					// debug_msg($term->term_id.' ranking '.$post_id);
 					/**
 					* Filter to rank new post at the top of the manual order.
 					* @since 2.0.0.
@@ -640,7 +648,7 @@ class Reorder_Post_Within_Categories_Admin {
 					if(apply_filters('reorder_post_within_categories_new_post_first', false, $post, $term)){
 					 	//add new rank at the top of the order.
 						$ranking = unshift_array($ranking, $post_id);
-						$this->_save_order($ranking, $term_id);
+						$this->_save_order($ranking, $term->term_id);
 					}
 				}
 			}
@@ -650,8 +658,8 @@ class Reorder_Post_Within_Categories_Admin {
 	 * When a post is deleted we remove all entries from the custom table
 	 * @param type $post_id
 	 */
-	public function unrank_post($post_id){
-		delete_post_meta($post_id, '_rpwc2', false);
+	public function unrank_post($post_id, $term_id=null){
+		delete_post_meta($post_id, '_rpwc2', $term_id);
 	}
 	/**
 	* Delete all ranks for a given term.

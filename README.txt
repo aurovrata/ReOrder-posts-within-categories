@@ -144,6 +144,9 @@ function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
+= 2.1.3 =
+* fix bug on save_post.
+
 = 2.1.2 =
 * fix multisite bug.
 
@@ -154,7 +157,7 @@ function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
 = 2.1.0 =
 * deprecated filter 'reorder_post_within_category_taxonomy_term_query_args'.
 * improved helper text on reorder pages.
-* added a rest button on order page.
+* added a reset button on order page.
 
 = 2.0.1 =
 * js bug fix preventing proper saving of orders.
