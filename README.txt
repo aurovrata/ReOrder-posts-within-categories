@@ -34,6 +34,7 @@ New enhanced **version 2.0** with grid-layout and multi-drag interface to ease s
 
 1. Plugin page settings, if you uninstall this plugin for good, delete all data using this settings page first before deactivating the plugin.
 2. Re-order your post through a drag & drop grid-layout interface with multi-select capabilities.  For large sets of posts, a range slider will appear allowing you to view your posts in sub-sets by moving the slider range accordingly and sorting posts in smaller more manageable groups.  You can also multi-select the posts and enter a rank value to which you want to send those selected posts too.  For example, if you are sorting posts between the ranks fo 100 and 150 and you want to send 3 posts to the beginning of the order, simply select them and enter 1 in the rank input field and press enter. A rest button is introduced in v2.1 so an order can be reset.  Using the filters described in faq #7 it is possible to reset the default ranking to various initial ordered lists.
+3. v2.1 introduced a reset button on the amdin reorder page. The checkbox enables the button which you can use to reset your posts ranking order for this term.  This in conjunction with the intial order filters (see FAQ 7) allows you to set a chronological or an alphabetical ranking for the initial order.
 
 == FAQ ==
 = 1.Modify the reorder category query =
@@ -100,7 +101,8 @@ function custom_card_text($text, $post,$term_id){
 `
 = 7. The initial order of post is chronological, can it be changed? =
 Yes, by default the first time you manually sort your posts, they will be presented in the same order as your post table, namely by post data.  There are 3 possible alternative default order you can set,
- 1. reverse chronological by hooking this filter,
+1.reverse chronological by hooking this filter,
+
 `
 add_filter('reorder_posts_within_category_initial_order', 'reverse_order', 10, 3);
 function reverse_order($reverse, $post_type, $term_id){
@@ -110,7 +112,8 @@ function reverse_order($reverse, $post_type, $term_id){
   return true;
 }
 `
- 2. by alphabetical title order, using the following hook,
+2. by alphabetical title order, using the following hook,
+
 `
 add_filter('reorder_posts_within_category_initial_orderby', 'chronological_or_alphabetical_order', 10, 3);
 function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
@@ -120,7 +123,8 @@ function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
   return true;
 }
 `
- 3. or by reverse alphabetical title order, using both of the above hooks,
+3. or by reverse alphabetical title order, using both of the above hooks,
+
 `
 add_filter('reorder_posts_within_category_initial_order', 'reverse_order', 10, 3);
 function reverse_order($reverse, $post_type, $term_id){
@@ -137,6 +141,7 @@ function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
   return true;
 }
 `
+**NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
 = 2.1.2 =
