@@ -22,6 +22,7 @@ New enhanced **version 2.0** with grid-layout and multi-drag interface to ease s
 = Thanks to =
 [Nikita Spivak](https://wordpress.org/support/users/nikitasp/) for the Russian translation.
 [Tor-Bjorn Fjellner](https://profiles.wordpress.org/tobifjellner/) for the swedish translation and i18n clean-up.
+[alekseo](https://wordpress.org/support/users/alekseo/) for support for the plugin.
 
 == Installation ==
 
@@ -144,6 +145,9 @@ function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
+= 2.1.4 =
+* fix sql order by bug in admin order page.
+
 = 2.1.3 =
 * fix bug on save_post.
 

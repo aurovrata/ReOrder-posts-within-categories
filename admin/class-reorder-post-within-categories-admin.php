@@ -346,7 +346,8 @@ class Reorder_Post_Within_Categories_Admin {
 			WHERE pm.meta_key ='_rpwc2'
 			AND pm.meta_value=%d
 			AND pm.post_id=p.ID
-			AND p.post_type=%s", $term_id, $post_type));
+			AND p.post_type=%s
+      ORDER BY pm.meta_id", $term_id, $post_type));
 			// debug_msg($ranking, $term_id.':'.$start.'->'.$length);
 		if(empty($ranking)){ //retrieve the default ranking.
 			$orderby = 'p.post_date';
