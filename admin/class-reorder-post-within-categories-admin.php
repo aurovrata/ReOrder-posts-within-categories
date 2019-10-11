@@ -659,6 +659,9 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @param type $post_id
 	 */
 	public function unrank_post($post_id, $term_id=null){
+		if (wp_is_post_revision( $post_id )) {
+		  return;
+		}
 		delete_post_meta($post_id, '_rpwc2', $term_id);
 	}
 	/**
