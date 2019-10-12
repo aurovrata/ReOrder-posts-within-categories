@@ -176,7 +176,7 @@ class Reorder_Post_Within_Categories {
 		$this->loader->add_action('wp_ajax_get_more_posts', $plugin_admin, 'load_posts');
 
 		$this->loader->add_action('transition_post_status', $plugin_admin, 'save_post', 10, 3);
-		$this->loader->add_action('before_delete_post', $plugin_admin, 'unrank_post');
+		// $this->loader->add_action('before_delete_post', $plugin_admin, 'unrank_post');
 		$this->loader->add_action('trashed_post', $plugin_admin, 'unrank_post');
 
 	}

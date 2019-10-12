@@ -13,6 +13,10 @@ Sort Post and Custom Post Type through drag & drop interface of selected categor
 
 == Description ==
 
+**UPGRADE NOTE** if you are upgrading from v1.x, your old ranking data remains unaffected in the custom table used by the v1.x plugin.  However, in v2.x all the ranking is now stored as post meta.  While upgrading, some users have complained of missing posts/ lost rankings.  If this is the case, you can reset your order for given term using the reset checkbox/button provided in the admin page (see screenshot #4).  It will reload the ranking from the v1.x custom table.
+
+If your term was not sorted in the v1.x table or you are upgrading from v2.0.x or v2.1.x, then the reset button will reload the post order as per the default WP post table listing, which can be changed using the filtrs provided (see FAQ #7).
+
 
 ReOrder Post Within Categories is used to sort posts (and custom post type) in any custom order by drag & drop interface.
 It works with a selected category, each category can have different order of same post.
@@ -23,6 +27,7 @@ New enhanced **version 2.0** with grid-layout and multi-drag interface to ease s
 [Nikita Spivak](https://wordpress.org/support/users/nikitasp/) for the Russian translation.
 [Tor-Bjorn Fjellner](https://profiles.wordpress.org/tobifjellner/) for the swedish translation and i18n clean-up.
 [alekseo](https://wordpress.org/support/users/alekseo/) for support for the plugin.
+[Andrei Negrea](https://github.com/andreicnegrea) for post delete bug fix.
 
 == Installation ==
 
@@ -36,6 +41,7 @@ New enhanced **version 2.0** with grid-layout and multi-drag interface to ease s
 1. Plugin page settings, if you uninstall this plugin for good, delete all data using this settings page first before deactivating the plugin.
 2. Re-order your post through a drag & drop grid-layout interface with multi-select capabilities.  For large sets of posts, a range slider will appear allowing you to view your posts in sub-sets by moving the slider range accordingly and sorting posts in smaller more manageable groups.  You can also multi-select the posts and enter a rank value to which you want to send those selected posts too.  For example, if you are sorting posts between the ranks fo 100 and 150 and you want to send 3 posts to the beginning of the order, simply select them and enter 1 in the rank input field and press enter. A rest button is introduced in v2.1 so an order can be reset.  Using the filters described in faq #7 it is possible to reset the default ranking to various initial ordered lists.
 3. v2.1 introduced a reset button on the amdin reorder page. The checkbox enables the button which you can use to reset your posts ranking order for this term.  This in conjunction with the intial order filters (see FAQ 7) allows you to set a chronological or an alphabetical ranking for the initial order.
+4. the reset checkbox will enable the reset button.  If you upgraded from v1.x and you have not deteleted the custom table used in the previous versions, the reset button will reload your previously stored ranking for ther term if it exists in the table.  Otherwise the default post table ranking will be loaded which can be modified using the filters provided (see FAQ #7 for more info).
 
 == FAQ ==
 = 1.Modify the reorder category query =
@@ -145,6 +151,10 @@ function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
+= 2.2.0 =
+* removed delete_before_post.
+* reset post rank from v1.x table in admin page.
+
 = 2.1.4 =
 * fix sql order by bug in admin order page.
 

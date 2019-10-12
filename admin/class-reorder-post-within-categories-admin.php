@@ -196,12 +196,12 @@ class Reorder_Post_Within_Categories_Admin {
 				global $wpdb;
 				$table_name = $wpdb->prefix . $this->old_table_name;
 				$categories = $wpdb->get_col("SELECT DISTINCT category_id FROM {$table_name}");
-        debug_msg($categories, 'found categories ');
+        //debug_msg($categories, 'found categories ');
 				if(!empty($wpdb->last_error)) debug_msg($wpdb->last_error, 'SQL ERROR: ');
 				else{ //update db.
 					foreach($categories as $cid){
 						$ranking = $wpdb->get_results($wpdb->prepare("select * from {$table_name} where category_id = %d order by id", $cid));
-            debug_msg($wpdb->last_query, 'query old table');
+            //debug_msg($wpdb->last_query, 'query old table');
 						$values = array();
 						foreach($ranking as $idx=>$row){
 							$values[] = "($row->post_id, '_rpwc2', $cid)";
@@ -209,7 +209,7 @@ class Reorder_Post_Within_Categories_Admin {
 						//for each category insert a meta_field for the post in the ranking order.
 						$sql = sprintf("insert into $wpdb->postmeta (post_id, meta_key, meta_value) values %s", implode(",", $values));
 						$wpdb->query($sql);
-            debug_msg($values, 'stored existing order for cid: '.$cid);
+            //debug_msg($values, 'stored existing order for cid: '.$cid);
 					}
 					$settings['upgraded']=true; //upgrade settings.
 				}
@@ -350,20 +350,24 @@ class Reorder_Post_Within_Categories_Admin {
       ORDER BY pm.meta_id", $term_id, $post_type));
 			// debug_msg($ranking, $term_id.':'.$start.'->'.$length);
 		if(empty($ranking)){ //retrieve the default ranking.
-			$orderby = 'p.post_date';
-			if(apply_filters('reorder_posts_within_category_initial_orderby', false, $post_type, $term_id)){
-				$orderby = 'p.post_name';
+			$table_name = $wpdb->prefix . $this->old_table_name;
+			$ranking = $wpdb->get_col($wpdb->prepare("select post_id from {$table_name} where category_id = %d order by id", $term_id));
+			if(empty($ranking)){
+				$orderby = 'p.post_date';
+				if(apply_filters('reorder_posts_within_category_initial_orderby', false, $post_type, $term_id)){
+					$orderby = 'p.post_name';
+				}
+				$order = 'DESC';
+				if(apply_filters('reorder_posts_within_category_initial_order', false, $post_type, $term_id)){
+					$order = 'ASC';
+				}
+				$sql = $wpdb->prepare("SELECT p.ID FROM {$wpdb->posts} as p LEFT JOIN {$wpdb->term_relationships} AS tr ON p.ID=tr.object_id
+					WHERE  p.post_status='publish'
+					AND p.post_type='%s'
+					AND tr.term_taxonomy_id=%d
+					ORDER BY {$orderby} {$order}", $post_type, $term_id);
+				$ranking = $wpdb->get_col($sql);
 			}
-			$order = 'DESC';
-			if(apply_filters('reorder_posts_within_category_initial_order', false, $post_type, $term_id)){
-				$order = 'ASC';
-			}
-			$sql = $wpdb->prepare("SELECT p.ID FROM {$wpdb->posts} as p LEFT JOIN {$wpdb->term_relationships} AS tr ON p.ID=tr.object_id
-				WHERE  p.post_status='publish'
-				AND p.post_type='%s'
-				AND tr.term_taxonomy_id=%d
-				ORDER BY {$orderby} {$order}", $post_type, $term_id);
-			$ranking = $wpdb->get_col($sql);
       // debug_msg($sql);
 			$this->_save_order($ranking, $term_id);
 		}
