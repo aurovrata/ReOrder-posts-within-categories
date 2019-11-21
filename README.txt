@@ -3,7 +3,7 @@ Contributors: aurovrata, aurelien
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 3.4
-Tested up to: 5.2.0
+Tested up to: 5.3.0
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -44,15 +44,11 @@ New enhanced **version 2.0** with grid-layout and multi-drag interface to ease s
 4. the reset checkbox will enable the reset button.  If you upgraded from v1.x and you have not deteleted the custom table used in the previous versions, the reset button will reload your previously stored ranking for ther term if it exists in the table.  Otherwise the default post table ranking will be loaded which can be modified using the filters provided (see FAQ #7 for more info).
 
 == FAQ ==
-= 1.Modify the reorder category query =
+= 1.Retrieving ordered posts with custom get_posts query not working! =
 
-A filter allows you to hook into the query of the posts before your reorder them in the dashboard.  This is useful is you want to order parent terms posts and not children.  WP post category query by default include post from children terms, which will show up in the order list.  So by excluding them you are able to order only the posts of parent terms,
-`
-add_filter('reorder_post_within_category_query_args', 'exclude_children');
-function exclude_children($args) {
-    $args['tax_query'][0]['include_children']=false;
-    return $args;
-}`
+this plugin uses filters (posts_join, posts_where, and posts_orderby) to modify the front-end query for ordered posts and ensure the results are ordered as per your custom order.
+
+However, `get_posts` function uses a 'suppress_filters' [parameter](https://developer.wordpress.org/reference/functions/get_posts/#parameters) which is set to true by default.  You need to explicitly set it to false in your custom queries to ensure you retrieve yours posts in the right order.
 
 = 2.I want to order posts in non-hierarchical taxonomies (tags) =
 By default the plugin allows you to order posts only within hierarchical taxonomies (categories).  This is done as a means to ensure one doesn't have spurious orders as allowing both tags and category ordering could lead to users trying to order a post in both and this would create issues which have not been tested by this author.  Hence tread with caution if you enable this in your functions.php file,
@@ -148,9 +144,22 @@ function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
   return true;
 }
 `
+= 8. When I drag the slider, both sliders move and the number of loaded posts remain fixed. =
+When you have a large number of posts in a category, the controls move when the limit of posts to display is reached.
+
+This to reduce the load on the server. WP limits REST api posts to 100, and this is the base value used. However, the plugin uses a dynamic approach, based on a square grid, hence when your posts grid number of columns equates the number of rows, the slider will automatically adjust the non-dragged slider button to maintain that square.
+
+If you wish to display more posts, reduce your window zoom level (ctrl+mouse scroll on firefox/chrome), this will force the number of columns to expand and therefore the js script will allow more posts to be loaded until the rows match the columns.
+
+
+
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
+= 2.2.1 =
+* change inner join query for front-end ordering.
+* change postmeta table alias on frton-end queries.
+* vertical-align top for amdin sorted items.
 = 2.2.0 =
 * removed delete_before_post.
 * reset post rank from v1.x table in admin page.

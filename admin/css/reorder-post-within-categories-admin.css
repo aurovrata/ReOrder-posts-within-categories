@@ -18,6 +18,7 @@ div.sortable-items {
   padding: 2px;
   position: relative;
   background-color: white;
+  vertical-align:top;
 }
 div.sortable-items.selected{
   border: 2px solid #206bef;

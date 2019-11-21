@@ -11,7 +11,7 @@ if( !function_exists('debug_msg') ){
      $debug_msg_last_line='';
      $debug_msg_last_file='';
    }
-  function debug_msg($message,$prefix='') {
+  function debug_msg($message, $prefix='', $trace=0) {
       if (true === WP_GURUS_DEBUG) {
         global $debug_msg_last_line,$debug_msg_last_file;
           $backtrace = debug_backtrace();
@@ -21,18 +21,23 @@ if( !function_exists('debug_msg') ){
           $files = array_diff($files,$dirs);
           $file = implode('/',$files);
           $line = $backtrace[0]['line'];
-          if($file != $debug_msg_last_file && $line != $debug_msg_last_line){
-            error_log("DEBUG_MSG: [".$line."]./".$file);
+          $msg='DEBUG_MSG: '.PHP_EOL;
+          if(true===$trace || ($file != $debug_msg_last_file && $line != $debug_msg_last_line)){
+            if($trace===true) $trace = sizeof($backtrace);
+            for($idx=$trace; $idx>0; $idx--){
+              $msg.="   [".$backtrace[$idx]['line']."]->/".$backtrace[$idx]['file'].PHP_EOL;
+            }
+            $msg.= "   [".$line."]./".$file.PHP_EOL;
             $debug_msg_last_file=$file;
             $debug_msg_last_line=$line;
-          }else{
-            //error_log("CF7_2_POST: ");
           }
+
           if (is_array($message) || is_object($message)) {
-              error_log("          + ".$prefix.print_r($message, true));
+              $msg.="          + ".$prefix.print_r($message, true);
           } else {
-              error_log("          + ".$prefix.$message);
+              $msg.="          + ".$prefix.$message;
           }
+          error_log($msg);
       }
   }
 } ?>

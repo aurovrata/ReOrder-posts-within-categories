@@ -115,7 +115,8 @@ class Reorder_Post_Within_Categories_Public {
     }
 		$tax_options = get_option(RPWC_OPTIONS, array());
     if (!empty($tax_options[$term_id]) && $tax_options[$term_id] == "true") {
-        $args .= " INNER JOIN {$wpdb->postmeta} AS pm ON {$wpdb->posts}.ID = pm.post_id ";
+			/** @since 2.2.1 chnage from INNER JOIN to JOIN to see if fixes front-end queries*/
+        $args .= " LEFT JOIN {$wpdb->postmeta} AS rankpm ON {$wpdb->posts}.ID = rankpm.post_id ";
     }
 
     return $args;
@@ -125,7 +126,6 @@ class Reorder_Post_Within_Categories_Public {
 	* @since 1.0.0
 	*/
   public function filter_posts_where($args, $wp_query){
-
       $queriedObj = $wp_query->get_queried_object();
       if (isset($queriedObj->taxonomy) && isset($queriedObj->term_id)) {
           $term_id = $queriedObj->term_id;
@@ -135,7 +135,7 @@ class Reorder_Post_Within_Categories_Public {
 			$tax_options = get_option(RPWC_OPTIONS, array());
 
       if (!empty($tax_options[$term_id]) && $tax_options[$term_id] == "true" ) {
-          $args .= " AND pm.meta_value={$term_id} AND pm.meta_key='_rpwc2' ";
+          $args .= " AND rankpm.meta_value={$term_id} AND rankpm.meta_key='_rpwc2' ";
       }
 
       return $args;
@@ -154,7 +154,7 @@ class Reorder_Post_Within_Categories_Public {
 
 		$tax_options = get_option(RPWC_OPTIONS, array());
     if (!empty($tax_options[$term_id]) && $tax_options[$term_id] == "true") {
-        $args = "pm.meta_id ASC";
+        $args = "rankpm.meta_id ASC";
     }
     return $args;
   }
