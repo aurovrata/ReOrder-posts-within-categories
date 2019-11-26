@@ -156,6 +156,8 @@ If you wish to display more posts, reduce your window zoom level (ctrl+mouse scr
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
+= 2.3.0 =
+* added multi-posttype taxonomy ranking functionality.
 = 2.2.1 =
 * change inner join query for front-end ordering.
 * change postmeta table alias on frton-end queries.

@@ -126,17 +126,28 @@ class Reorder_Post_Within_Categories_Admin {
 	}
 	/**
 	* function called by ajax when a category order type is changed.
+  * hooked on 'wp_ajax_cat_ordered_changed'.
 	* @since 1.0.0
 	*/
 	public function category_order_change(){
 		if (!isset($_POST['deefuseNounceOrder']) || !wp_verify_nonce($_POST['deefuseNounceOrder'], 'nonce-CatOrderedChange')) {
 			wp_die('nonce failed, reload your page');
 		}
-
+		// debug_msg($_POST, 'ajax save rank ');
+		$key = $_POST['current_cat'];
+		$option = $_POST['valueForManualOrder'];
+		if(isset($_POST['post_type'])){
+			$option=array();
+			$option[$_POST['current_cat']] = $_POST['valueForManualOrder'];
+			$key = $_POST['post_type'];
+		}
 		$settings = get_option(RPWC_OPTIONS, array());
-		$settings[$_POST['current_cat']] = $_POST['valueForManualOrder'];
+		// unset($settings[$key]);
+		if(isset($settings[$key]) && is_array($settings[$key])){
+			$option = array_replace($settings[$key], $option);
+		}
+		$settings[$key] = $option;
 		update_option(RPWC_OPTIONS, $settings);
-
 		wp_die();
 	}
 	/**
@@ -348,10 +359,15 @@ class Reorder_Post_Within_Categories_Admin {
 			AND pm.post_id=p.ID
 			AND p.post_type=%s
       ORDER BY pm.meta_id", $term_id, $post_type));
+			// debug_msg($wpdb->last_query);
 			// debug_msg($ranking, $term_id.':'.$start.'->'.$length);
 		if(empty($ranking)){ //retrieve the default ranking.
 			$table_name = $wpdb->prefix . $this->old_table_name;
-			$ranking = $wpdb->get_col($wpdb->prepare("select post_id from {$table_name} where category_id = %d order by id", $term_id));
+			/** @since 2.3.0 check for post_type properly */
+			$ranking = $wpdb->get_col($wpdb->prepare("SELECT rpwc.post_id
+				FROM {$table_name} as rpwc
+				LEFT JOIN {$wpdb->posts} as wp on wp.ID = rpwc.post_id
+				WHERE rpwc.category_id = %d AND wp.post_type=%s order by rpwc.id", $term_id, $post_type));
 			if(empty($ranking)){
 				$orderby = 'p.post_date';
 				if(apply_filters('reorder_posts_within_category_initial_orderby', false, $post_type, $term_id)){
@@ -363,12 +379,11 @@ class Reorder_Post_Within_Categories_Admin {
 				}
 				$sql = $wpdb->prepare("SELECT p.ID FROM {$wpdb->posts} as p LEFT JOIN {$wpdb->term_relationships} AS tr ON p.ID=tr.object_id
 					WHERE  p.post_status='publish'
-					AND p.post_type='%s'
+					AND p.post_type=%s
 					AND tr.term_taxonomy_id=%d
 					ORDER BY {$orderby} {$order}", $post_type, $term_id);
 				$ranking = $wpdb->get_col($sql);
 			}
-      // debug_msg($sql);
 			$this->_save_order($ranking, $term_id);
 		}
 		if( empty($length) || $length> sizeof($ranking)) $length=sizeof($ranking);

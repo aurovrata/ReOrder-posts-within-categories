@@ -120,6 +120,7 @@
 			$reset = $('input#enable-reset'),
 			$resetButton = $('div#reset-order').find('div a.button'),
 			totalPosts = $( "#slider-range" ).data('max');
+
     upperRange = 20;
 		sliderChange = false;
     if(totalPosts>upperRange){
@@ -210,6 +211,7 @@
 	 		var data = {
 	 			'action'				: 'cat_ordered_changed',
 	 			'current_cat'			: $("#termIDCat").val(),
+				'post_type'       : $("#post-type").val(),
 	 			'valueForManualOrder'	: $("#form_result input.option_order:checked").val(),
 	 			'deefuseNounceOrder'	: rpwc2.deefuseNounceCatReOrder
 	 		}
