@@ -9,9 +9,10 @@ Stable tag: trunk
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Sort Post and Custom Post Type through drag & drop interface of selected category (or custom selected taxonomies).
+Enables manual ranking of post (and custom post) within taxonomy terms using a drag &amp; drop grid interface.
 
 == Description ==
+v2.3 is now multi-post taxonomy enabled.  A taxonomy registered with multiple post types can has its term's posts in each type ranked manually and separately.
 
 **UPGRADE NOTE** if you are upgrading from v1.x, your old ranking data remains unaffected in the custom table used by the v1.x plugin.  However, in v2.x all the ranking is now stored as post meta.  While upgrading, some users have complained of missing posts/ lost rankings.  If this is the case, you can reset your order for given term using the reset checkbox/button provided in the admin page (see screenshot #4).  It will reload the ranking from the v1.x custom table.
 
@@ -151,13 +152,29 @@ This to reduce the load on the server. WP limits REST api posts to 100, and this
 
 If you wish to display more posts, reduce your window zoom level (ctrl+mouse scroll on firefox/chrome), this will force the number of columns to expand and therefore the js script will allow more posts to be loaded until the rows match the columns.
 
+= 9. Multi-post taxonomy query not ranked =
 
+When you have a custom query to display a set of posts on the front-end which combines multiple post-types under a single taxonomy term, then the plugin needs to be told which post-type to use to rank the results.  It will fire a filter which you need to hook,
+`
+apply_filters('reorderpwc_filter_multiple_post_type', 'ranking_post_type',10,2);
+function ranking_post_type($type, $wp_query){
+  //use WP_Query object to figure is this is your query,
+  //then return the post-type the to use to rank the results.
+  //if no type is returned the posts will be ranked by date.
+  return $type;
+}
+`
+
+= 10. My custom post query is not being ranked on the front-end =
+
+If you are displaying your posts using a custom query with the function get_posts() you should be aware that it sets the attribute 'suppress_filters' to false by default (see the [codex page](https://developer.wordpress.org/reference/functions/get_posts/#parameters)).  The ranked order is applied using filters on the query, hence you need to explictly set this attribute to true to get your results ranked properly.
 
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
 = 2.3.0 =
 * added multi-posttype taxonomy ranking functionality.
+* styling improvement.
 = 2.2.1 =
 * change inner join query for front-end ordering.
 * change postmeta table alias on frton-end queries.
