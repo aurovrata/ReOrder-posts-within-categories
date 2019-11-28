@@ -61,6 +61,7 @@
   					'order'						: this.toArray().toString(),
  					  'start'           : min,
   					'category'				: $(this.el).attr("rel"),
+						'taxonomy'        : $("#taxonomyHiddenField").val(),
   					'deefuseNounceUserOrdering'	: rpwc2.deefuseNounceUserOrdering
   				}
   				$.post(ajaxurl, data, function (response){
@@ -97,6 +98,7 @@
 			 'offset'         :end-start+1, /*+1 to include upper limit*/
 			 'term'           : $('#selectCatToRetrieve').val(),
 			 'post-type'      : $('#post-type').val(),
+			 'taxonomy'        : $("#taxonomyHiddenField").val(),
 			 'deefuseNounceUserOrdering'	: rpwc2.deefuseNounceUserOrdering
 		 }
      if(reset) data['reset'] = true;

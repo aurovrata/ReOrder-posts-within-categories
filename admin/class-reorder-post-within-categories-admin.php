@@ -383,6 +383,18 @@ class Reorder_Post_Within_Categories_Admin {
 					AND tr.term_taxonomy_id=%d
 					ORDER BY {$orderby} {$order}", $post_type, $term_id);
 				$ranking = $wpdb->get_col($sql);
+        /** @since 2.4.0 enable programmatic default ranking */
+        $filtered_ranking = apply_filters('rpwc2_filter_default_ranking', $ranking, $term_id, $_POST['taxonomy'], $post_type);
+        if(!empty($filtered_ranking) && is_array($filtered_ranking)){
+          $new_ranking = array();
+          foreach($filtered_ranking as $post_id){
+            if(($idx = array_search($post_id, $ranking))!==false){
+              $new_ranking[]=$post_id;
+              unset($ranking[$idx]);
+            }
+          }
+          $ranking = array_merge($new_ranking, $ranking);
+        }
 			}
 			$this->_save_order($ranking, $term_id);
 		}
@@ -518,13 +530,14 @@ class Reorder_Post_Within_Categories_Admin {
 				// Si il y a une catÃ©gorie
 				if (!empty($term)) {
 					$ranking = $this->_get_order($post_type_detail->name, $cat_to_retrieve_post, 0, 20);
-					$total = $term->count;
+					// $total = $term->count;
 					$args = array('post_type' => $post_type_detail->name,
 						'post__in'=>$ranking,
 						'ignore_sticky_posts'=>true,
 						'posts_per_page'=>-1
 					);
 					$posts_array = get_posts($args);
+					$total = count($posts_array); /** @since 2.4.0 better for multi post type */
 					foreach($posts_array as $post) $posts[$post->ID]=$post;
 				}
 			}

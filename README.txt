@@ -145,6 +145,7 @@ function chronological_or_alphabetical_order($is_alpha, $post_type, $term_id){
   return true;
 }
 `
+as of v2.4 it is now possible to programmatically rank the intial post order, see FAQ 11.
 = 8. When I drag the slider, both sliders move and the number of loaded posts remain fixed. =
 When you have a large number of posts in a category, the controls move when the limit of posts to display is reached.
 
@@ -169,9 +170,31 @@ function ranking_post_type($type, $wp_query){
 
 If you are displaying your posts using a custom query with the function get_posts() you should be aware that it sets the attribute 'suppress_filters' to false by default (see the [codex page](https://developer.wordpress.org/reference/functions/get_posts/#parameters)).  The ranked order is applied using filters on the query, hence you need to explictly set this attribute to true to get your results ranked properly.
 
+= 11. Programmatically ranking initial post order in admin page. =
+If you are migrating from another plugin in which you have painstakingly sorted your posts, or you need have the intial order of posts based on some other criteria (some date or other meta field value), then you can use the following filter to pass the required rank,
+
+`add_filter('rpwc2_filter_default_ranking', 'custom_intial_order', 10, 4);
+function custom_intial_order($ranking, $term_id, $taxonomy, $post_type){
+  //$ranking an array containing a list of post IDs in their default order.
+  //$term_id the current term being reordered.
+  //$taxonomy the taxonomy to which the term belongs.
+  //$post_type the post type being reordered.
+  //check if this is the correct taxonomy/post type you wish to reorder.
+  if('my-custom-post' != $post_type || 'my-category'!=$taxonomy ) return $ranking;
+  //load you default order programmatically... says as $new_order from your DB
+  $filtered_order = array()
+  foreach($new_order as $post_id){
+    //check the post ID is actually in the ranking.
+    if(in_array($post_id, $new_order)) filtered_order[]=$post_id;
+  }
+  return $filtered_order;
+}`
+
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
+= 2.4.0 =
+* added rpwc2_filter_default_ranking filter for intial order.
 = 2.3.0 =
 * added multi-posttype taxonomy ranking functionality.
 * styling improvement.
