@@ -206,7 +206,10 @@ class Reorder_Post_Within_Categories_Admin {
 				$settings['upgraded']=false;
 				global $wpdb;
 				$table_name = $wpdb->prefix . $this->old_table_name;
-				$categories = $wpdb->get_col("SELECT DISTINCT category_id FROM {$table_name}");
+				$categories = array();
+				if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name){
+					$categories = $wpdb->get_col("SELECT DISTINCT category_id FROM {$table_name}");
+				}
         //debug_msg($categories, 'found categories ');
 				if(!empty($wpdb->last_error)) debug_msg($wpdb->last_error, 'SQL ERROR: ');
 				else{ //update db.
@@ -364,10 +367,12 @@ class Reorder_Post_Within_Categories_Admin {
 		if(empty($ranking)){ //retrieve the default ranking.
 			$table_name = $wpdb->prefix . $this->old_table_name;
 			/** @since 2.3.0 check for post_type properly */
-			$ranking = $wpdb->get_col($wpdb->prepare("SELECT rpwc.post_id
-				FROM {$table_name} as rpwc
-				LEFT JOIN {$wpdb->posts} as wp on wp.ID = rpwc.post_id
-				WHERE rpwc.category_id = %d AND wp.post_type=%s order by rpwc.id", $term_id, $post_type));
+			if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name){ //cehck table exits.
+				$ranking = $wpdb->get_col($wpdb->prepare("SELECT rpwc.post_id
+					FROM {$table_name} as rpwc
+					LEFT JOIN {$wpdb->posts} as wp on wp.ID = rpwc.post_id
+					WHERE rpwc.category_id = %d AND wp.post_type=%s order by rpwc.id", $term_id, $post_type));
+			}
 			if(empty($ranking)){
 				$orderby = 'p.post_date';
 				if(apply_filters('reorder_posts_within_category_initial_orderby', false, $post_type, $term_id)){
