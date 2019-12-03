@@ -193,6 +193,8 @@ function custom_intial_order($ranking, $term_id, $taxonomy, $post_type){
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
+= 2.4.1 =
+* fix post count.
 = 2.4.0 =
 * added rpwc2_filter_default_ranking filter for intial order.
 = 2.3.0 =

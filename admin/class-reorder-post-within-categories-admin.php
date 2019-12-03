@@ -401,6 +401,25 @@ class Reorder_Post_Within_Categories_Admin {
 		if( empty($length) || $length> sizeof($ranking)) $length=sizeof($ranking);
 		return array_splice($ranking, $start, $length);
 	}
+  /**
+  * funciton to return the total count of posts in a given term for a given post type.
+  *
+  *@since 2.4.1
+  *@param string $post_type post type
+  *@param string $term_id id of term to get count of posts.
+  *@return int count of posts.
+  */
+  protected function count_posts_in_term($post_type, $term_id){
+		global $wpdb;
+    $sql = $wpdb->prepare("SELECT COUNT(p.ID) as total FROM {$wpdb->posts} as p LEFT JOIN {$wpdb->term_relationships} AS tr ON p.ID=tr.object_id
+      WHERE  p.post_status='publish'
+      AND p.post_type=%s
+      AND tr.term_taxonomy_id=%d", $post_type, $term_id);
+    $count = $wpdb->get_results($sql);
+		if(empty($count)) $count = 0;
+		else $count = $count[0]->total;
+    return $count;
+  }
 	/**
 	* General function to save a new order,
 	* @since 2.0.0
@@ -537,7 +556,8 @@ class Reorder_Post_Within_Categories_Admin {
 						'posts_per_page'=>-1
 					);
 					$posts_array = get_posts($args);
-					$total = count($posts_array); /** @since 2.4.0 better for multi post type */
+					/** @since 2.4.1 better for multi post type */
+					$total = $this->count_posts_in_term($post_type_detail->name, $cat_to_retrieve_post);
 					foreach($posts_array as $post) $posts[$post->ID]=$post;
 				}
 			}
