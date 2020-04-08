@@ -106,7 +106,6 @@ class Reorder_Post_Within_Categories_Public {
 	*/
   public function filter_posts_join($args, $wp_query){
     $queriedObj = $wp_query->get_queried_object();
-
     if (isset($queriedObj->taxonomy) && isset($queriedObj->term_id)) {
       $term_id = $queriedObj->term_id;
     } else {
@@ -114,10 +113,15 @@ class Reorder_Post_Within_Categories_Public {
     }
 		/** @since 2.3.0 check if the post type */
 		$type = $wp_query->query_vars['post_type'];
+		/** @since 2.4.3 fix for woocommerce */
+		if(isset($wp_query->query_vars['wc_query']) && 'product_query'==$wp_query->query_vars['wc_query']){
+			$type = 'product';
+		}
+		// debug_msg($wp_query, '----TYPE: ');
 		if( $this->is_ranked($term_id, $type, $wp_query) ){
 			global $wpdb;
 			/** @since 2.2.1 chnage from INNER JOIN to JOIN to see if fixes front-end queries*/
-      $args .= "LEFT JOIN {$wpdb->postmeta} AS rankpm ON {$wpdb->posts}.ID = rankpm.post_id ";
+      $args .= " LEFT JOIN {$wpdb->postmeta} AS rankpm ON {$wpdb->posts}.ID = rankpm.post_id ";
     }
 
     return $args;
@@ -127,26 +131,6 @@ class Reorder_Post_Within_Categories_Public {
 	* @since 1.0.0
 	*/
   public function filter_posts_where($args, $wp_query){
-      $queriedObj = $wp_query->get_queried_object();
-      if (isset($queriedObj->taxonomy) && isset($queriedObj->term_id)) {
-          $term_id = $queriedObj->term_id;
-      } else {
-          return $args;
-      }
-			/** @since 2.3.0 check if the post type */
-			$type = $wp_query->query_vars['post_type'];
-			if( $this->is_ranked($term_id, $type, $wp_query) ){
-				/** @since 2.3.0 check if term id is ranked for this post type. */
-				// if(!empty($type) && is_string($type)) $args .= " AND rankp.post_type ='{$type}'";
-				$args .= " AND rankpm.meta_value={$term_id} AND rankpm.meta_key='_rpwc2' ";
-			}
-      return $args;
-  }
-	/**
-	* filter posts_where query.
-	* @since 1.0.0.
-	*/
-  public function filter_posts_orderby($args, $wp_query){
     $queriedObj = $wp_query->get_queried_object();
     if (isset($queriedObj->taxonomy) && isset($queriedObj->term_id)) {
         $term_id = $queriedObj->term_id;
@@ -155,10 +139,40 @@ class Reorder_Post_Within_Categories_Public {
     }
 		/** @since 2.3.0 check if the post type */
 		$type = $wp_query->query_vars['post_type'];
+		/** @since 2.4.3 fix for woocommerce */
+		if(isset($wp_query->query_vars['wc_query']) && 'product_query'==$wp_query->query_vars['wc_query']){
+			$type = 'product';
+		}
+		if( $this->is_ranked($term_id, $type, $wp_query) ){
+			/** @since 2.3.0 check if term id is ranked for this post type. */
+			// if(!empty($type) && is_string($type)) $args .= " AND rankp.post_type ='{$type}'";
+			$args .= " AND rankpm.meta_value={$term_id} AND rankpm.meta_key='_rpwc2' ";
+		}
+    return $args;
+  }
+	/**
+	* filter posts_where query.
+	* @since 1.0.0.
+	*/
+  public function filter_posts_orderby($args, $wp_query){
+    $queriedObj = $wp_query->get_queried_object();
+		// debug_msg($args, ' order by ');
 
+    if (isset($queriedObj->taxonomy) && isset($queriedObj->term_id)) {
+        $term_id = $queriedObj->term_id;
+    } else {
+        return $args;
+    }
+		/** @since 2.3.0 check if the post type */
+		$type = $wp_query->query_vars['post_type'];
+		/** @since 2.4.3 fix for woocommerce */
+		if(isset($wp_query->query_vars['wc_query']) && 'product_query'==$wp_query->query_vars['wc_query']){
+			$type = 'product';
+		}
 		if( $this->is_ranked($term_id, $type, $wp_query) ){
         $args = "rankpm.meta_id ASC";
     }
+
     return $args;
   }
 	/**
@@ -202,4 +216,5 @@ class Reorder_Post_Within_Categories_Public {
 		}
 		return $is_ranked;
 	}
+
 }

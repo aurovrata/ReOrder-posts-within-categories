@@ -251,6 +251,7 @@ class Reorder_Post_Within_Categories_Admin {
 		$reset = false;
 		if(isset($_POST['reset'])) $reset=$_POST['reset'];
     $results = array();
+    // debug_msg($post_type, $term_id.' type ');
     if(!empty($post_type) && $term_id>0){
 			/** @since 2.1.0. allow rank reset*/
 			if($reset) $this->_unrank_all_posts($term_id, $post_type);
@@ -360,7 +361,7 @@ class Reorder_Post_Within_Categories_Admin {
 			FROM {$wpdb->postmeta} as rpwc_pm, {$wpdb->posts} as rpwc_p
 			WHERE rpwc_pm.meta_key ='_rpwc2'
 			AND rpwc_pm.meta_value=%d
-			AND rpwc_pm.post_id=p.ID
+			AND rpwc_pm.post_id=rpwc_p.ID
 			AND rpwc_p.post_type=%s
       ORDER BY rpwc_pm.meta_id", $term_id, $post_type);
 
@@ -379,18 +380,20 @@ class Reorder_Post_Within_Categories_Admin {
 					WHERE rpwc.category_id = %d AND wp.post_type=%s order by rpwc.id", $term_id, $post_type));
 			}
 			if(empty($ranking)){
-				$orderby = 'p.post_date';
+				$orderby = 'rpwc_p.post_date';
 				if(apply_filters('reorder_posts_within_category_initial_orderby', false, $post_type, $term_id)){
-					$orderby = 'p.post_name';
+					$orderby = 'rpwc_p.post_name';
 				}
 				$order = 'DESC';
 				if(apply_filters('reorder_posts_within_category_initial_order', false, $post_type, $term_id)){
 					$order = 'ASC';
 				}
-				$sql = $wpdb->prepare("SELECT rpwc_p.ID FROM {$wpdb->posts} as rpwc_p LEFT JOIN {$wpdb->term_relationships} AS rpwc_tr ON rpwc_p.ID=rpwc_tr.object_id
+				$sql = $wpdb->prepare("SELECT rpwc_p.ID FROM {$wpdb->posts} as rpwc_p
+					LEFT JOIN {$wpdb->term_relationships} AS rpwc_tr ON rpwc_p.ID=rpwc_tr.object_id
+					LEFT JOIN {$wpdb->term_taxonomy} AS rpwc_tt ON rpwc_tr.term_taxonomy_id = rpwc_tt.term_taxonomy_id
 					WHERE  rpwc_p.post_status='publish'
 					AND rpwc_p.post_type=%s
-					AND rpwc_tr.term_taxonomy_id=%d
+					AND rpwc_tt.term_id=%d
 					ORDER BY {$orderby} {$order}", $post_type, $term_id);
 				/** @since 2.4.3 */
 				$this->filter_query($sql, "SELECT rpwc_p.ID");
@@ -423,11 +426,12 @@ class Reorder_Post_Within_Categories_Admin {
   */
   protected function count_posts_in_term($post_type, $term_id){
 		global $wpdb;
-    $sql = $wpdb->prepare("SELECT COUNT(p.ID) as total
-      FROM {$wpdb->posts} as p LEFT JOIN {$wpdb->term_relationships} AS tr ON p.ID=tr.object_id1
-      WHERE  p.post_status='publish'
-      AND p.post_type=%s
-      AND tr.term_taxonomy_id=%d", $post_type, $term_id);
+    $sql = $wpdb->prepare("SELECT COUNT(rpwc_p.ID) as total FROM {$wpdb->posts} as rpwc_p
+		  LEFT JOIN {$wpdb->term_relationships} AS rpwc_tr ON rpwc_p.ID=rpwc_tr.object_id
+      LEFT JOIN {$wpdb->term_taxonomy} AS rpwc_tt ON rpwc_tr.term_taxonomy_id = rpwc_tt.term_taxonomy_id
+      WHERE  rpwc_p.post_status='publish'
+      AND rpwc_p.post_type=%s
+      AND rpwc_tt.term_id=%d", $post_type, $term_id);
     $count = $wpdb->get_results($sql);
 		if(empty($count)) $count = 0;
 		else $count = $count[0]->total;

@@ -3,7 +3,7 @@ Contributors: aurovrata, aurelien
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 3.4
-Tested up to: 5.3.0
+Tested up to: 5.4.0
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -193,6 +193,8 @@ function custom_intial_order($ranking, $term_id, $taxonomy, $post_type){
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
+= 2.4.3 =
+* fix WooCommerce issues.
 = 2.4.2 =
 * fix sql error on old table.
 = 2.4.1 =
