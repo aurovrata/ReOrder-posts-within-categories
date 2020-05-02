@@ -290,12 +290,10 @@
 	  * et on soulet le formulaire
 	  */
 	 function initSelectCategory(){
-	 	$("#selectCatToRetrieve").change(
-	 		function(event){
+	 	$("#selectCatToRetrieve").change(function(event){
 	 			var taxonomy = $("#selectCatToRetrieve option:selected").parent().attr("id");
 	 			$("#taxonomyHiddenField").val(taxonomy);
 	 			$("form#chooseTaxomieForm").submit();
 	 		}
-	 	);
-	 }
+	 	)}
 })( jQuery );

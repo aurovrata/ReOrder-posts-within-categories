@@ -193,6 +193,9 @@ function custom_intial_order($ranking, $term_id, $taxonomy, $post_type){
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
+= 2.5.0 =
+* enable get_adjacent_post functionality.
+* improve save_post rank management.
 = 2.4.3 =
 * fix WooCommerce issues.
 = 2.4.2 =

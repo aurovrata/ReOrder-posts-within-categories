@@ -135,9 +135,8 @@ class Reorder_Post_Within_Categories_Admin {
 		}
 		// debug_msg($_POST, 'ajax save rank ');
 		$key = $_POST['current_cat'];
-		$option = $_POST['valueForManualOrder'];
+		$option=array();
 		if(isset($_POST['post_type'])){
-			$option=array();
 			$option[$_POST['current_cat']] = $_POST['valueForManualOrder'];
 			$key = $_POST['post_type'];
 		}
@@ -689,60 +688,82 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @param type $post_id
 	 */
 	public function save_post( $new_status, $old_status, $post){
-		$public=array('publish', 'private', 'future');
-		// debug_msg($new_status.'->'.$old_status );
-		if( in_array($old_status, $public) && !in_array($new_status, $public)){
-			if( !in_array($new_status, $public) ) $this->unrank_post($post->ID);
-			return; //no actions required.
-		}
-		$settings = $this->get_admin_options();
-		if (empty($settings) || !isset($settings['categories_checked'][$post->post_type])) return;
-		$settings = $settings['categories_checked'][$post->post_type];
-
-		//verify post is not a revision
-		$post_id = $post->ID;
 		// Liste des taxonomies associÃ©e Ã  ce post
-		$taxonomies = get_object_taxonomies($post->post_type, 'objects');
+		$taxonomies = get_object_taxonomies($post->post_type);
 		if(empty($taxonomies)) return;
-		// for each CPT taxonomy, look at only the hierarchical ones
-		$post_ranks = get_post_meta($post_id, '_rpwc2', false);
-		foreach ($taxonomies as $taxonomie) {
-			if (!in_array($taxonomie->name, $settings)) continue;
-			$terms = get_terms($taxonomie->name);
-			if(empty($terms) || is_wp_error($terms)) continue;
-
-			$terms_of_the_post = wp_get_post_terms($post_id, $taxonomie->name);
-			$term_ids_of_the_post = wp_list_pluck($terms_of_the_post, 'term_id');
-
-			foreach ($terms as $term) {
-				if (!in_array($term->term_id, $term_ids_of_the_post)){
-					if(in_array($term->term_id, $post_ranks)){
-						$this->unrank_post($post_id, $term->term_id);
-					}
-					continue; //post not in term.
-				}
-				if(in_array($term->term_id, $post_ranks)) continue; //post already ranked.
-
-				$ranking = $this->_get_order($post->post_type, $term->term_id);
-				if(!empty($ranking)){ //post_type is manually ranked.
-					//add new rank at the bottom of the order.
-					add_post_meta($post_id, '_rpwc2', $term->term_id, false);
-					// debug_msg($term->term_id.' ranking '.$post_id);
-					/**
-					* Filter to rank new post at the top of the manual order.
-					* @since 2.0.0.
-					* @param boolean $first default false, true will place post first.
-					* @param WP_Post $post the current post being published.
-					* @param WP_Term $term the current taxonomy term within which the post is to be ranked.
-					*/
-					if(apply_filters('reorder_post_within_categories_new_post_first', false, $post, $term)){
-					 	//add new rank at the top of the order.
-						$ranking = unshift_array($ranking, $post_id);
-						$this->_save_order($ranking, $term->term_id);
-					}
-				}
-			}
+		//verify that this post_type is manually ranked for the associated terms.
+		$settings = $this->get_admin_options();
+		if (empty($settings) || !isset($settings['categories_checked'][$post->post_type])){
+			//if there are no taxonomies checked then this post cannot be manually ranked.
+			return;
 		}
+		//taxonomies ranked for this post type.
+		$ranked_tax = $settings['categories_checked'][$post->post_type];
+		//taxonomies associated with this post that are manually ranked.
+		$ranked_tax = array_intersect($ranked_tax, $taxonomies);
+		if(empty($ranked_tax)) return;
+
+		//find if terms are currently being ranked.
+		$ranked_terms = get_options(RPWC_OPTIONS, array());
+
+		if(!isset($ranked_terms[$post->post_type])) return; //no terms ranked for this post type.
+		$ranked_terms = array_keys( $ranked_terms[$post->post_type] );
+		$ranked_ids = array();
+		foreach($ranked_tax as $tax){
+			$post_terms = wp_get_post_terms($post->ID, $tax, array( 'fields' => 'ids' ));
+			debug_msg($post_terms, 'post terms ');
+			$ranked_ids += array_intersect(wp_list_pluck($post_terms, 'term_id'), $ranked_terms);
+		}
+		debug_msg($ranked_ids, 'ranked ids ');
+
+		if(empty($ranked_ids)) return; //no terms to rank.
+
+		$public=array('publish', 'private', 'future');
+    $draft = array( 'draft', 'pending');
+
+		$post_ranks = get_post_meta($post->ID, '_rpwc2', false);
+
+		$old_ranks = array_diff($post_ranks, $ranked_ids);
+		//these are terms which this post you to be part of and were ranked.
+		foreach($old_ranks as $term_id) $this->unrank_post($post->ID, $term_id);
+
+		//finally check the current status of the post.
+		switch(true){
+			case in_array($new_status, $public):
+				//status->publish = rank this post.
+				foreach($ranked_ids as $term_id){
+					/** @since 2.5.0 give more control of which post status to rank */
+					$rank_post = apply_filters("rpwc2_rank_published_posts", true, $term_id, $new_status, $old_status, $post);
+					if(!isset($post_ranks[$term_id]) && $rank_post) $this->rank_post($post, $term_id);
+					else if(isset($post_ranks[$term_id]) && !$rank_post) $this->unrank_post($post->ID, $term_id);
+				}
+				break;
+			case in_array($old_status, $draft) && in_array($new_status, $draft):
+				//status->draft
+				foreach($ranked_ids as $term_id){
+					/** @since 2.5.0 give more control of which post status to rank */
+					$rank_post = apply_filters("rpwc2_rank_draft_posts", false, $new_status, $old_status, $post);
+
+					if(!isset($post_ranks[$term_id]) && $rank_post) $this->rank_post($post, $term_id);
+					else if(isset($post_ranks[$term_id]) && !$rank_post) $this->unrank_post($post->ID, $term_id);
+				}
+				break;
+		}
+	}
+	/**
+	*
+	*
+	*@since 2.5.0
+	*@param string $param text_description
+	*@return string text_description
+	*/
+	public function rank_post($post, $term_id){
+		if(apply_filters('reorder_post_within_categories_new_post_first', false, $post, $term_id)){
+			$ranking = $this->_get_order($post->post_type, $term->term_id);
+			add_post_meta($post->ID, '_rpwc2', $term_id, false);
+			$ranking = array_unshift($ranking, $post->ID);
+			$this->_save_order($ranking, $term_id);
+		}else add_post_meta($post->ID, '_rpwc2', $term_id, false);
 	}
 	/**
 	 * When a post is deleted we remove all entries from the custom table

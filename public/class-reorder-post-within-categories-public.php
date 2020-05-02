@@ -216,5 +216,91 @@ class Reorder_Post_Within_Categories_Public {
 		}
 		return $is_ranked;
 	}
+  /**
+  * Get adjacent post in ranked posts.
+  * dismiss join sql statement.
+  * @since 2.4.4
+  * @param string  $join           The JOIN clause in the SQL.
+  * @param bool    $in_same_term   Whether post should be in a same taxonomy term.
+  * @param array   $excluded_terms Array of excluded term IDs.
+  * @param string  $taxonomy       Taxonomy. Used to identify the term used when `$in_same_term` is true.
+  * @param WP_Post $post           WP_Post object.
+  */
+  public function filter_adjacent_post_join($join, $in_same_term, $excluded_terms, $taxonomy, $post){
+		if(!$in_same_term) return $join;
+		//else check the term.
+		if ( ! is_object_in_taxonomy( $post->post_type, $taxonomy ) ) return $join;
 
+		$term =	$this->check_for_ranked_term($excluded_terms, $taxonomy, $post);
+
+		if(!empty($term)) $join ='';
+
+		return $join;
+  }
+  /**
+  * Get adjacent post in ranked posts.
+  * modify where sql statement.
+  * @since 2.4.4
+  * @param string  $join           The JOIN clause in the SQL.
+  * @param bool    $in_same_term   Whether post should be in a same taxonomy term.
+  * @param array   $excluded_terms Array of excluded term IDs.
+  * @param string  $taxonomy       Taxonomy. Used to identify the term used when `$in_same_term` is true.
+  * @param WP_Post $post           WP_Post object.
+  */
+  public function filter_next_post_where($where, $in_same_term, $excluded_terms, $taxonomy, $post){
+    return $this->get_adjacent_post_where($where, $in_same_term, $excluded_terms, $taxonomy, $post, 'next');
+  }
+  public function filter_prev_post_where($where, $in_same_term, $excluded_terms, $taxonomy, $post){
+    return $this->get_adjacent_post_where($where, $in_same_term, $excluded_terms, $taxonomy, $post, 'prev');
+  }
+  protected function get_adjacent_post_where($where, $in_same_term, $excluded_terms, $taxonomy, $post, $pos){
+		if(!$in_same_term) return $where;
+		//else check the term.
+		if ( ! is_object_in_taxonomy( $post->post_type, $taxonomy ) ) return $where;
+
+		$term =	$this->check_for_ranked_term($excluded_terms, $taxonomy, $post);
+
+		if(!empty($term)){
+			$compare = '>';
+			if('prev'==$pos) $compare='<';
+
+			global $wpdb;
+			$adj_id = $wpdb->get_var("SELECT {$pos}_id from
+				( SELECT meta_id, lag(`post_id`) over ( ORDER BY `meta_id` ) as prev_id ,
+				  `post_id` , lead(`post_id`) over ( ORDER BY `meta_id` ) as next_id
+					FROM {$wpdb->postmeta} as pm, {$wpdb->posts} as p
+					WHERE pm.post_id=p.ID and p.post_type like {$post->post_type} and meta_key like '_rpwc2' and meta_value={$term} ) as rp
+				WHERE rp.post_id = {$post->ID}");
+			if(!empty($meta_id)){
+				$where = "p.ID= {$adj_id}";
+			}else $where = "p.ID=0";
+		}
+
+		return $where;
+  }
+	/**
+	* Check for a term with manual ranking.
+	*
+	*@since 2.5.0
+	* @param array   $excluded_terms Array of excluded term IDs.
+  * @param string  $taxonomy       Taxonomy. Used to identify the term used when `$in_same_term` is true.
+  * @param WP_Post $post           WP_Post object.
+	* @return int term id or null.
+	*/
+	protected function check_for_ranked_term($excluded_terms, $taxonomy, $post){
+		//check the terms of the current post.
+    $term_array = wp_get_object_terms( $post->ID, $taxonomy, array( 'fields' => 'ids' ) );
+    // Remove any exclusions from the term array to include.
+    $term_array = array_diff( $term_array, (array) $excluded_terms );
+    $term_array = array_map( 'intval', $term_array );
+
+    if ( ! $term_array || is_wp_error( $term_array ) ) return $where;
+
+		$term = apply_filters('rpwc2_filter_terms_get_adjacent_post', $term_array, $post, $taxonomy);
+ 		if(is_array($term)) $term = $term[0];
+
+		if(!$this->is_ranked($term, $post->post_type, null)) $term = null;
+
+		return $term;
+	}
 }
