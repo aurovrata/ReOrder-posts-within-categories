@@ -1,33 +1,6 @@
 (function( $ ) {
 	'use strict';
 
-	/**
-	 * All of the code for your admin-facing JavaScript source
-	 * should reside in this file.
-	 *
-	 * Note: It has been assumed you will write jQuery code here, so the
-	 * $ function reference has been prepared for usage within the scope
-	 * of this function.
-	 *
-	 * This enables you to define handlers, for when the DOM is ready:
-	 *
-	 * $(function() {
-	 *
-	 * });
-	 *
-	 * When the window is loaded:
-	 *
-	 * $( window ).load(function() {
-	 *
-	 * });
-	 *
-	 * ...and/or other possibilities.
-	 *
-	 * Ideally, it is not considered best practise to attach more than a
-	 * single DOM-ready or window-load handler for a particular page.
-	 * Although scripts in the WordPress core, Plugins and Themes may be
-	 * practising this, we should strive to set a better example in our own work.
-	 */
 	 var $sortable=$();
 	 $(document).ready(function() {
 		$sortable = $('#sortable-list');
@@ -62,6 +35,8 @@
  					  'start'           : min,
   					'category'				: $(this.el).attr("rel"),
 						'taxonomy'        : $("#taxonomyHiddenField").val(),
+						'post_type'       : $("#post-type").val(),
+						'valueForManualOrder'	: $("#form_result input.option_order:checked").val(),
   					'deefuseNounceUserOrdering'	: rpwc2.deefuseNounceUserOrdering
   				}
   				$.post(ajaxurl, data, function (response){
@@ -226,9 +201,11 @@
 
 	 		return false;
 	 	});
+
 		$('input[name="insert-order"]', $removeItems).on('pointerup mouseup touchend', function(e){
 			e.stopPropagation();
 		});
+
 		$removeItems.on('change','input[name="insert-order"]', function(event){
 			var $this = $(event.target),
 				rank = $this.val()*1,
@@ -272,6 +249,7 @@
 					'offset'    : max-min+1,
 					'post'      : $('#post-type').val(),
 	 				'category'	: $sortable.attr("rel"),
+					'valueForManualOrder'	: $("#form_result input.option_order:checked").val(),
 	 				'deefuseNounceUserOrdering'	: rpwc2.deefuseNounceUserOrdering
 	 			}
 	 			$.post(ajaxurl, data, function (response){

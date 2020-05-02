@@ -81,11 +81,11 @@ note that this filter is fired when you disable the plugin in the dashboard.  So
 Yes, as of v2.0 newly published posts can be ranked first instead of last by default using the following filter,
 
 `add-filter('reorder_post_within_categories_new_post_first', 'rank_new_posts', 10, 3);
-function rank_new_posts($is_first, $post, $term){
+function rank_new_posts($is_first, $post, $term_id){
     $is_first = true;
     //you can filter by taxonomy term, or other post parameters.
-    //WP_Post $post;
-    //WP_Term $term.
+    //WP_Post $post object being ranked;
+    //$term_id for which the post is rank is being inserted.
     return $is_first;
 }
 `
@@ -189,6 +189,39 @@ function custom_intial_order($ranking, $term_id, $taxonomy, $post_type){
   }
   return $filtered_order;
 }`
+
+= 11. Can I rank draft posts? =
+
+Yes!  By default all posts moved to draft/pending status are removed from the manual rankign.  However, you can hook the following filter and control which draft or pending posts should appear in the manual ranking in the amdin dashboard,
+
+`add_filter('rpwc2_rank_draft_posts', 'allow_draft_posts_in_ranking', 10, 5);
+function allow_draft_posts_in_ranking($allow, $new_status, $old_status, $term_id, $post){
+  //$new_status of the post being saved.
+  //$old_status of the post being saved.
+  //$term_id term for which the post is being ranked.
+  //WP_Post object being saved.
+  if(new_status == 'pending' && $term_id == 5){ //allow pending posts for term id 5 to be ranked.
+    $allow = true;
+  }
+  return $allow;
+}`
+NOTE:  this will only affect the admin dashboard queries.  Your draft posts will appear in the admin re-order pages but will not appear in the front-end queries, as only published posts will be retrieved by your queries.
+
+= 12. Can I remove private/future posts from the manual rank ? =
+
+Yes, there is a filter that allows you to control those too,
+`add_filter('rpwc2_rank_published_posts', 'allow_draft_posts_in_ranking', 10, 5);
+function allow_draft_posts_in_ranking($allow, $new_status, $old_status, $term_id, $post){
+  //$new_status of the post being saved.
+  //$old_status of the post being saved.
+  //$term_id term for which the post is being ranked.
+  //WP_Post object being saved.
+  if(new_status == 'future' && $term_id == 5){ //do not allow future posts for term id 5 to be ranked.
+    $allow = false;
+  }
+  return $allow;
+}`
+NOTE: note that this will effect front-end mixed-queries trying to display both future (and/or private) and 'publish'ed posts.
 
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 

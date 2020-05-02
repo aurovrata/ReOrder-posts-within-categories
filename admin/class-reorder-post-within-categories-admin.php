@@ -287,7 +287,7 @@ class Reorder_Post_Within_Categories_Admin {
 		return $results;
 	}
   /**
-  * Ajax called function to save the new order.
+  * Ajax 'user_ordering' called function to save the new order.
   * @since 1.0.0.
   */
 	public function save_order(){
@@ -296,10 +296,22 @@ class Reorder_Post_Within_Categories_Admin {
 		}
 		// debug_msg($_POST['order'], 'saving order ');
 		$this->_save_order(explode(",", $_POST['order']), $_POST['category'], $_POST['start']);
+
+		/** @since 2.5.0 save term status to ensure new posts are included properly */
+		$is_manual = $_POST['valueForManualOrder'];
+		$post_type = $_POST['post_type'];
+		$term_id = $_POST['category'];
+		//update the order options for this post_type.
+		$settings = get_option(RPWC_OPTIONS, array());
+		if(!isset($settings[$post_type])) $settings[$post_type] = array();
+		if(!isset($settings[$post_type][$term_id])){
+			$settings[$post_type][$term_id] = $is_manual;
+			update_option(RPWC_OPTIONS, $settings);
+		}
 		wp_die();
 	}
 	/**
-  * Ajax called function to save the new order.
+  * Ajax 'user_shuffle'  called function to save the new order.
   * @since 1.0.0.
   */
 	public function shuffle_order(){
@@ -315,6 +327,8 @@ class Reorder_Post_Within_Categories_Admin {
     $term_id = $_POST['category'];
 		$post_type = $_POST['post'];
 		$move = $_POST['move'];
+		/** @since 2.5.0 save term status to ensure new posts are included properly */
+		$is_manual = $_POST['valueForManualOrder'];
 		// debug_msg($_POST);
 		if(empty($items) || empty($start) ||
 			empty($end) || empty($term_id) ||
@@ -324,6 +338,15 @@ class Reorder_Post_Within_Categories_Admin {
 		}
 		// $items = explode(',',$items);
 		$order = $this->_get_order($post_type, $term_id, $start-1, $end-$start+1);
+
+		/** @since 2.5.0 save term status to ensure new posts are included properly */
+		//update the order options for this post_type.
+		$settings = get_option(RPWC_OPTIONS, array());
+		if(!isset($settings[$post_type])) $settings[$post_type] = array();
+		if(!isset($settings[$post_type][$term_id])){
+			$settings[$post_type][$term_id] = $is_manual;
+			update_option(RPWC_OPTIONS, $settings);
+		}
 		// debug_msg($order, ($start-1).'->'.($end-$start+1));
 		// debug_msg($items, 'items to move ');
 		foreach($items as $post_id){
@@ -545,7 +568,7 @@ class Reorder_Post_Within_Categories_Admin {
 	* function to save options.
 	* @since 1.0.0.
 	*/
-	public function save_admin_options(){
+	public function save_admin_options_on_init(){
 		// Si le formulaire a Ã©tÃ© soumis, on rÃ©-enregistre les catÃ©gorie dont on veut trier les Ã©lÃ©ments
 		if (!empty($_POST) && isset($_POST['nounceUpdateOptionReorder']) && wp_verify_nonce($_POST['nounceUpdateOptionReorder'], 'updateOptionSettings')) {
 			$categories_checked = array();
@@ -553,10 +576,18 @@ class Reorder_Post_Within_Categories_Admin {
 					$categories_checked = $_POST['selection'];
 			}
 			$settingsOptions['categories_checked'] = $categories_checked;
-			update_option($this->adminOptionsName, $settingsOptions);
+			$this->save_admin_options($settingsOptions);
 		}
 	}
-
+	/**
+	* Save admin options.
+	*
+	*@since 2.5.0
+	*@param array $settings array of settings.
+	*/
+	public function save_admin_options($settings){
+		update_option($this->adminOptionsName, $settings);
+	}
 	/**
 	* callback funciton to display the order page.
 	* @since 1.0.0
@@ -704,25 +735,22 @@ class Reorder_Post_Within_Categories_Admin {
 		if(empty($ranked_tax)) return;
 
 		//find if terms are currently being ranked.
-		$ranked_terms = get_options(RPWC_OPTIONS, array());
+		$ranked_terms = get_option(RPWC_OPTIONS, array());
 
 		if(!isset($ranked_terms[$post->post_type])) return; //no terms ranked for this post type.
 		$ranked_terms = array_keys( $ranked_terms[$post->post_type] );
 		$ranked_ids = array();
 		foreach($ranked_tax as $tax){
 			$post_terms = wp_get_post_terms($post->ID, $tax, array( 'fields' => 'ids' ));
-			debug_msg($post_terms, 'post terms ');
-			$ranked_ids += array_intersect(wp_list_pluck($post_terms, 'term_id'), $ranked_terms);
+			$ranked_ids += array_intersect($post_terms, $ranked_terms);
 		}
-		debug_msg($ranked_ids, 'ranked ids ');
 
 		if(empty($ranked_ids)) return; //no terms to rank.
 
-		$public=array('publish', 'private', 'future');
+		$public =array('publish', 'private', 'future');
     $draft = array( 'draft', 'pending');
 
 		$post_ranks = get_post_meta($post->ID, '_rpwc2', false);
-
 		$old_ranks = array_diff($post_ranks, $ranked_ids);
 		//these are terms which this post you to be part of and were ranked.
 		foreach($old_ranks as $term_id) $this->unrank_post($post->ID, $term_id);
@@ -733,25 +761,25 @@ class Reorder_Post_Within_Categories_Admin {
 				//status->publish = rank this post.
 				foreach($ranked_ids as $term_id){
 					/** @since 2.5.0 give more control of which post status to rank */
-					$rank_post = apply_filters("rpwc2_rank_published_posts", true, $term_id, $new_status, $old_status, $post);
-					if(!isset($post_ranks[$term_id]) && $rank_post) $this->rank_post($post, $term_id);
-					else if(isset($post_ranks[$term_id]) && !$rank_post) $this->unrank_post($post->ID, $term_id);
+					$rank_post = apply_filters("rpwc2_rank_published_posts", true, $term_id, $new_status, $old_status, $term_id, $post);
+					if(!in_array($term_id, $post_ranks) && $rank_post) $this->rank_post($post, $term_id);
+					else if(in_array($term_id, $post_ranks) && !$rank_post) $this->unrank_post($post->ID, $term_id);
 				}
 				break;
-			case in_array($old_status, $draft) && in_array($new_status, $draft):
+			case in_array($new_status, $draft):
 				//status->draft
 				foreach($ranked_ids as $term_id){
 					/** @since 2.5.0 give more control of which post status to rank */
-					$rank_post = apply_filters("rpwc2_rank_draft_posts", false, $new_status, $old_status, $post);
+					$rank_post = apply_filters("rpwc2_rank_draft_posts", false, $new_status, $old_status,$term_id, $post);
 
-					if(!isset($post_ranks[$term_id]) && $rank_post) $this->rank_post($post, $term_id);
-					else if(isset($post_ranks[$term_id]) && !$rank_post) $this->unrank_post($post->ID, $term_id);
+					if(!in_array($term_id, $post_ranks) && $rank_post) $this->rank_post($post, $term_id);
+					else if(in_array($term_id, $post_ranks) && !$rank_post) $this->unrank_post($post->ID, $term_id);
 				}
 				break;
 		}
 	}
 	/**
-	*
+	* Rank a new post.
 	*
 	*@since 2.5.0
 	*@param string $param text_description
@@ -759,9 +787,9 @@ class Reorder_Post_Within_Categories_Admin {
 	*/
 	public function rank_post($post, $term_id){
 		if(apply_filters('reorder_post_within_categories_new_post_first', false, $post, $term_id)){
-			$ranking = $this->_get_order($post->post_type, $term->term_id);
+			$ranking = $this->_get_order($post->post_type, $term_id);
 			add_post_meta($post->ID, '_rpwc2', $term_id, false);
-			$ranking = array_unshift($ranking, $post->ID);
+			array_unshift($ranking, $post->ID);
 			$this->_save_order($ranking, $term_id);
 		}else add_post_meta($post->ID, '_rpwc2', $term_id, false);
 	}

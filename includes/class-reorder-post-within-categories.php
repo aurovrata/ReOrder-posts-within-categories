@@ -163,7 +163,7 @@ class Reorder_Post_Within_Categories {
 		//hook for notices
 		$this->loader->add_action('admin_notices', $plugin_admin, 'admin_dashboard_notice');
 		//Action qui sauvegardera le paamÃ©trage du plugin
-		$this->loader->add_action('init', $plugin_admin, 'save_admin_options');
+		$this->loader->add_action('init', $plugin_admin, 'save_admin_options_on_init');
 		// Ajout de la page de paramÃ©trage du plugins
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_setting_page');
 

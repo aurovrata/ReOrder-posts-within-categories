@@ -31,10 +31,14 @@
       <option value="null" disabled="disabled" selected="selected"><?= __('Select','reorder-post-within-categories')?></option>
     <?php
 			$catDisabled = false;
-			foreach ($listCategories as $categorie) :
+			foreach ($listCategories as $idx=>$categorie) :
 				$taxonomies = get_taxonomies(array('name'=> $categorie), 'object');
+				if(!isset($taxonomies[$categorie])){ //this taxonomy no longer exists.
+					unset($settingsOptions['categories_checked'][$post_type_detail->name][$idx]);
+					$this->save_admin_options($settingsOptions);
+					continue;
+				}
 				$taxonomy = $taxonomies[$categorie];
-
 				// On liste maintenant les terms disponibles pour la taxonomie concernÃ©e
 				$term_query = array('taxonomy'=>$taxonomy->name);
 				$list_terms = get_terms($term_query);
