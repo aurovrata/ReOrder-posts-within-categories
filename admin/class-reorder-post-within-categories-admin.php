@@ -294,12 +294,12 @@ class Reorder_Post_Within_Categories_Admin {
 		if (!isset($_POST['deefuseNounceUserOrdering']) || !wp_verify_nonce($_POST['deefuseNounceUserOrdering'], 'nonce-UserOrderingChange')) {
 				wp_die('nonce failed, reload your page');
 		}
+		$post_type = $_POST['post_type'];
 		// debug_msg($_POST['order'], 'saving order ');
-		$this->_save_order(explode(",", $_POST['order']), $_POST['category'], $_POST['start']);
+		$this->_save_order($post_type, explode(",", $_POST['order']), $_POST['category'], $_POST['start']);
 
 		/** @since 2.5.0 save term status to ensure new posts are included properly */
 		$is_manual = $_POST['valueForManualOrder'];
-		$post_type = $_POST['post_type'];
 		$term_id = $_POST['category'];
 		//update the order options for this post_type.
 		$settings = get_option(RPWC_OPTIONS, array());
@@ -365,7 +365,7 @@ class Reorder_Post_Within_Categories_Admin {
 				break;
 		}
 		// debug_msg($order, 'new order ');
-		$this->_save_order($order, $term_id, $start-1);
+		$this->_save_order($post_type, $order, $term_id, $start-1);
 		$results = $this->_get_ranked_posts($post_type, $term_id, $_POST['range_start'], $_POST['offset']);
 		wp_send_json_success($results);
     wp_die();
@@ -433,7 +433,7 @@ class Reorder_Post_Within_Categories_Admin {
           $ranking = array_merge($new_ranking, $ranking);
         }
 			}
-			$this->_save_order($ranking, $term_id);
+			$this->_save_order($post_type, $ranking, $term_id);
 		}
 		if( empty($length) || $length> sizeof($ranking)) $length=sizeof($ranking);
 		return array_splice($ranking, $start, $length);
@@ -465,12 +465,13 @@ class Reorder_Post_Within_Categories_Admin {
 	* @param array $order an array of $post_id in ranked order.
 	* @param int $term_id the id of the category term for which the posts need to be ranked.
 	*/
-	protected function _save_order($order=array(), $term_id=0, $start=0){
+	protected function _save_order($post_type, $order=array(), $term_id=0, $start=0){
 		if(empty($order) || 0==$term_id) return false;
 		global $wpdb;
-		$query =$wpdb->prepare("SELECT rpwc_pm.meta_id, rpwc_pm.post_id FROM {$wpdb->postmeta} as rpwc_pm WHERE rpwc_pm.meta_key ='_rpwc2' AND rpwc_pm.meta_value=%d", $term_id);
+		// debug_msg($order, 'saving order ');
+		$query =$wpdb->prepare("SELECT rpwc_pm.meta_id, rpwc_p.ID FROM {$wpdb->posts} as rpwc_p LEFT JOIN {$wpdb->postmeta} as rpwc_pm on rpwc_p.ID = rpwc_pm.post_id WHERE rpwc_p.post_type like '%s' AND rpwc_pm.meta_key ='_rpwc2' AND rpwc_pm.meta_value=%d", $post_type, $term_id);
 		/** @since 2.4.3 */
-		$this->filter_query($query, "SELECT rpwc_pm.meta_id, rpwc_pm.post_id");
+		$this->filter_query($query, "SELECT rpwc_pm.meta_id, rpwc_p.ID");
 		$ranked_rows = $wpdb->get_results($query);
 
 		if (empty($ranked_rows)) {
@@ -790,7 +791,7 @@ class Reorder_Post_Within_Categories_Admin {
 			$ranking = $this->_get_order($post->post_type, $term_id);
 			add_post_meta($post->ID, '_rpwc2', $term_id, false);
 			array_unshift($ranking, $post->ID);
-			$this->_save_order($ranking, $term_id);
+			$this->_save_order($post->post_type, $ranking, $term_id);
 		}else add_post_meta($post->ID, '_rpwc2', $term_id, false);
 	}
 	/**

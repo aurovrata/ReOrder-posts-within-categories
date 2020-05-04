@@ -118,7 +118,7 @@ class Reorder_Post_Within_Categories_Public {
 			$type = 'product';
 		}
 		// debug_msg($wp_query, '----TYPE: ');
-		if( $this->is_ranked($term_id, $type, $wp_query) ){
+		if( $this->is_ranked($queriedObj->taxonomy, $term_id, $type, $wp_query) ){
 			global $wpdb;
 			/** @since 2.2.1 chnage from INNER JOIN to JOIN to see if fixes front-end queries*/
       $args .= " LEFT JOIN {$wpdb->postmeta} AS rankpm ON {$wpdb->posts}.ID = rankpm.post_id ";
@@ -143,7 +143,7 @@ class Reorder_Post_Within_Categories_Public {
 		if(isset($wp_query->query_vars['wc_query']) && 'product_query'==$wp_query->query_vars['wc_query']){
 			$type = 'product';
 		}
-		if( $this->is_ranked($term_id, $type, $wp_query) ){
+		if( $this->is_ranked($queriedObj->taxonomy, $term_id, $type, $wp_query) ){
 			/** @since 2.3.0 check if term id is ranked for this post type. */
 			// if(!empty($type) && is_string($type)) $args .= " AND rankp.post_type ='{$type}'";
 			$args .= " AND rankpm.meta_value={$term_id} AND rankpm.meta_key='_rpwc2' ";
@@ -169,41 +169,84 @@ class Reorder_Post_Within_Categories_Public {
 		if(isset($wp_query->query_vars['wc_query']) && 'product_query'==$wp_query->query_vars['wc_query']){
 			$type = 'product';
 		}
-		if( $this->is_ranked($term_id, $type, $wp_query) ){
+		if( $this->is_ranked($queriedObj->taxonomy, $term_id, $type, $wp_query) ){
         $args = "rankpm.meta_id ASC";
     }
-
     return $args;
   }
 	/**
 	* check if term id is a being ranked for this post type.
 	*
 	*@since 2.3.0
+  *@param string $taxonomy taxonomy being queried.
 	*@param string $term_id term id being queried.
 	*@param string $type post type being queried.
 	*@return boolean true or false if being manually ranked.
 	*/
-	private function is_ranked($term_id, &$type, $wp_query){
+	private function is_ranked($taxonomy, $term_id, &$type, $wp_query=null){
+    if(empty($wp_query) && empty($type)) return false;
+
 		$tax_options = get_option(RPWC_OPTIONS, array());
-		// debug_msg($tax_options, 'term '.$term_id);
 		switch(true){
 			case 'any' == $type: //multi type search cannot be done.
 			case !empty($type) && is_array($type):
 				//let's leave it to the user to decide what to do.
-				$type=''; //reset.
+				//$type=''; //reset.
 				$type_filter = apply_filters('reorderpwc_filter_multiple_post_type', $type, $wp_query);
-				if(!empty($type_filter) && is_string($type_filter)){
-					$type = $type_filter;
+				switch(true){
+					case !empty($type_filter) && is_string($type_filter):
+						$type = $type_filter;
+						break;
+					case is_array($type):
+						$type = $type[0];
+						break;
+					default:
+						$type = 'post';
+						break;
 				}
 				break;
 			case !empty($type): //type is set and single value.
+        break;
 			case $wp_query->is_attachment(): //type is empty.
+        $type = 'attachment';
+        break;
 			case $wp_query->is_page():
+        $type = 'page';
+				break;
+      case empty($type) && $wp_query->is_tax(): /** @since 2.5.1 fix */
+      	// Do a fully inclusive search for currently registered post types of queried taxonomies.
+      	$post_type  = array();
+      	foreach ( get_post_types( array( 'exclude_from_search' => false ) ) as $pt ) {
+        	$object_taxonomies = get_object_taxonomies( $pt );
+	        if ( in_array( $taxonomy, $object_taxonomies ) ) {
+	          $post_type[] = $pt;
+	        }
+      	}
+				// debug_msg($post_type, $taxonomy.' term '.$term_id);
+				switch(count($post_type)){
+					case 1:
+						$type = $post_type[0];
+						break;
+					case 0: //not a manually ranked term.
+						break;
+					default:
+						$type_filter = apply_filters('reorderpwc_filter_multiple_post_type', $post_type, $wp_query);
+						switch(true){
+							case !empty($type_filter) && is_string($type_filter):
+								$type = $type_filter;
+								break;
+							default:
+								$type = $post_type[0];
+								break;
+						}
+						break;
+				}
 				break;
 			default: //assume it is a post.
 				$type = 'post';
 				break;
 		}
+		// debug_msg('is ranked type: '.$type);
 		$is_ranked=false;
 		if(isset($tax_options[$type]) && isset($tax_options[$type][$term_id])){
 			/** @since 2.3.0 check if term id is ranked for this post type. */
@@ -299,7 +342,7 @@ class Reorder_Post_Within_Categories_Public {
 		$term = apply_filters('rpwc2_filter_terms_get_adjacent_post', $term_array, $post, $taxonomy);
  		if(is_array($term)) $term = $term[0];
 
-		if(!$this->is_ranked($term, $post->post_type, null)) $term = null;
+		if(!$this->is_ranked($taxonomy, $term, $post->post_type, null)) $term = null;
 
 		return $term;
 	}
