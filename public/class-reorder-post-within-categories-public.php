@@ -190,20 +190,7 @@ class Reorder_Post_Within_Categories_Public {
 		switch(true){
 			case 'any' == $type: //multi type search cannot be done.
 			case !empty($type) && is_array($type):
-				//let's leave it to the user to decide what to do.
-				//$type=''; //reset.
-				$type_filter = apply_filters('reorderpwc_filter_multiple_post_type', $type, $wp_query);
-				switch(true){
-					case !empty($type_filter) && is_string($type_filter):
-						$type = $type_filter;
-						break;
-					case is_array($type):
-						$type = $type[0];
-						break;
-					default:
-						$type = 'post';
-						break;
-				}
+				return false;
 				break;
 			case !empty($type): //type is set and single value.
         break;
@@ -227,18 +214,19 @@ class Reorder_Post_Within_Categories_Public {
 					case 1:
 						$type = $post_type[0];
 						break;
-					case 0: //not a manually ranked term.
-						break;
-					default:
-						$type_filter = apply_filters('reorderpwc_filter_multiple_post_type', $post_type, $wp_query);
-						switch(true){
-							case !empty($type_filter) && is_string($type_filter):
-								$type = $type_filter;
-								break;
-							default:
-								$type = $post_type[0];
-								break;
-						}
+					default: //multiple post types or none.
+					  /** filter multiple post types.
+						* @since 2.5.0.
+						* @param String $type post type to filter.
+						* @param String $post_types post types associated with taxonomy.
+						* @param String $taxonomy being queried.
+						* @param int $term_id term id being queried.
+						* @param WP_Query $wp_query query object.
+						*/
+						$type = apply_filters('reorderpwc_filter_multiple_post_type',$type, $post_types, $taxonomy, $term_id, $wp_query);
+            if(empty($type) || !is_string($type)){
+              return false;
+            }
 						break;
 				}
 				break;
