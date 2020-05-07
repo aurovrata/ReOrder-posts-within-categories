@@ -173,12 +173,11 @@ If you are displaying your posts using a custom query with the function get_post
 Furthermore, if your query is a taxonomy archive query for a given term, then WordPress core query does not specify the post type by default.  This forces the plugin to seek which post type is associated with this taxonomy.  *In the event that the your are using this taxonomy to classify multiple post types* this will lead to the plugin choosing the first type it encounters and may give spurious or null results.  A hook is provided for you to correctly filter the post_type and ensure the right resutls,
 
 `
-add_filter('reorderpwc_filter_multiple_post_type', 'filter_my_ranked_post_type', 10, 5);
-function filter_my_ranked_post_type($type, $post_types, $taxonomy, $term_id, $wp_query){
+add_filter('reorderpwc_filter_multiple_post_type', 'filter_my_ranked_post_type', 10, 4);
+function filter_my_ranked_post_type($type, $post_types, $taxonomy, $wp_query){
   /* String $type post type to filter.
   *  String $post_types post types associated with taxonomy.
   *  String $taxonomy being queried.
-  *  int $term_id term id being queried.
   *  WP_Query $wp_query query object. */
   if('my-custom-tax' == $taxonomy && in_array('my-custom-post',$post_types)) $type = 'my-custom-post';
   return $type;

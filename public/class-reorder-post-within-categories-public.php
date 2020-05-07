@@ -220,10 +220,9 @@ class Reorder_Post_Within_Categories_Public {
 						* @param String $type post type to filter.
 						* @param String $post_types post types associated with taxonomy.
 						* @param String $taxonomy being queried.
-						* @param int $term_id term id being queried.
 						* @param WP_Query $wp_query query object.
 						*/
-						$type = apply_filters('reorderpwc_filter_multiple_post_type',$type, $post_types, $taxonomy, $term_id, $wp_query);
+						$type = apply_filters('reorderpwc_filter_multiple_post_type',$type, $post_types, $taxonomy, $wp_query);
             if(empty($type) || !is_string($type)){
               return false;
             }
