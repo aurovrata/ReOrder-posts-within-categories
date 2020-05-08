@@ -264,7 +264,6 @@ class Reorder_Post_Within_Categories_Public {
 		$term =	$this->check_for_ranked_term($excluded_terms, $taxonomy, $post);
 
 		if(!empty($term)) $join ='';
-
 		return $join;
   }
   /**
@@ -289,21 +288,24 @@ class Reorder_Post_Within_Categories_Public {
 		if ( ! is_object_in_taxonomy( $post->post_type, $taxonomy ) ) return $where;
 
 		$term =	$this->check_for_ranked_term($excluded_terms, $taxonomy, $post);
-
+		// debug_msg($where, 'where ');
 		if(!empty($term)){
 			$compare = '>';
 			if('prev'==$pos) $compare='<';
 
 			global $wpdb;
+      // debug_msg($wpdb->db_version(), 'version ');
 			$adj_id = $wpdb->get_var("SELECT {$pos}_id from
 				( SELECT meta_id, lag(`post_id`) over ( ORDER BY `meta_id` ) as prev_id ,
 				  `post_id` , lead(`post_id`) over ( ORDER BY `meta_id` ) as next_id
 					FROM {$wpdb->postmeta} as pm, {$wpdb->posts} as p
-					WHERE pm.post_id=p.ID and p.post_type like {$post->post_type} and meta_key like '_rpwc2' and meta_value={$term} ) as rp
+					WHERE pm.post_id=p.ID and p.post_type like '{$post->post_type}' and meta_key like '_rpwc2' and meta_value={$term} ) as rp
 				WHERE rp.post_id = {$post->ID}");
-			if(!empty($meta_id)){
-				$where = "p.ID= {$adj_id}";
-			}else $where = "p.ID=0";
+
+				// debug_msg($wpdb->last_query, $pos.' SQL QUERY:');
+			if(!empty($adj_id)){
+				$where = " WHERE p.ID= {$adj_id} ";
+			}else $where = " WHERE p.ID=0 ";
 		}
 
 		return $where;
