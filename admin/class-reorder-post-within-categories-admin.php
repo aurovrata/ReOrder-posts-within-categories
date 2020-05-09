@@ -469,7 +469,7 @@ class Reorder_Post_Within_Categories_Admin {
 		if(empty($order) || 0==$term_id) return false;
 		global $wpdb;
 		// debug_msg($order, 'saving order ');
-		$query =$wpdb->prepare("SELECT rpwc_pm.meta_id, rpwc_p.ID FROM {$wpdb->posts} as rpwc_p LEFT JOIN {$wpdb->postmeta} as rpwc_pm on rpwc_p.ID = rpwc_pm.post_id WHERE rpwc_p.post_type like '%s' AND rpwc_pm.meta_key ='_rpwc2' AND rpwc_pm.meta_value=%d", $post_type, $term_id);
+		$query =$wpdb->prepare("SELECT rpwc_pm.meta_id, rpwc_p.ID FROM {$wpdb->posts} as rpwc_p LEFT JOIN {$wpdb->postmeta} as rpwc_pm on rpwc_p.ID = rpwc_pm.post_id WHERE rpwc_p.post_type like '%s' AND rpwc_pm.meta_key ='_rpwc2' AND rpwc_pm.meta_value=%d ORDER BY rpwc_pm.meta_id ASC", $post_type, $term_id);
 		/** @since 2.4.3 */
 		$this->filter_query($query, "SELECT rpwc_pm.meta_id, rpwc_p.ID");
 		$ranked_rows = $wpdb->get_results($query);

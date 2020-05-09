@@ -240,6 +240,9 @@ NOTE: note that this will effect front-end mixed-queries trying to display both 
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 == Changelog ==
+= 2.5.4 =
+* change get_adjacent_post_where SQL for older DB.
+* fix admin reverse order saving.
 = 2.5.3 =
 * fix adjacent post functionality.
 = 2.5.2 =

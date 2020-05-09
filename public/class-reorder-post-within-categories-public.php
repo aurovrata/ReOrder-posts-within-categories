@@ -295,12 +295,11 @@ class Reorder_Post_Within_Categories_Public {
 
 			global $wpdb;
       // debug_msg($wpdb->db_version(), 'version ');
-			$adj_id = $wpdb->get_var("SELECT {$pos}_id from
-				( SELECT meta_id, lag(`post_id`) over ( ORDER BY `meta_id` ) as prev_id ,
-				  `post_id` , lead(`post_id`) over ( ORDER BY `meta_id` ) as next_id
-					FROM {$wpdb->postmeta} as pm, {$wpdb->posts} as p
-					WHERE pm.post_id=p.ID and p.post_type like '{$post->post_type}' and meta_key like '_rpwc2' and meta_value={$term} ) as rp
-				WHERE rp.post_id = {$post->ID}");
+			$adj_id = $wpdb->get_var("SELECT (
+				SELECT rankpm.post_id FROM {$wpdb->postmeta} as rankpm LEFT JOIN {$wpdb->posts} AS rankp ON rankp.ID=rankpm.post_id
+				  WHERE rankpm.meta_key like '_rpwc2' AND rankpm.meta_value={$term} AND rankp.post_type LIKE '{$post->post_type}' AND rankpm.meta_id{$compare}selectp.meta_id ORDER BY rankpm.meta_id ASC LIMIT 1 OFFSET 0
+    		) AS next_post FROM {$wpdb->postmeta} AS selectp
+				  WHERE selectp.meta_id = (SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id={$post->ID} AND meta_key LIKE '_rpwc2' AND meta_value={$term})");
 
 				// debug_msg($wpdb->last_query, $pos.' SQL QUERY:');
 			if(!empty($adj_id)){
