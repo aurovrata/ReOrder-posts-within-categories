@@ -239,7 +239,13 @@ NOTE: note that this will effect front-end mixed-queries trying to display both 
 
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
+= Thanks to =
+@maddogprod for helping resolve custom taxonomy front-end ordering.
+@menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
+
 == Changelog ==
+= 2.5.5 =
+* fix get_adjacent_post_where SQL query.
 = 2.5.4 =
 * change get_adjacent_post_where SQL for older DB.
 * fix admin reverse order saving.

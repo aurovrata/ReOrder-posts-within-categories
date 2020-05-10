@@ -222,7 +222,7 @@ class Reorder_Post_Within_Categories_Public {
 						* @param String $taxonomy being queried.
 						* @param WP_Query $wp_query query object.
 						*/
-						$type = apply_filters('reorderpwc_filter_multiple_post_type',$type, $post_types, $taxonomy, $wp_query);
+						$type = apply_filters('reorderpwc_filter_multiple_post_type',$type, $post_type, $taxonomy, $wp_query);
             if(empty($type) || !is_string($type)){
               return false;
             }
@@ -291,13 +291,16 @@ class Reorder_Post_Within_Categories_Public {
 		// debug_msg($where, 'where ');
 		if(!empty($term)){
 			$compare = '>';
-			if('prev'==$pos) $compare='<';
-
+			$order = "ASC";
+			if('prev'==$pos){
+				$compare='<';
+				$order = "DESC";
+			}
 			global $wpdb;
       // debug_msg($wpdb->db_version(), 'version ');
 			$adj_id = $wpdb->get_var("SELECT (
 				SELECT rankpm.post_id FROM {$wpdb->postmeta} as rankpm LEFT JOIN {$wpdb->posts} AS rankp ON rankp.ID=rankpm.post_id
-				  WHERE rankpm.meta_key like '_rpwc2' AND rankpm.meta_value={$term} AND rankp.post_type LIKE '{$post->post_type}' AND rankpm.meta_id{$compare}selectp.meta_id ORDER BY rankpm.meta_id ASC LIMIT 1 OFFSET 0
+				  WHERE rankpm.meta_key like '_rpwc2' AND rankpm.meta_value={$term} AND rankp.post_type LIKE '{$post->post_type}' AND rankpm.meta_id{$compare}selectp.meta_id ORDER BY rankpm.meta_id {$order} LIMIT 1 OFFSET 0
     		) AS next_post FROM {$wpdb->postmeta} AS selectp
 				  WHERE selectp.meta_id = (SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id={$post->ID} AND meta_key LIKE '_rpwc2' AND meta_value={$term})");
 
