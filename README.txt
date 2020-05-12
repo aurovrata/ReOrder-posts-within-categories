@@ -204,7 +204,7 @@ function custom_intial_order($ranking, $term_id, $taxonomy, $post_type){
   return $filtered_order;
 }`
 
-= 11. Can I rank draft posts? =
+= 12. Can I rank draft posts? =
 
 Yes!  By default all posts moved to draft/pending status are removed from the manual rankign.  However, you can hook the following filter and control which draft or pending posts should appear in the manual ranking in the amdin dashboard,
 
@@ -221,7 +221,7 @@ function allow_draft_posts_in_ranking($allow, $new_status, $old_status, $term_id
 }`
 NOTE:  this will only affect the admin dashboard queries.  Your draft posts will appear in the admin re-order pages but will not appear in the front-end queries, as only published posts will be retrieved by your queries.
 
-= 12. Can I remove private/future posts from the manual rank ? =
+= 13. Can I remove private/future posts from the manual rank ? =
 
 Yes, there is a filter that allows you to control those too,
 `add_filter('rpwc2_rank_published_posts', 'allow_draft_posts_in_ranking', 10, 5);
@@ -245,7 +245,7 @@ NOTE: note that this will effect front-end mixed-queries trying to display both 
 
 == Changelog ==
 = 2.5.6 =
-* LearnPress order page fix. 
+* LearnPress order page fix.
 = 2.5.5 =
 * fix get_adjacent_post_where SQL query.
 = 2.5.4 =
