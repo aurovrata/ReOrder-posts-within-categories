@@ -168,8 +168,8 @@ class Reorder_Post_Within_Categories {
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_setting_page');
 
 		// Ajout des pages de classement des post pour les post et custom post type concernÃ©s
-		$this->loader->add_action('admin_menu', $plugin_admin, 'add_order_pages');
-
+		/** @since 2.5.1 delay hook for learnPress reorder page */
+		$this->loader->add_action('admin_menu', $plugin_admin, 'add_order_pages',20,1);
 		$this->loader->add_action('wp_ajax_cat_ordered_changed', $plugin_admin, 'category_order_change');
     $this->loader->add_action('wp_ajax_user_ordering', $plugin_admin, 'save_order');
     $this->loader->add_action('wp_ajax_user_shuffle', $plugin_admin, 'shuffle_order');

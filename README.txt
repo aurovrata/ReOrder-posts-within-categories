@@ -244,6 +244,8 @@ NOTE: note that this will effect front-end mixed-queries trying to display both 
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 
 == Changelog ==
+= 2.5.6 =
+* LearnPress order page fix. 
 = 2.5.5 =
 * fix get_adjacent_post_where SQL query.
 = 2.5.4 =

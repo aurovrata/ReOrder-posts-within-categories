@@ -16,7 +16,7 @@
  * Plugin Name:       ReOrder Posts within Categories
  * Plugin URI:        https://github.com/aurovrata/ReOrder-posts-within-categories
  * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           2.5.5
+ * Version:           2.5.6
  * Author:            Aurorata V.
  * Author URI:        https://profiles.wordpress.org/aurovrata/
  * License:           GPL-2.0+
@@ -33,7 +33,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Current plugin version.
  */
-define( 'REORDER_POST_WITHIN_CATEGORIES_VERSION', '2.5.5' );
+define( 'REORDER_POST_WITHIN_CATEGORIES_VERSION', '2.5.6' );
 //options for plugin used in both public and admin classes.
 define('RPWC_OPTIONS', 'deefuse_ReOrderOrderedCategoriesOptions');
 

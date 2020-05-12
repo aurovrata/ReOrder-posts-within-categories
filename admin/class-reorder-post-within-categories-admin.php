@@ -596,6 +596,7 @@ class Reorder_Post_Within_Categories_Admin {
 	public function print_order_page(){
 		// On rÃ©cupÃ¨re le VPT sur lequel on travaille
 		$page_name = $_GET['page'];
+		// debug_msg('print order page '.$page_name);
 		$cpt_name = substr($page_name, 13, strlen($page_name));
 		$post_type = get_post_types(array('name' => $cpt_name), 'objects');
 		$post_type_detail  = $post_type[$cpt_name];
@@ -668,7 +669,9 @@ class Reorder_Post_Within_Categories_Admin {
 			*filter to allow other capabilities for managing orders.
 			* @since 1.3.0
 			**/
-			$capability = apply_filters('reorder_post_within_categories_capability', 'manage_categories', $post_type);
+			$capability = 'manage_categories';
+			// if('lp_course'==$post_type) $capability  = 'edit_' . LP_COURSE_CPT . 's';
+			$capability = apply_filters('reorder_post_within_categories_capability', $capability, $post_type);
 			if('manage_categories'!== $capability){ //validate capability.
 				$roles = wp_roles();
 				$is_valid=false;
@@ -680,12 +683,15 @@ class Reorder_Post_Within_Categories_Admin {
 				}
 				if(!$is_valid) $capability = 'manage_categories';
 			}
-			switch ($post_type) {
-				case 'attachment':
+			switch (true) {
+				case 'attachment'==$post_type:
 					$the_page = add_submenu_page('upload.php', 'Re-order', 'Reorder', $capability, 're-orderPost-'.$post_type, array(&$this,'print_order_page'));
 					break;
-				case 'post':
+				case 'post'==$post_type:
 					$the_page = add_submenu_page('edit.php', 'Re-order', 'Reorder', $capability, 're-orderPost-'.$post_type, array(&$this,'print_order_page'));
+					break;
+				case 'lp_course'==$post_type && is_plugin_active('learnpress/learnpress.php'): /** @since 2.5.6 learnpress fix.*/
+						$the_page =  add_submenu_page('learn_press', 'Re-order', 'Reorder', 'edit_lp_courses', 're-orderPost-'.$post_type, array(&$this,'print_order_page'));
 					break;
 				default:
 					$the_page =  add_submenu_page('edit.php?post_type='.$post_type, 'Re-order', 'Reorder', $capability, 're-orderPost-'.$post_type, array(&$this,'print_order_page'));
@@ -696,6 +702,7 @@ class Reorder_Post_Within_Categories_Admin {
 			add_action('admin_head-'. $the_page, array($this,'enqueue_scripts'));
 		}
 	}
+  
 	/**
 	 * Dispplay a link to setting page inside the plugin description
 	 */
