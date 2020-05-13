@@ -702,7 +702,7 @@ class Reorder_Post_Within_Categories_Admin {
 			add_action('admin_head-'. $the_page, array($this,'enqueue_scripts'));
 		}
 	}
-  
+
 	/**
 	 * Dispplay a link to setting page inside the plugin description
 	 */
@@ -784,6 +784,10 @@ class Reorder_Post_Within_Categories_Admin {
 					else if(in_array($term_id, $post_ranks) && !$rank_post) $this->unrank_post($post->ID, $term_id);
 				}
 				break;
+      case 'trash'==$new_status:
+        // if( in_array($term_id, $post_ranks) ) $this->unrank_post($post->ID, $term_id);
+				debug_msg($post->ID.'->'.$new_status);
+        break;
 		}
 	}
 	/**
@@ -805,7 +809,9 @@ class Reorder_Post_Within_Categories_Admin {
 	 * When a post is deleted we remove all entries from the custom table
 	 * @param type $post_id
 	 */
-	public function unrank_post($post_id, $term_id=null){
+	public function unrank_post($post_id, $term_id=''){
+		debug_msg($post_id.':'.$term_id);
+
 		delete_post_meta($post_id, '_rpwc2', $term_id);
 	}
 	/**
