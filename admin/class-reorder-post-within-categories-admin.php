@@ -707,9 +707,9 @@ class Reorder_Post_Within_Categories_Admin {
 	 * Dispplay a link to setting page inside the plugin description
 	 */
 	public function display_settings_link($links){
-		$settings_link = '<a href="options-general.php?page=reorder-posts-within-categories.php">' . __('Settings', 'reorder-post-within-categories') . '</a>';
-		array_unshift($links, $settings_link);
-			return $links;
+		$settings_link = '<a href="options-general.php?page=class-reorder-post-within-categories-admin.php">' . __('Settings', 'reorder-post-within-categories') . '</a>';
+		array_push($links, $settings_link);
+		return $links;
 	}
 	/**
 	* display admin notice.

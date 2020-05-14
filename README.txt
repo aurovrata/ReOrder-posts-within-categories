@@ -244,6 +244,8 @@ NOTE: note that this will effect front-end mixed-queries trying to display both 
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 
 == Changelog ==
+= 2.5.8 =
+* fix settings link in plugin table.
 = 2.5.7 =
 * reload reorder page tabs when in focus.
 = 2.5.6 =
