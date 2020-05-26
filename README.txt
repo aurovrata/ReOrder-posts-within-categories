@@ -12,9 +12,11 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Enables manual ranking of post (and custom post) within taxonomy terms using a drag &amp; drop grid interface.
 
 == Description ==
+Due to a [bug](https://core.trac.wordpress.org/ticket/50070) in WordPress core, archive taxonomy queries are not being ranked properly on the front end.  If your **posts are not being ranked on your front-end site** please read this [thread](https://wordpress.org/support/topic/help-the-pluign-is-not-working/) for more information.
+
 v2.3 is now multi-post taxonomy enabled.  A taxonomy registered with multiple post types can has its term's posts in each type ranked manually and separately.
 
-**UPGRADE NOTE** if you are upgrading from v1.x, your old ranking data remains unaffected in the custom table used by the v1.x plugin.  However, in v2.x all the ranking is now stored as post meta.  While upgrading, some users have complained of missing posts/ lost rankings.  If this is the case, you can reset your order for given term using the reset checkbox/button provided in the admin page (see screenshot #4).  It will reload the ranking from the v1.x custom table.
+**UPGRADE NOTE** if you are upgrading from v1.x, your old ranking data remains unaffected in the custom table used by the v1.x plugin.  However, in v2.x all the ranking is now stored as post meta.  While upgrading, some users have complained of missing posts/lost rankings.  If this is the case, you can reset your order for given term using the reset checkbox/button provided in the admin page (see screenshot #4).  It will reload the ranking from the v1.x custom table.  For more details please read this [post](https://wordpress.org/support/topic/how-to-upgrade-to-v-2-x/).
 
 If your term was not sorted in the v1.x table or you are upgrading from v2.0.x or v2.1.x, then the reset button will reload the post order as per the default WP post table listing, which can be changed using the filtrs provided (see FAQ #7).
 
@@ -166,11 +168,13 @@ function ranking_post_type($type, $wp_query){
 }
 `
 
-= 10. My custom post query is not being ranked on the front-end =
+= 10. My posts are not being ranked on the front-end =
 
-If you are displaying your posts using a custom query with the function get_posts() you should be aware that it sets the attribute 'suppress_filters' to false by default (see the [codex page](https://developer.wordpress.org/reference/functions/get_posts/#parameters)).  The ranked order is applied using filters on the query, hence you need to explictly set this attribute to true to get your results ranked properly.
+**There are several reasons why this might happen,**
 
-Furthermore, if your query is a taxonomy archive query for a given term, then WordPress core query does not specify the post type by default.  This forces the plugin to seek which post type is associated with this taxonomy.  *In the event that the your are using this taxonomy to classify multiple post types* this will lead to the plugin choosing the first type it encounters and may give spurious or null results.  A hook is provided for you to correctly filter the post_type and ensure the right resutls,
+If you are displaying your posts using a **custom query with the function get_posts()** you should be aware that it sets the attribute 'suppress_filters' to false by default (see the [codex page](https://developer.wordpress.org/reference/functions/get_posts/#parameters)).  The ranked order is applied using filters on the query, hence you need to explictly set this attribute to true to get your results ranked properly.
+
+If your query is a **taxonomy archive query** for a given term, then WordPress core query does not specify the post type by default see this [bug](https://core.trac.wordpress.org/ticket/50070)).  This forces the plugin to seek which post type is associated with this taxonomy.  *In the event that the you are using this taxonomy to classify multiple post types* this will lead to the plugin choosing the first type it encounters with available posts for the queried term, and this may give spurious results.  A hook is provided for you to correctly filter the post_type and ensure the right results,
 
 `
 add_filter('reorderpwc_filter_multiple_post_type', 'filter_my_ranked_post_type', 10, 4);
@@ -244,6 +248,8 @@ NOTE: note that this will effect front-end mixed-queries trying to display both 
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 
 == Changelog ==
+= 2.5.9 =
+* enable default post type for multi-type taxonomy query.
 = 2.5.8 =
 * fix settings link in plugin table.
 = 2.5.7 =
