@@ -174,6 +174,17 @@ function ranking_post_type($type, $wp_query){
 
 If you are displaying your posts using a **custom query with the function get_posts()** you should be aware that it sets the attribute 'suppress_filters' to false by default (see the [codex page](https://developer.wordpress.org/reference/functions/get_posts/#parameters)).  The ranked order is applied using filters on the query, hence you need to explictly set this attribute to true to get your results ranked properly.
 
+If you query explicitly sets the 'orderby' attribute, then the plugin will ignore your query.  However, you can disable this with the following hook,
+
+`add_filter('rpwc2_allow_custom_sort_orderby_override', 'override_orderby_sorting', 10,2);
+function  override_orderby_sorting($override, $wp_query){
+    //check this is the correct query
+    if($wp_query....){
+      $override = false;
+    }
+    return $override;
+}`
+
 If your query is a **taxonomy archive query** for a given term, then WordPress core query does not specify the post type by default see this [bug](https://core.trac.wordpress.org/ticket/50070)).  This forces the plugin to seek which post type is associated with this taxonomy.  *In the event that the you are using this taxonomy to classify multiple post types* this will lead to the plugin choosing the first type it encounters with available posts for the queried term, and this may give spurious results.  A hook is provided for you to correctly filter the post_type and ensure the right results,
 
 `
