@@ -2,6 +2,23 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
+ .sortable-items:hover > .title.future::before,
+ .sortable-items:hover > .title.private::before,
+ .sortable-items:hover > .title.draft::before,
+ .sortable-items:hover > .title.pending::before{
+    position: absolute;
+    background-color: #d5d2d2cc;
+    width: 100%;
+    height: 100%;
+    margin-top: -1px;
+    margin-left: -2px;
+    text-align: center;
+}
+.sortable-items:hover > .title.future::before{ content: 'status:future'}
+.sortable-items:hover > .title.private::before{ content: 'status:private'}
+.sortable-items:hover > .title.draft::before{content: 'status:draft'}
+.sortable-items:hover > .title.pending::before{content: 'status:pending'}
+
  h3.floatLeft {margin-bottom: 0}
  .display-block{display:block}
 p.instructions, p#range-text {margin:2px 0;}

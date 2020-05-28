@@ -69,7 +69,7 @@
 			 let $html = $('<div data-id="'+response.data[idx].id+'" class="sortable-items"></div>');
 			 $html.append($('<img src="'+response.data[idx].img+'">'));
 			 $html.append($(
-				 '<span class="title">').append($('<a href="'+response.data[idx].link+'">'+response.data[idx].title+'</a>')));
+				 '<span class="title '+response.data[idx].status+'">').append($('<a href="'+response.data[idx].link+'">'+response.data[idx].title+'</a>')));
 			 $sortable.append($html);
 		 }
 		 sortableItems();

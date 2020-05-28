@@ -88,7 +88,7 @@
 					$checkedRadio2 = ' checked = "checked" ';
           $type = $post_type_detail->name;
 					$tax_options = get_option(RPWC_OPTIONS_2, array());
-					
+
           if(isset($tax_options[$type]) && isset($tax_options[$type][$cat_to_retrieve_post])){
             if($tax_options[$type][$cat_to_retrieve_post]['order']){
               $checkedRadio1 = $checkedRadio2;
@@ -114,6 +114,9 @@
             <input type="checkbox" <?=$disabled?><?=$override?>id="override-orderby" class="settings"/>
             <span><?=__('Override &apos;orderby&apos; query attribute, (more <a href="https://wordpress.org/plugins/reorder-post-within-categories/#%0A10.%20my%20posts%20are%20not%20being%20ranked%20on%20the%20front-end%0A">detail</a>)', 'reorder-post-within-categories')?></span>
           </label>
+					<p>
+						<?=__('<strong>Caution: </strong>Overriding &apos;orderby&apos; query attribute can hae important consequences on WooCommerce listings where themes can display products ranked on various parameters such as price.  This option overrides all other sortings, read these <a href="https://wordpress.org/plugins/reorder-post-within-categories/#%0A10.%20my%20posts%20are%20not%20being%20ranked%20on%20the%20front-end%0A">details</a>) to see how to gain a finer control over this.','reorder-post-within-categories')?>
+					</p>
         </br/>
           <div id="reset-order">
 						<h4 style="margin:5px 0"><?=__('Reset the order!', 'reorder-post-within-categories')?></h4>
@@ -153,7 +156,7 @@
 
 					<div data-id="<?=$post_id?>" class="sortable-items">
 						<img src="<?=$img?>">
-					 	<span class="title">
+					 	<span class="title <?=$post->post_status?>">
 						 	<a href="<?=admin_url('post.php?post='.$post_id.'&action=edit')?>">
 								<?=apply_filters('reorder_posts_within_category_card_text',get_the_title($post), $post, $cat_to_retrieve_post)?>
 							</a>

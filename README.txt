@@ -219,9 +219,21 @@ function custom_intial_order($ranking, $term_id, $taxonomy, $post_type){
   return $filtered_order;
 }`
 
+in version 2.6.1, an additional filter is introduced to allow different post status to appear in the initial rank,
+
+`add_filter('rpwc2_initial_rank_posts_status', 'allow_draft_in_initial_order',10,3);
+function allow_draft_in_initial_order($status, $post_type, $term_id){
+  //allow draft post to be ranked initially.  By default $status=array('private','publish','future').
+  if('post'==$post_type){
+    $status[]='draft';
+  }
+  return $status;
+}`
+this will only affect the posts in the admin dashboard reorder page.
+
 = 12. Can I rank draft posts? =
 
-Yes!  By default all posts moved to draft/pending status are removed from the manual rankign.  However, you can hook the following filter and control which draft or pending posts should appear in the manual ranking in the amdin dashboard,
+Yes!  By default all posts moved to draft/pending status are removed from the manual ranking.  However, you can hook the following filter and control which draft or pending posts should appear in the manual ranking in the amdin dashboard,
 
 `add_filter('rpwc2_rank_draft_posts', 'allow_draft_posts_in_ranking', 10, 5);
 function allow_draft_posts_in_ranking($allow, $new_status, $old_status, $term_id, $post){
@@ -235,11 +247,12 @@ function allow_draft_posts_in_ranking($allow, $new_status, $old_status, $term_id
   return $allow;
 }`
 NOTE:  this will only affect the admin dashboard queries.  Your draft posts will appear in the admin re-order pages but will not appear in the front-end queries, as only published posts will be retrieved by your queries.
+If you need to have draft/pending posts in the intial ranking, see FAQ #11.
 
 = 13. Can I remove private/future posts from the manual rank ? =
 
 Yes, there is a filter that allows you to control those too,
-`add_filter('rpwc2_rank_published_posts', 'allow_draft_posts_in_ranking', 10, 5);
+`add_filter('rpwc2_rank_published_posts', 'disable_future_posts_in_ranking', 10, 5);
 function allow_draft_posts_in_ranking($allow, $new_status, $old_status, $term_id, $post){
   //$new_status of the post being saved.
   //$old_status of the post being saved.
@@ -252,6 +265,17 @@ function allow_draft_posts_in_ranking($allow, $new_status, $old_status, $term_id
 }`
 NOTE: note that this will effect front-end mixed-queries trying to display both future (and/or private) and 'publish'ed posts.
 
+as of v2.6.1, the intial sorted posts includes future and provate posts which you can remove using,
+
+`add_filter('rpwc2_initial_rank_posts_status', 'disable_future_in_initial_order',10,3);
+function allow_draft_in_initial_order($status, $post_type, $term_id){
+  //allow draft post to be ranked initially.  By default $status=array('private','publish','future').
+  if('post'==$post_type){
+    $status=array('publish','private');
+  }
+  return $status;
+}`
+
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
 
 = Thanks to =
@@ -259,6 +283,8 @@ NOTE: note that this will effect front-end mixed-queries trying to display both 
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 
 == Changelog ==
+= 2.6.1 =
+* fixed sorting of private/future posts in dashboard.
 = 2.6.0 =
 * added settings for override orderby.
 * improved term tracking settings.
