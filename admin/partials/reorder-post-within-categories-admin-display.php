@@ -115,7 +115,7 @@
             <span><?=__('Override &apos;orderby&apos; query attribute, (more <a href="https://wordpress.org/plugins/reorder-post-within-categories/#%0A10.%20my%20posts%20are%20not%20being%20ranked%20on%20the%20front-end%0A">detail</a>)', 'reorder-post-within-categories')?></span>
           </label>
 					<p>
-						<?=__('<strong>Caution: </strong>Overriding &apos;orderby&apos; query attribute can hae important consequences on WooCommerce listings where themes can display products ranked on various parameters such as price.  This option overrides all other sortings, read these <a href="https://wordpress.org/plugins/reorder-post-within-categories/#%0A10.%20my%20posts%20are%20not%20being%20ranked%20on%20the%20front-end%0A">details</a>) to see how to gain a finer control over this.','reorder-post-within-categories')?>
+						<?=__('<strong>Caution: </strong>Overriding &apos;orderby&apos; query attribute can have important consequences on WooCommerce listings where themes can display products ranked on various parameters such as price.  This option overrides all other sortings, read these <a href="https://wordpress.org/plugins/reorder-post-within-categories/#%0A10.%20my%20posts%20are%20not%20being%20ranked%20on%20the%20front-end%0A">details</a> to see how to gain a finer control over this.','reorder-post-within-categories')?>
 					</p>
         </br/>
           <div id="reset-order">
