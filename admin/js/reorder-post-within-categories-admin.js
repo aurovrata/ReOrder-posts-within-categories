@@ -17,7 +17,6 @@
 	  document.addEventListener(visibilityChange, function() {
 	    if(document_hidden != document[hidden]) {
 	      if(!document[hidden]) {
-					// console.log("reorder visible");
 					$("form#chooseTaxomieForm").submit();
 	      }
 	      document_hidden = document[hidden];
@@ -53,7 +52,6 @@
   					'category'				: $(this.el).attr("rel"),
 						'taxonomy'        : $("#taxonomyHiddenField").val(),
 						'post_type'       : $("#post-type").val(),
-						'valueForManualOrder'	: $("#form_result input.option_order:checked").val(),
   					'deefuseNounceUserOrdering'	: rpwc2.deefuseNounceUserOrdering
   				}
   				$.post(ajaxurl, data, function (response){
@@ -113,7 +111,8 @@
 			$slider = $( "#slider-range" ),
 			$reset = $('input#enable-reset'),
 			$resetButton = $('div#reset-order').find('div a.button'),
-			totalPosts = $( "#slider-range" ).data('max');
+			totalPosts = $( "#slider-range" ).data('max'),
+			$override = $('#override-orderby');
 
     upperRange = 20;
 		sliderChange = false;
@@ -179,41 +178,33 @@
 	 	// On rend la liste triable.
 		sortableItems();
 	 	// Au clic sur les boutons radio on enrehistre les préférences //1,9,11,7,14
-	 	$("#form_result input.option_order").change(function (){
+	 	$('#catOrderedRadioBox').change('input.settings', function (event){
+			/** @since 2.5.10 */
+			let $yes = $('input#yes', $(this)), order='false',
+			    $radio = $('input.option_order', $(this));
+
 	 		$('#spinnerAjaxRadio').show();
 
-	 		if($("#form_result input.option_order:checked").val() ==  "true" && $("#sortable-list li").length >=2){
-	 			$('#spinnerAjaxUserOrdering').show();
+	 		if( $yes.is(':checked') ){
+				$override.prop('disabled',false);
+				order = 'true';
+	 		}else $override.prop('disabled',true);
 
-	 			let data = {
-	 				'action'					: 'user_ordering',
-	 				'order'						: $sortable.sortable('toArray').toString(),
-					'start'           :$( "#range-min" ).val()-1,
-	 				'category'					: $sortable.attr("rel"),
-	 				'deefuseNounceUserOrdering'	: rpwc2.deefuseNounceUserOrdering
-	 			}
-	 			$.post(ajaxurl, data, function (response){
-	 				//alert(response);
-	 				$('#spinnerAjaxUserOrdering').hide();
-	 			});
-
-	 		}
-
-
-	 		$("#form_result input.option_order").attr('disabled', 'disabled');
+	 		$radio.prop('disabled', true);
 
 	 		let data = {
 	 			'action'				: 'cat_ordered_changed',
 	 			'current_cat'			: $("#termIDCat").val(),
 				'post_type'       : $("#post-type").val(),
-	 			'valueForManualOrder'	: $("#form_result input.option_order:checked").val(),
+	 			'valueForManualOrder'	: order,
+				'override'        : $override.is(':checked'),
 	 			'deefuseNounceOrder'	: rpwc2.deefuseNounceCatReOrder
 	 		}
 
 	 		$.post(ajaxurl, data, function (response){
 	 			$('#debug').html(response);
 	 			$('#spinnerAjaxRadio').hide();
-	 			$("#form_result input.option_order").attr('disabled', false);
+	 			$radio.prop('disabled', false);
 	 		});
 
 	 		return false;

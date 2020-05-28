@@ -198,7 +198,8 @@ class Reorder_Post_Within_Categories {
 		if ((defined('DOING_AJAX') && DOING_AJAX) || !is_admin()) {
 			$this->loader->add_filter('posts_join', $plugin_public, 'filter_posts_join', 5, 2);
 			$this->loader->add_filter('posts_where', $plugin_public, 'filter_posts_where', 10, 2);
-			$this->loader->add_filter('posts_orderby', $plugin_public, 'filter_posts_orderby', 10, 2);
+      $this->loader->add_filter('posts_orderby', $plugin_public, 'filter_posts_orderby', 10 , 2);
+			// $this->loader->add_filter('posts_request', $plugin_public, 'filter_posts_request', 10, 2);
       /** @since 2.4.4 adjacent post query */
       $this->loader->add_filter('get_previous_post_join', $plugin_public, 'filter_adjacent_post_join', 5, 5);
       $this->loader->add_filter('get_next_post_join', $plugin_public, 'filter_adjacent_post_join', 5, 5);

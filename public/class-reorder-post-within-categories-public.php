@@ -119,19 +119,25 @@ class Reorder_Post_Within_Categories_Public {
   public function filter_posts_where($args, $wp_query){
 		if( ($term_id = $this->is_manual_sort_query( $wp_query)) ){
 			/** @since 2.3.0 check if term id is ranked for this post type. */
-			// if(!empty($type) && is_string($type)) $args .= " AND rankp.post_type ='{$type}'";
 			$args .= " AND rankpm.meta_value={$term_id} AND rankpm.meta_key='_rpwc2' ";
 			debug_msg("RPWC2 SORT VALIDATION, sorting posts in term: {$term_id}");
 		}
     return $args;
   }
+
 	/**
 	* filter posts_where query.
 	* @since 1.0.0.
 	*/
   public function filter_posts_orderby($args, $wp_query){
-		if( $this->is_manual_sort_query($wp_query) ){
+		if( $this->is_manual_sort_query($wp_query, true) ){
         $args = "rankpm.meta_id ASC";
+        add_filter('posts_clauses', function($pieces) use ($args){
+					if( false !== strstr($pieces['where'],'rankpm') ){
+						$pieces['orderby']=$args;
+					}
+					return $pieces;
+        });
     }
     return $args;
   }
@@ -142,7 +148,7 @@ class Reorder_Post_Within_Categories_Public {
 	*@param WP_Query $wp_query query
 	*@return boolean true is manual sorting required.
 	*/
-	private function is_manual_sort_query($wp_query){
+	private function is_manual_sort_query($wp_query, $print_dbg=false){
 		$queriedObj = $wp_query->get_queried_object();
     if (isset($queriedObj->taxonomy) && isset($queriedObj->term_id)) {
       $term_id = $queriedObj->term_id;
@@ -150,20 +156,13 @@ class Reorder_Post_Within_Categories_Public {
     } else {
       return 0;
     }
-		/** @since 2.5.9 allow custom ranking 'orderby' override. */
-		if( isset($wp_query->query['orderby']) ){
-			if(apply_filters('rpwc2_allow_custom_sort_orderby_override', true, $wp_query)){
-			  debug_msg("RPWC2 SORT VALIDATION ABORTED, for orderby: {$wp_query->query['orderby']}");
-			  return 0;
-			}
-		}
 		/** @since 2.3.0 check if the post type */
 		$type = $wp_query->query_vars['post_type'];
 		/** @since 2.4.3 fix for woocommerce */
 		if(empty($type) && isset($wp_query->query_vars['wc_query']) && 'product_query'==$wp_query->query_vars['wc_query']){
 			$type = 'product';
 		}
-		return ($this->is_ranked($taxonomy, $term_id, $type, $wp_query)) ? $term_id : 0;
+		return ($this->is_ranked($taxonomy, $term_id, $type, $wp_query, $print_dbg)) ? $term_id : 0;
 	}
 	/**
 	* check if term id is a being ranked for this post type.
@@ -174,17 +173,17 @@ class Reorder_Post_Within_Categories_Public {
 	*@param string $type post type being queried.
 	*@return boolean true or false if being manually ranked.
 	*/
-	private function is_ranked($taxonomy, $term_id, &$type, $wp_query=null){
+	private function is_ranked($taxonomy, $term_id, &$type, $wp_query=null, $print_dbg=false){
     if(empty($wp_query) && empty($type)) return false;
 
-		$tax_options = get_option(RPWC_OPTIONS, array());
+		$tax_options = get_option(RPWC_OPTIONS_2, array());
 		switch(true){
 			case 'any' == $type: //multi type search cannot be done.
 			case !empty($type) && is_array($type):
 				$post_type = $type;
 			  $type = apply_filters('rpwc2_filter_multiple_post_type','', $post_type, $taxonomy, $wp_query);
 				if(empty($type)){
-				  debug_msg($post_type, "RPWC2 SORT VALIDATION ABORTED, found multiple post types: ");
+				  if($print_dbg) debug_msg($post_type, "RPWC2 SORT VALIDATION ABORTED, found multiple post types: ");
 				  return false;
 				}
 				break;
@@ -213,7 +212,7 @@ class Reorder_Post_Within_Categories_Public {
 					default: //multiple post types or none.
 					  /** @since 2.5.9 assume types with posts to make it easier for non-devs */
 						$types_with_posts = array();
-						debug_msg($post_type, "RPWC2 SORT VALIDATION, found multiple post types, attempting to use one with posts: ");
+						if($print_dbg) debug_msg($post_type, "RPWC2 SORT VALIDATION, found multiple post types, attempting to use one with posts: ");
             foreach($post_type as $pt){
 							if(count_posts($pt, $term_id, $taxonomy) > 0){
 								$types_with_posts[]=$pt;
@@ -238,7 +237,7 @@ class Reorder_Post_Within_Categories_Public {
 						/* deprecated in 2.6.0 */
 						$type = apply_filters('reorderpwc_filter_multiple_post_type',$type, $post_type, $taxonomy, $wp_query);
             if(empty($type) || !is_string($type)){
-							debug_msg($post_type, "RPWC2 SORT VALIDATION ABORTED, found multiple post types, non suitable: ");
+							if($print_dbg) debug_msg($post_type, "RPWC2 SORT VALIDATION ABORTED, found multiple post types, non suitable: ");
               return false;
             }
 						break;
@@ -248,17 +247,20 @@ class Reorder_Post_Within_Categories_Public {
 				$type = 'post';
 				break;
 		}
-		debug_msg("RPWC2 SORT VALIDATION, found post type {$type}/ tax {$taxonomy}({$term_id})");
+		if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, found post_type {$type} / taxonomy {$taxonomy}({$term_id})");
 
 		$is_ranked=false;
-		if(isset($tax_options[$type]) && isset($tax_options[$type][$term_id])){
-			/** @since 2.3.0 check if term id is ranked for this post type. */
-			if(isset($tax_options[$type][$term_id]) && $tax_options[$type][$term_id] == 'true'){
-				$is_ranked=true;
+		if( isset($tax_options[$type]) && isset($tax_options[$type][$term_id]) ){
+			$is_ranked = $tax_options[$type][$term_id]['order'];
+			/** @since 2.5.9 allow custom ranking 'orderby' override. */
+			if( $is_ranked && isset($wp_query) && !empty($wp_query->query['orderby']) ){
+				$override = $tax_options[$type][$term_id]['override'];
+				$is_ranked = apply_filters('rpwc2_allow_custom_sort_orderby_override', $override, $wp_query);
+				if($print_dbg){
+					if( !$is_ranked )  debug_msg("RPWC2 SORT VALIDATION ABORTED, for orderby: {$wp_query->query['orderby']}");
+        	else debug_msg("RPWC2 SORT VALIDATION, overriding orderby: {$wp_query->query['orderby']}");
+				}
 			}
-		}else if (!empty($tax_options[$term_id]) && $tax_options[$term_id] == "true" ) {
-			//for backward compatibility, let's still check if the term id is ranked.
-			$is_ranked=true;
 		}
 		return $is_ranked;
 	}
@@ -290,7 +292,7 @@ class Reorder_Post_Within_Categories_Public {
 	}
   /**
   * Get adjacent post in ranked posts.
-  * dismiss join sql statement.
+  * dismiss join sql statement. hooked on 'get_previous_post_join' / 'get_next_post_join'
   * @since 2.4.4
   * @param string  $join           The JOIN clause in the SQL.
   * @param bool    $in_same_term   Whether post should be in a same taxonomy term.
@@ -310,7 +312,7 @@ class Reorder_Post_Within_Categories_Public {
   }
   /**
   * Get adjacent post in ranked posts.
-  * modify where sql statement.
+  * modify where sql statement. Hooked on 'get_previous_post_where' / 'get_next_post_where'
   * @since 2.4.4
   * @param string  $join           The JOIN clause in the SQL.
   * @param bool    $in_same_term   Whether post should be in a same taxonomy term.
