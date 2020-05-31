@@ -214,7 +214,7 @@ class Reorder_Post_Within_Categories_Public {
 						$types_with_posts = array();
 						if($print_dbg) debug_msg($post_type, "RPWC2 SORT VALIDATION, found multiple post types, attempting to use one with posts: ");
             foreach($post_type as $pt){
-							if(count_posts($pt, $term_id, $taxonomy) > 0){
+							if($this->count_posts($pt, $term_id, $taxonomy) > 0){
 								$types_with_posts[]=$pt;
                 switch(true){
                   case ('attachment' == $pt): //unlikely being displayed.
@@ -275,14 +275,14 @@ class Reorder_Post_Within_Categories_Public {
     //return $count;
     $args = array(
       'post_type'     => $post_type,
-      'post_status'   => 'publish',
+      'post_status'   => array('publish','future','private'),
       'posts_per_page' => -1,
       'tax_query' => array(
-        'relation' => 'AND',
         array(
           'taxonomy' => $taxonomy,
-          'field' => 'id',
-          'terms' => array( $term_id )
+          'field' => 'term_id',
+          'terms' =>  $term_id,
+					'include_children' => 0,
         )
       )
     );

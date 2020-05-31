@@ -173,9 +173,11 @@ function ranking_post_type($type, $wp_query){
 
 **There are several reasons why this might happen,**
 
+**1. You are using a custom query get_posts()...**
 If you are displaying your posts using a **custom query with the function get_posts()** you should be aware that it sets the attribute 'suppress_filters' to false by default (see the [codex page](https://developer.wordpress.org/reference/functions/get_posts/#parameters)).  The ranked order is applied using filters on the query, hence you need to explictly set this attribute to true to get your results ranked properly.
 
-If you **query explicitly sets the 'orderby'** [attribute](https://developer.wordpress.org/reference/classes/wp_query/#order-orderby-parameters), and the override checkbox is checked (see [screenshot](https://wordpress.org/plugins/reorder-post-within-categories/#screenshots) #5), then the plugin will override your query and rank the results as per your manual order.  However, if you uncheck the ovverride setting (ie override is set to false), you can programmatically override the `orderby` directive with the following hook,
+**2. Your theme or custom query explictly set the 'orderby' query attribute. **
+If your **query explicitly sets the 'orderby'** [attribute](https://developer.wordpress.org/reference/classes/wp_query/#order-orderby-parameters), and the override checkbox is checked (see [screenshot](https://wordpress.org/plugins/reorder-post-within-categories/#screenshots) #5), then the plugin will override your query and rank the results as per your manual order.  However, if you uncheck the ovverride setting (ie override is set to false), your query will be ordered as per the orderby directive.  However, you can programmatically override the `orderby` directive with the following hook should you need finer control,
 
 `add_filter('rpwc2_allow_custom_sort_orderby_override', 'override_orderby_sorting', 10,2);
 function  override_orderby_sorting($override, $wp_query){
@@ -186,6 +188,7 @@ function  override_orderby_sorting($override, $wp_query){
     return $override;
 }`
 
+** 3. You are displaying a taxonomy archive page. **
 If your query is a **taxonomy archive query** for a given term, then WordPress core query does not specify the `post_type` by default see this [bug](https://core.trac.wordpress.org/ticket/50070)).  This forces the plugin to seek which `post_type` is associated with this taxonomy.  **In the event that the you are using this taxonomy to classify multiple post types** this will lead to the plugin choosing the first type it encounters with available posts for the queried term, and this may give spurious results.  A hook is provided for you to correctly filter the `post_type` and ensure the right results,
 
 `
@@ -284,6 +287,9 @@ function allow_draft_in_initial_order($status, $post_type, $term_id){
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 
 == Changelog ==
+= 2.6.2 =
+* fix private/future count_posts in public queries.
+* call to count_posts.
 = 2.6.1 =
 * fixed sorting of private/future posts in dashboard.
 = 2.6.0 =
