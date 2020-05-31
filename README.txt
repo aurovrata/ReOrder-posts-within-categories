@@ -287,6 +287,8 @@ function allow_draft_in_initial_order($status, $post_type, $term_id){
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 
 == Changelog ==
+= 2.6.3 =
+* handle is_tax/is_category in same code.
 = 2.6.2 =
 * fix private/future count_posts in public queries.
 * call to count_posts.

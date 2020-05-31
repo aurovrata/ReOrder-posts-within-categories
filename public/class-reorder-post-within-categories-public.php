@@ -175,8 +175,9 @@ class Reorder_Post_Within_Categories_Public {
 	*/
 	private function is_ranked($taxonomy, $term_id, &$type, $wp_query=null, $print_dbg=false){
     if(empty($wp_query) && empty($type)) return false;
-
 		$tax_options = get_option(RPWC_OPTIONS_2, array());
+
+		// debug_msg($wp_query, 'query ');
 		switch(true){
 			case 'any' == $type: //multi type search cannot be done.
 			case !empty($type) && is_array($type):
@@ -195,9 +196,10 @@ class Reorder_Post_Within_Categories_Public {
 			case $wp_query->is_page():
         $type = 'page';
 				break;
-      case empty($type) && $wp_query->is_tax(): /** @since 2.5.1 fix */
+      case empty($type) && ($wp_query->is_tax() || $wp_query->is_category()): /** @since 2.5.1 fix */
       	// Do a fully inclusive search for currently registered post types of queried taxonomies.
       	$post_type  = array();
+
       	foreach ( get_post_types( array( 'exclude_from_search' => false ) ) as $pt ) {
         	$object_taxonomies = get_object_taxonomies( $pt );
 	        if ( in_array( $taxonomy, $object_taxonomies ) ) {
@@ -212,15 +214,21 @@ class Reorder_Post_Within_Categories_Public {
 					default: //multiple post types or none.
 					  /** @since 2.5.9 assume types with posts to make it easier for non-devs */
 						$types_with_posts = array();
-						if($print_dbg) debug_msg($post_type, "RPWC2 SORT VALIDATION, found multiple post types, attempting to use one with posts: ");
+						if($print_dbg) debug_msg($post_type, "RPWC2 SORT VALIDATION, found multiple post types: ");
             foreach($post_type as $pt){
-							if($this->count_posts($pt, $term_id, $taxonomy) > 0){
+							if($this->count_posts($pt, $term_id, $taxonomy) > 1){
+								if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, type '{$pt}' has more than 1 post.");
 								$types_with_posts[]=$pt;
                 switch(true){
                   case ('attachment' == $pt): //unlikely being displayed.
                     break;
                   default:
-                    if(empty($type)) $type = $pt;
+                    if(empty($type)){
+											if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, using type '{$pt}'.");
+											$type = $pt;
+										}else{
+											if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, ignoring type '{$pt}', if this is the post type you are trying to sort, use the 'rpwc2_filter_multiple_post_type' hook as detailed in FAQ #10.");
+										}
                     break;
                 }
 							}
@@ -247,7 +255,7 @@ class Reorder_Post_Within_Categories_Public {
 				$type = 'post';
 				break;
 		}
-		if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, found post_type {$type} / taxonomy {$taxonomy}({$term_id})");
+		if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, found post_type '{$type}' / taxonomy '{$taxonomy}'({$term_id})");
 
 		$is_ranked=false;
 		if( isset($tax_options[$type]) && isset($tax_options[$type][$term_id]) ){
@@ -258,7 +266,7 @@ class Reorder_Post_Within_Categories_Public {
 				$is_ranked = apply_filters('rpwc2_allow_custom_sort_orderby_override', $override, $wp_query);
 				if($print_dbg){
 					if( !$is_ranked )  debug_msg("RPWC2 SORT VALIDATION ABORTED, for orderby: {$wp_query->query['orderby']}");
-        	else debug_msg("RPWC2 SORT VALIDATION, overriding orderby: {$wp_query->query['orderby']}");
+        	else debug_msg("RPWC2 SORT VALIDATION, overriding orderby: '{$wp_query->query['orderby']}'");
 				}
 			}
 		}
@@ -287,7 +295,6 @@ class Reorder_Post_Within_Categories_Public {
       )
     );
     $posts = get_posts( $args); //suppress filters.
-
     return (int) count($posts);
 	}
   /**
