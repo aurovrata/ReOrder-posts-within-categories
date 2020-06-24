@@ -132,7 +132,8 @@ class Reorder_Post_Within_Categories_Admin {
 		 array(
 				 'deefuseNounceCatReOrder' =>  wp_create_nonce('nonce-CatOrderedChange'),
 				 'deefuseNounceUserOrdering' =>  wp_create_nonce('nonce-UserOrderingChange'),
-         'insertRange'=>__('Chose a rank either below or above your current displayed range where you wish to insert your select items.', 'reorder-post-within-categories')
+         'insertRange'=>__('Chose a rank either below or above your current displayed range where you wish to insert your select items.', 'reorder-post-within-categories'),
+         'noselection'=> __('Please select the posts from the list below to move.', 'reorder-post-within-categories')
 			 )
 		 );
 
@@ -468,6 +469,7 @@ class Reorder_Post_Within_Categories_Admin {
 					ORDER BY {$orderby} {$order}", $post_type, $term_id);
 				/** @since 2.4.3 filter the ranking query with the hook at the end of the queue.*/
 				$this->filter_query($sql, "SELECT rpwc_p.ID");
+        debug_msg($sql, "Initial ranking query: ");
 				$ranking = $wpdb->get_col($sql);
         /** @since 2.4.0 enable programmatic default ranking */
         $filtered_ranking = apply_filters('rpwc2_filter_default_ranking', $ranking, $term_id, $_POST['taxonomy'], $post_type);

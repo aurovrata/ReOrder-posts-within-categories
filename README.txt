@@ -3,7 +3,7 @@ Contributors: aurovrata, aurelien
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 3.4
-Tested up to: 5.4.1
+Tested up to: 5.4.3
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -287,6 +287,9 @@ function allow_draft_in_initial_order($status, $post_type, $term_id){
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 
 == Changelog ==
+= 2.7.0 =
+* added filter 'rpwc2_manual_sort_override'.
+* fixed orderby query_vars bug.
 = 2.6.3 =
 * handle is_tax/is_category in same code.
 = 2.6.2 =

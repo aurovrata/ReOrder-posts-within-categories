@@ -38,11 +38,10 @@
  			onSelect: function(event){ //enable shift of items.
  			},
  			onDeselect: function(event){ //if no more selected, disable shift.
-				console.log('deselecting...');
-				console.log(event);
+				// console.log('deselecting...');
+				// console.log(event);
  			},
  	 		onUpdate: function( event ) {
-
  	 			$('#spinnerAjaxUserOrdering').show();
 
   				let data = {
@@ -230,7 +229,7 @@
 				let items=[], first, last, move='';
 				let $selected = $sortable.children('.selected');
 				if(0==$selected.length){
-					$msg.text(rpwc2.insertRange);
+					$msg.text(rpwc2.noselection);
 					$this.val('');
 					return;
 				}
