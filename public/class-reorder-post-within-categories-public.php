@@ -263,14 +263,14 @@ class Reorder_Post_Within_Categories_Public {
 			/** @since 2.5.9 allow custom ranking 'orderby' override. */
 			if( $is_ranked && isset($wp_query) && !empty($wp_query->query_vars['orderby']) ){
 				$override = $tax_options[$type][$term_id]['override'];
-				$is_ranked = apply_filters('rpwc2_allow_custom_sort_orderby_override', $override, $wp_query);
+				$is_ranked = apply_filters('rpwc2_allow_custom_sort_orderby_override', $override, $wp_query, $taxonomy, $term_id, $type);
 				if($print_dbg){
 					if( !$is_ranked )  debug_msg("RPWC2 SORT VALIDATION ABORTED, for orderby: {$wp_query->query_vars['orderby']}");
         	else debug_msg("RPWC2 SORT VALIDATION, overriding orderby: '{$wp_query->query_vars['orderby']}'");
 				}
 			}
 			if( $is_ranked && isset($wp_query) ){ /** @since 2.7.0 allow general override filter */
-				$is_ranked = apply_filters('rpwc2_manual_sort_override', $is_ranked, $wp_query);
+				$is_ranked = apply_filters('rpwc2_manual_sort_override', $is_ranked, $wp_query, $taxonomy, $term_id, $type);
 			}
 		}
 		return $is_ranked;
