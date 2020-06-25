@@ -303,6 +303,7 @@ function  override_manual_sorting($apply_sorting, $wp_query, $taxonomy, $term_id
 = 2.7.0 =
 * added filter 'rpwc2_manual_sort_override'.
 * fixed orderby query_vars bug.
+* update settins link.
 = 2.6.3 =
 * handle is_tax/is_category in same code.
 = 2.6.2 =
