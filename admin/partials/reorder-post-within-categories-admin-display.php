@@ -54,7 +54,7 @@
 							$term_selected = $term->name;
 						}
 						$disabled = '';
-						if ($post_counts[$term->term_id] < 2) {
+						if ( $post_counts[$term->term_id] < 2) {
 							$disabled = ' disabled = "disabled"';
 							$catDisabled = true;
 						}?>

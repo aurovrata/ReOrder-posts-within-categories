@@ -469,7 +469,6 @@ class Reorder_Post_Within_Categories_Admin {
 					ORDER BY {$orderby} {$order}", $post_type, $term_id);
 				/** @since 2.4.3 filter the ranking query with the hook at the end of the queue.*/
 				$this->filter_query($sql, "SELECT rpwc_p.ID");
-        debug_msg($sql, "Initial ranking query: ");
 				$ranking = $wpdb->get_col($sql);
         /** @since 2.4.0 enable programmatic default ranking */
         $filtered_ranking = apply_filters('rpwc2_filter_default_ranking', $ranking, $term_id, $_POST['taxonomy'], $post_type);
@@ -529,9 +528,10 @@ class Reorder_Post_Within_Categories_Admin {
 			  foreach($count as $row){
 					$return[$row->term_id]=$row->total;
 				}
+				//sql results with no post will not be returned.
+				$return = $return + array_fill_keys($term_id,0);
 				break;
 		}
-
     return $return;
   }
 	/**
