@@ -1,0 +1,114 @@
+= 2.4.3 =
+* fix WooCommerce issues.
+= 2.4.2 =
+* fix sql error on old table.
+= 2.4.1 =
+* fix post count.
+= 2.4.0 =
+* added rpwc2_filter_default_ranking filter for intial order.
+= 2.3.0 =
+* added multi-posttype taxonomy ranking functionality.
+* styling improvement.
+= 2.2.1 =
+* change inner join query for front-end ordering.
+* change postmeta table alias on frton-end queries.
+* vertical-align top for amdin sorted items.
+= 2.2.0 =
+* removed delete_before_post.
+* reset post rank from v1.x table in admin page.
+
+= 2.1.4 =
+* fix sql order by bug in admin order page.
+
+= 2.1.3 =
+* fix bug on save_post.
+
+= 2.1.2 =
+* fix multisite bug.
+
+= 2.1.1 =
+* fix slider post loading.
+* max posts loaded to form square grid.
+
+= 2.1.0 =
+* deprecated filter 'reorder_post_within_category_taxonomy_term_query_args'.
+* improved helper text on reorder pages.
+* added a reset button on order page.
+
+= 2.0.1 =
+* js bug fix preventing proper saving of orders.
+
+= 2.0.0 =
+* complete re-write of the plugin file structure.
+* removal of custom DB table, post rank is now saved as a postmeta key.
+* addition of a new filter 'reorder_post_within_categories_new_post_first' to allow new posts to be ranked first instead of last by default.
+* proper handling of post_type for order ranking.
+* ability to reset/delete data from settings page.
+* added filter 'reorder_posts_within_category_card_text'.
+* added filter 'reorder_posts_within_category_initial_orderby'.
+* added filter 'reorder_posts_within_category_initial_order'.
+* using sortableJS plugin for Grid layout using multi-grid sorting for large lists.
+* addition of thumbnails on sortable cards for better visual representation of posts.
+
+= 1.8.1 =
+* english corrections.
+= 1.8.0 =
+* I18N: Changed language of translatable strings in the code to en_US. Inline code comments are still in French.
+= 1.7.0 =
+* introduce admin post link in order list.
+= 1.6.0 =
+* added term query filter 'reorder_post_within_category_taxonomy_term_query_args'
+= 1.5.0 =
+* fixed capability bug.
+* added filter to delete custom sql table when uninstalling.
+
+= 1.4.1 =
+* changed text-domain to include plugin in translate.wordpress.org.
+= 1.4.0 =
+* added russian locale.
+=1.3.0=
+* added filter to change capability of reorder post submenu access.
+=1.2.3=
+* bug fix
+= 1.2.2 =
+* improved custom post selection in settings
+* added filter 'reorder_post_within_categories_and_tags'
+
+= 1.2.1 =
+* added filter 'reorder_post_within_category_query_args'
+
+= 1.2 =
+* cleaned up, included better messages to ensure settings are saved after activation, else order menu is not shown
+* fixed a small bug
+
+= 1.1.7 =
+* Bug fix to allow plugin to work with WP multisite network installation.
+* enable editor role access to re-order menu
+* fixed some languages translation issues
+
+= 1.1.6 =
+* Important bug fix (See http://wordpress.org/support/topic/updating-a-post-removes-it-from-the-custom-order). Thanks to Faison for this fix
+
+= 1.1.5 =
+* Add DE_de language
+
+= 1.1.4 =
+* Correct minor bug
+
+= 1.1.3 =
+* Add spanish translations. Special thanks to David Bravo for this !
+
+= 1.1.2 =
+* Add a plugin URI
+
+= 1.1.1 =
+* Bug Correction when a post is saving
+
+= 1.1 =
+* Change version number
+
+= 1.0 =
+* Minor Correction
+
+= 0.1 =
+* First commit; Initial version

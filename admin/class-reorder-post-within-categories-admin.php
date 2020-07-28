@@ -494,10 +494,13 @@ class Reorder_Post_Within_Categories_Admin {
   *
   *@since 2.4.1
   *@param string $post_type post type
-  *@param string $term_id id of term to get count of posts.
-  *@return int count of posts.
+  *@param mixed array of or single value $term_id id of term to get count of posts.
+  *@return mixed int count of posts for single term, $term_id=>$count pairs for multiple terms..
   */
   protected function count_posts_in_term($post_type, $term_id){
+    /** @since 2.7.1 count posts in multiple terms */
+    if(! is_array($term_id)) $term_id = array($term_id);
+    $terms = "(".implode(',',$term_id).")";
 		global $wpdb;
 		/** @since 2.6.1 allow for various post status to be filtered */
 		$status = array('publish','private','future');
@@ -506,16 +509,30 @@ class Reorder_Post_Within_Categories_Admin {
 		$status = array_intersect($status, array('publish','private','future', 'pending', 'draft'));
 		$status = "('".implode("','",$status)."')";
 
-    $sql = $wpdb->prepare("SELECT COUNT(rpwc_p.ID) as total FROM {$wpdb->posts} as rpwc_p
+    $sql = $wpdb->prepare("SELECT rpwc_tt.term_id, COUNT(rpwc_p.ID) as total FROM {$wpdb->posts} as rpwc_p
 		  LEFT JOIN {$wpdb->term_relationships} AS rpwc_tr ON rpwc_p.ID=rpwc_tr.object_id
       LEFT JOIN {$wpdb->term_taxonomy} AS rpwc_tt ON rpwc_tr.term_taxonomy_id = rpwc_tt.term_taxonomy_id
     WHERE  rpwc_p.post_status IN {$status}
       AND rpwc_p.post_type=%s
-      AND rpwc_tt.term_id=%d", $post_type, $term_id);
+      AND rpwc_tt.term_id IN {$terms}
+    GROUP BY rpwc_tt.term_id", $post_type);
     $count = $wpdb->get_results($sql);
-		if(empty($count)) $count = 0;
-		else $count = $count[0]->total;
-    return $count;
+		switch(true){
+			case empty($count):
+				$return = 0;
+				break;
+			case 1==sizeof($term_id):
+				$return = $count[0]->total;
+				break;
+			default:
+				$return = array();
+			  foreach($count as $row){
+					$return[$row->term_id]=$row->total;
+				}
+				break;
+		}
+
+    return $return;
   }
 	/**
 	* General function to save a new order,
@@ -847,7 +864,6 @@ class Reorder_Post_Within_Categories_Admin {
 				break;
       case 'trash'==$new_status:
         // if( in_array($term_id, $post_ranks) ) $this->unrank_post($post->ID, $term_id);
-				debug_msg($post->ID.'->'.$new_status);
         break;
 		}
 	}
@@ -871,8 +887,6 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @param type $post_id
 	 */
 	public function unrank_post($post_id, $term_id=''){
-		debug_msg($post_id.':'.$term_id);
-
 		delete_post_meta($post_id, '_rpwc2', $term_id);
 	}
 	/**

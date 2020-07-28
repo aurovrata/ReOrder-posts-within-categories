@@ -40,11 +40,13 @@
 				}
 				$taxonomy = $taxonomies[$categorie];
 				// On liste maintenant les terms disponibles pour la taxonomie concernÃ©e
-				$term_query = array('taxonomy'=>$taxonomy->name);
+				$term_query = array('taxonomy'=>$taxonomy->name, 'hide_empty'=>false);
 				$list_terms = get_terms($term_query);
 				if (count($list_terms) > 0) :?>
 			<optgroup id="<?=$taxonomy->name?>" label="<?=$taxonomy->labels->name?>">
         <?php
+          /** @since 2.7.1 fix for term counts */
+          $post_counts = $this->count_posts_in_term($post_type_detail->name, wp_list_pluck($list_terms, 'term_id'));
 					foreach ($list_terms as $term):
 						$selected = '';
 						if (isset($cat_to_retrieve_post) && ($cat_to_retrieve_post == $term->term_id)) {
@@ -52,7 +54,7 @@
 							$term_selected = $term->name;
 						}
 						$disabled = '';
-						if ($term->count < 2) {
+						if ($post_counts[$term->term_id] < 2) {
 							$disabled = ' disabled = "disabled"';
 							$catDisabled = true;
 						}?>
