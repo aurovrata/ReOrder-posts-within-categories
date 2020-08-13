@@ -300,6 +300,8 @@ function  override_manual_sorting($apply_sorting, $wp_query, $taxonomy, $term_id
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 @alexjamesbishop/ for helping fix the 'orderby' bug.
 == Changelog ==
+= 2.7.3 =
+* fix multi-post_type queries.
 = 2.7.2 =
 * improved handling of term post counts.
 = 2.7.1 =

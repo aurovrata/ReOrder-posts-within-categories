@@ -179,16 +179,13 @@ class Reorder_Post_Within_Categories_Public {
 
 		// debug_msg($wp_query, 'query ');
 		switch(true){
-			case 'any' == $type: //multi type search cannot be done.
-			case !empty($type) && is_array($type):
-				$post_type = $type;
-			  $type = apply_filters('rpwc2_filter_multiple_post_type','', $post_type, $taxonomy, $wp_query);
-				if(empty($type)){
-				  if($print_dbg) debug_msg($post_type, "RPWC2 SORT VALIDATION ABORTED, found multiple post types: ");
-				  return false;
-				}
+      case 'any' == $type:
+        return false; //multi type search cannot be done.
+			case !empty($type) && is_array($type) && count($type)<2 :
+        /** @since 2.7.3 select single posts */
+        $type=$type[0];
 				break;
-			case !empty($type): //type is set and single value.
+			case !empty($type) && !is_array($type): //type is set and single value.
         break;
 			case $wp_query->is_attachment(): //type is empty.
         $type = 'attachment';
@@ -197,15 +194,17 @@ class Reorder_Post_Within_Categories_Public {
         $type = 'page';
 				break;
       case empty($type) && ($wp_query->is_tax() || $wp_query->is_category()): /** @since 2.5.1 fix */
-      	// Do a fully inclusive search for currently registered post types of queried taxonomies.
-      	$post_type  = array();
-
-      	foreach ( get_post_types( array( 'exclude_from_search' => false ) ) as $pt ) {
-        	$object_taxonomies = get_object_taxonomies( $pt );
-	        if ( in_array( $taxonomy, $object_taxonomies ) ) {
-	          $post_type[] = $pt;
-	        }
-      	}
+      case is_array($type):
+        if(empty($type)){
+        	// Do a fully inclusive search for currently registered post types of queried taxonomies.
+        	$post_type  = array();
+        	foreach ( get_post_types( array( 'exclude_from_search' => false ) ) as $pt ) {
+          	$object_taxonomies = get_object_taxonomies( $pt );
+  	        if ( in_array( $taxonomy, $object_taxonomies ) ) {
+  	          $post_type[] = $pt;
+  	        }
+        	}
+        }else $post_type = $type;
 				// debug_msg($post_type, $taxonomy.' term '.$term_id);
 				switch(count($post_type)){
 					case 1:
@@ -215,35 +214,36 @@ class Reorder_Post_Within_Categories_Public {
 					  /** @since 2.5.9 assume types with posts to make it easier for non-devs */
 						$types_with_posts = array();
 						if($print_dbg) debug_msg($post_type, "RPWC2 SORT VALIDATION, found multiple post types: ");
-            foreach($post_type as $pt){
-							if($this->count_posts($pt, $term_id, $taxonomy) > 1){
-								if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, type '{$pt}' has more than 1 post.");
-								$types_with_posts[]=$pt;
-                switch(true){
-                  case ('attachment' == $pt): //unlikely being displayed.
-                    break;
-                  default:
-                    if(empty($type)){
-											if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, using type '{$pt}'.");
-											$type = $pt;
-										}else{
-											if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, ignoring type '{$pt}', if this is the post type you are trying to sort, use the 'rpwc2_filter_multiple_post_type' hook as detailed in FAQ #10.");
-										}
-                    break;
-                }
-							}
-						}
-
-					  /** filter multiple post types.
+						/** filter multiple post types.
 						* @since 2.5.0.
 						* @param String $type post type to filter.
 						* @param String $post_types post types associated with taxonomy.
 						* @param String $taxonomy being queried.
 						* @param WP_Query $wp_query query object.
 						*/
-						$type = apply_filters('rpwc2_filter_multiple_post_type',$type, $post_type, $taxonomy, $wp_query);
+						$type = apply_filters('rpwc2_filter_multiple_post_type','', $post_type, $taxonomy, $wp_query);
 						/* deprecated in 2.6.0 */
-						$type = apply_filters('reorderpwc_filter_multiple_post_type',$type, $post_type, $taxonomy, $wp_query);
+						$type = apply_filters('reorderpwc_filter_multiple_post_type','', $post_type, $taxonomy, $wp_query);
+						if(empty($type)){
+							//find if any post types has multiple posts in this term.
+	            foreach($post_type as $pt){
+								if($this->count_posts($pt, $term_id, $taxonomy) > 1){
+									$types_with_posts[]=$pt;
+	                switch(true){
+	                  case ('attachment' == $pt): //unlikely being displayed.
+	                    break;
+	                  default:
+	                    if(empty($type)){
+												if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, using type '{$pt}'.");
+												$type = $pt;
+											}else{
+												if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, ignoring type '{$pt}', if this is the post type you are trying to sort, use the 'rpwc2_filter_multiple_post_type' hook as detailed in FAQ #10.");
+											}
+	                    break;
+	                }
+								}
+							}
+						}
             if(empty($type) || !is_string($type)){
 							if($print_dbg) debug_msg($post_type, "RPWC2 SORT VALIDATION ABORTED, found multiple post types, non suitable: ");
               return false;
