@@ -281,6 +281,7 @@ function allow_draft_in_initial_order($status, $post_type, $term_id){
 }`
 
 **NOTE**: in all 3 cases, you may use the reset button (see screenshot #3) on the reorder admin page to get the filters to change the order.
+
 = 14. Is it possible to control when the manual sorting is applied programmatically ? =
 In v2.7 a new filter has been added to do just that, allowing you to override the sorting of anually ranked posts,
 `add_filter('rpwc2_manual_sort_override', 'override_manual_sorting', 10,5);
@@ -294,6 +295,12 @@ function  override_manual_sorting($apply_sorting, $wp_query, $taxonomy, $term_id
     }
     return $apply_sorting;
 }`
+
+= 15. How to enable post navigation (prev/next) on a page based on the manual order? =
+use the WordPress core functions,
+
+[get_the_posts_navigation()](https://developer.wordpress.org/reference/functions/get_the_posts_navigation/),
+or [get_previous_posts_link()](https://developer.wordpress.org/reference/functions/get_previous_posts_link/) and [get_next_posts_link()](https://developer.wordpress.org/reference/functions/get_next_posts_link/).
 
 = Thanks to =
 @maddogprod for helping resolve custom taxonomy front-end ordering.
