@@ -516,15 +516,11 @@ class Reorder_Post_Within_Categories_Admin {
       AND rpwc_tt.term_id IN {$terms}
     GROUP BY rpwc_tt.term_id", $post_type);
     $count = $wpdb->get_results($sql);
+		$return = array();
 		switch(true){
 			case empty($count):
-				$return = 0;
-				break;
-			case 1==sizeof($term_id):
-				$return = $count[0]->total;
 				break;
 			default:
-				$return = array();
 			  foreach($count as $row){
 					$return[$row->term_id]=$row->total;
 				}
@@ -704,6 +700,7 @@ class Reorder_Post_Within_Categories_Admin {
 					$posts_array = get_posts($args);
 					/** @since 2.4.1 better for multi post type */
 					$total = $this->count_posts_in_term($post_type_detail->name, $cat_to_retrieve_post);
+          $total = $total[0];
 					foreach($posts_array as $post) $posts[$post->ID]=$post;
 				}
 			}
