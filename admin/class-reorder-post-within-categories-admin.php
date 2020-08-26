@@ -700,7 +700,7 @@ class Reorder_Post_Within_Categories_Admin {
 					$posts_array = get_posts($args);
 					/** @since 2.4.1 better for multi post type */
 					$total = $this->count_posts_in_term($post_type_detail->name, $cat_to_retrieve_post);
-          $total = $total[0];
+          $total = $total[$cat_to_retrieve_post];
 					foreach($posts_array as $post) $posts[$post->ID]=$post;
 				}
 			}
