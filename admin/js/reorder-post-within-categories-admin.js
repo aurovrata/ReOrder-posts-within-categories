@@ -1,7 +1,7 @@
 (function( $ ) {
 	'use strict';
 
-	 let $sortable=$();
+	 let $sortable;
 	 $(document).ready(function() {
 		$sortable = $('#sortable-list');
 	 	initSelectCategory();
@@ -28,7 +28,9 @@
 		 let min = 0;
 		 if($( "#range-min" ).is(':visible')) min = $( "#range-min" ).val()*1-1;
 
-		 $sortable.sortable({
+		 // $sortable.sortable({
+		 if('undefined' == typeof $sortable[0]) return;
+		 new Sortable($sortable[0],{
  			handle:'img',
  			animation:150,
  			dataIdAttr: 'data-id',

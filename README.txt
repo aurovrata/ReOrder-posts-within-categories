@@ -5,7 +5,7 @@ Tags: order, reorder, re-order, order by category,order custom post type, order 
 Requires at least: 3.4
 Tested up to: 5.5
 Requires PHP: 5.6
-Stable tag: 2.7.5
+Stable tag: 2.7.6
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -307,6 +307,8 @@ or [get_previous_posts_link()](https://developer.wordpress.org/reference/functio
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 @alexjamesbishop/ for helping fix the 'orderby' bug.
 == Changelog ==
+= 2.7.6 =
+* fix SortableJs plugin initialisation on some setups.
 = 2.7.5 =
 * fix post count in admin.
 = 2.7.4 =

@@ -121,13 +121,11 @@ class Reorder_Post_Within_Categories_Admin {
 		 */
 		$mode = get_option('airplane-mode', 'off');
 		if('on'==$mode){
-			wp_enqueue_script('sortable', plugin_dir_url( __DIR__ ) . 'assets/sortable/Sortable.min.js');
-			wp_enqueue_script('sortable-jquery', plugin_dir_url( __DIR__ ) .  'assets/jquery-sortablejs/jquery-sortable.js', array('jquery', 'sortable'));
+			wp_enqueue_script('sortablejs-plugin', plugin_dir_url( __DIR__ ) . 'assets/sortable/Sortable.min.js');
 		}else{
-			wp_enqueue_script('sortable', '//cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js');
-			wp_enqueue_script('sortable-jquery', '//cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.js', array('jquery', 'sortable'));
+			wp_enqueue_script('sortablejs-plugin', '//cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js');
 		}
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/reorder-post-within-categories-admin.js', array( 'sortable-jquery', 'jquery-ui-slider'), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/reorder-post-within-categories-admin.js', array( 'sortablejs-plugin', 'jquery-ui-slider'), $this->version, false );
 		wp_localize_script($this->plugin_name, 'rpwc2',
 		 array(
 				 'deefuseNounceCatReOrder' =>  wp_create_nonce('nonce-CatOrderedChange'),
