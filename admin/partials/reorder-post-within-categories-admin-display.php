@@ -27,7 +27,7 @@
   <?php
 	wp_nonce_field('loadPostInCat', 'nounceLoadPostCat');
 	if (count($listCategories) > 0):?>
-    <select id="selectCatToRetrieve" name="cat_to_retrive">
+    <select id="selectCatToRetrieve" name="cat_to_retrive" disabled="true">
       <option value="null" disabled="disabled" selected="selected"><?= __('Select','reorder-post-within-categories')?></option>
     <?php
 			$catDisabled = false;

@@ -64,7 +64,7 @@
  	 	});
 	 }
 	 function updateSortableList(response){
-		 $sortable.sortable('destroy');
+		 Sortable.get($sortable[0]).destroy();
 		 $sortable.html('');
 		 for (let idx in response.data) {
 			 let $html = $('<div data-id="'+response.data[idx].id+'" class="sortable-items"></div>');
@@ -277,7 +277,7 @@
 	  * et on soulet le formulaire
 	  */
 	 function initSelectCategory(){
-	 	$("#selectCatToRetrieve").change(function(event){
+	 	$("#selectCatToRetrieve").prop('disabled', false).change(function(event){
 	 			let taxonomy = $("#selectCatToRetrieve option:selected").parent().attr("id");
 	 			$("#taxonomyHiddenField").val(taxonomy);
 	 			$("form#chooseTaxomieForm").submit();

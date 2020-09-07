@@ -436,12 +436,14 @@ class Reorder_Post_Within_Categories_Admin {
 			//check if v1.x table exists.
 			$table_name = $wpdb->prefix . $this->old_table_name;
 			/** @since 2.3.0 check for post_type properly */
+      // debug_msg($wpdb->get_var("SHOW TABLES LIKE '$table_name'"), "SHOW TABLES LIKE '$table_name': ");
 			if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name){ //cehck table exits.
 				$ranking = $wpdb->get_col($wpdb->prepare("SELECT rpwc.post_id
 					FROM {$table_name} as rpwc
 					LEFT JOIN {$wpdb->posts} as wp on wp.ID = rpwc.post_id
 					WHERE rpwc.category_id = %d AND wp.post_type=%s order by rpwc.id", $term_id, $post_type));
 			}
+			// debug_msg($ranking, "ranking " );
 			if(empty($ranking)){
 				$orderby = 'rpwc_p.post_date';
 				if(apply_filters('reorder_posts_within_category_initial_orderby', false, $post_type, $term_id)){
