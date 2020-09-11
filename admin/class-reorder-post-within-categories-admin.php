@@ -516,6 +516,7 @@ class Reorder_Post_Within_Categories_Admin {
       AND rpwc_tt.term_id IN {$terms}
     GROUP BY rpwc_tt.term_id", $post_type);
     $count = $wpdb->get_results($sql);
+		// debug_msg($sql);
 		$return = array();
 		switch(true){
 			case empty($count):
@@ -803,21 +804,25 @@ class Reorder_Post_Within_Categories_Admin {
 	public function save_post( $new_status, $old_status, $post){
 		// Liste des taxonomies associÃ©e Ã  ce post
 		$taxonomies = get_object_taxonomies($post->post_type);
+    // debug_msg($taxonomies, $post->post_type);
 		if(empty($taxonomies)) return;
 		//verify that this post_type is manually ranked for the associated terms.
 		$settings = $this->get_admin_options();
 		if (empty($settings) || !isset($settings['categories_checked'][$post->post_type])){
 			//if there are no taxonomies checked then this post cannot be manually ranked.
+      // debug_msg($settings, 'settings ');
 			return;
 		}
 		//taxonomies ranked for this post type.
 		$ranked_tax = $settings['categories_checked'][$post->post_type];
 		//taxonomies associated with this post that are manually ranked.
 		$ranked_tax = array_intersect($ranked_tax, $taxonomies);
+		// debug_msg($ranked_tax, 'ranked tax ');
 		if(empty($ranked_tax)) return;
 
 		//find if terms are currently being ranked.
 		$ranked_terms = get_option(RPWC_OPTIONS_2, array());
+		// debug_msg($ranked_terms, 'ranked terms ');
 
 		if(!isset($ranked_terms[$post->post_type])) return; //no terms ranked for this post type.
 

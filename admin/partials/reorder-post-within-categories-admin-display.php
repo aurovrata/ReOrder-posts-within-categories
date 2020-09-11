@@ -90,7 +90,6 @@
 					$checkedRadio2 = ' checked = "checked" ';
           $type = $post_type_detail->name;
 					$tax_options = get_option(RPWC_OPTIONS_2, array());
-
           if(isset($tax_options[$type]) && isset($tax_options[$type][$cat_to_retrieve_post])){
             if($tax_options[$type][$cat_to_retrieve_post]['order']){
               $checkedRadio1 = $checkedRadio2;
@@ -102,6 +101,15 @@
 						if($tax_options[$type][$cat_to_retrieve_post]['override']){
 							$override ='checked="checked" ';
 						}
+          }else{/** @since 2.7.8 save unordered terms */
+            if(!isset($tax_options[$type])) $tax_options[$type] = array();
+            if(!isset($tax_options[$type][$cat_to_retrieve_post])){
+              $tax_options[$type][$cat_to_retrieve_post] = array(
+                'order'=>0,
+                'override'=>0
+              );
+            }
+            update_option(RPWC_OPTIONS_2, $tax_options);
           }	?>
 					<label for="yes">
             <input type="radio" <?=$checkedRadio1?>class="option_order settings" id="yes" value="true" name="useForThisCat"/>

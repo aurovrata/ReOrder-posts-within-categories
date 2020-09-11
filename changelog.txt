@@ -1,3 +1,37 @@
+= 2.6.3 =
+* handle is_tax/is_category in same code.
+= 2.6.2 =
+* fix private/future count_posts in public queries.
+* call to count_posts.
+= 2.6.1 =
+* fixed sorting of private/future posts in dashboard.
+= 2.6.0 =
+* added settings for override orderby.
+* improved term tracking settings.
+* fixed WooCommerce spurious results when override orderby is true.
+= 2.5.9 =
+* enable default post type for multi-type taxonomy query.
+= 2.5.8 =
+* fix settings link in plugin table.
+= 2.5.7 =
+* reload reorder page tabs when in focus.
+= 2.5.6 =
+* LearnPress order page fix.
+= 2.5.5 =
+* fix get_adjacent_post_where SQL query.
+= 2.5.4 =
+* change get_adjacent_post_where SQL for older DB.
+* fix admin reverse order saving.
+= 2.5.3 =
+* fix adjacent post functionality.
+= 2.5.2 =
+* fix taxonomy queries registered for multi post types.
+= 2.5.1 =
+* fix multi-post_type ranking in same taxonomy.
+* fix custom taxonomy archive query.
+= 2.5.0 =
+* enable get_adjacent_post functionality.
+* improve save_post rank management.
 = 2.4.3 =
 * fix WooCommerce issues.
 = 2.4.2 =
