@@ -162,7 +162,7 @@ class Reorder_Post_Within_Categories_Public {
 		if(empty($type) && isset($wp_query->query_vars['wc_query']) && 'product_query'==$wp_query->query_vars['wc_query']){
 			$type = 'product';
 		}
-		return ($this->is_ranked($taxonomy, $term_id, $type, $wp_query, $print_dbg)) ? $term_id : 0;
+		return (self::is_ranked($taxonomy, $term_id, $type, $wp_query, $print_dbg)) ? $term_id : 0;
 	}
 	/**
 	* check if term id is a being ranked for this post type.
@@ -173,7 +173,7 @@ class Reorder_Post_Within_Categories_Public {
 	*@param string $type post type being queried.
 	*@return boolean true or false if being manually ranked.
 	*/
-	private function is_ranked($taxonomy, $term_id, &$type, $wp_query=null, $print_dbg=false){
+	static private function is_ranked($taxonomy, $term_id, &$type, $wp_query=null, $print_dbg=false){
     if(empty($wp_query) && empty($type)) return false;
 		$tax_options = get_option(RPWC_OPTIONS_2, array());
 
@@ -227,7 +227,7 @@ class Reorder_Post_Within_Categories_Public {
 						if(empty($type)){
 							//find if any post types has multiple posts in this term.
 	            foreach($post_type as $pt){
-								if($this->count_posts($pt, $term_id, $taxonomy) > 1){
+								if(self::count_posts($pt, $term_id, $taxonomy) > 1){
 									$types_with_posts[]=$pt;
 	                switch(true){
 	                  case ('attachment' == $pt): //unlikely being displayed.
@@ -282,7 +282,7 @@ class Reorder_Post_Within_Categories_Public {
 	*@param string $param text_description
 	*@return string text_description
 	*/
-	protected function count_posts($post_type, $term_id, $taxonomy){
+	static protected function count_posts($post_type, $term_id, $taxonomy){
     //return $count;
     $args = array(
       'post_type'     => $post_type,
@@ -387,8 +387,33 @@ class Reorder_Post_Within_Categories_Public {
 		$term = apply_filters('rpwc2_filter_terms_get_adjacent_post', $term_array, $post, $taxonomy);
  		if(is_array($term)) $term = $term[0];
 
-		if(!$this->is_ranked($taxonomy, $term, $post->post_type, null)) $term = null;
+		if(!self::is_ranked($taxonomy, $term, $post->post_type, null)) $term = null;
 
 		return $term;
 	}
+  /**
+  * Function to return the adjacent post.
+  *
+  *@since 2.8.0
+  *@param string $param text_description
+  *@return string text_description
+  */
+  static public function get_adjacent_post($post_id, $term_id, $post_type, $taxonomy){
+		if(!self::is_ranked($taxonomy, $term_id, $post_type, null)) return null;
+    global $wpdb;
+    $sql = $wpdb->prepare("SELECT (
+			SELECT rankpm.post_id FROM $wpdb->postmeta as rankpm
+			LEFT JOIN $wpdb->posts AS rankp ON rankp.ID=rankpm.post_id
+			WHERE rankpm.meta_key like '_rpwc2' AND rankpm.meta_value=%d AND rankp.post_type LIKE %s AND rankpm.meta_id < (SELECT meta_id FROM $wpdb->postmeta WHERE post_id=%d AND meta_key LIKE '_rpwc2' AND meta_value=%d) ORDER BY rankpm.meta_id DESC LIMIT 0,1
+		) as prev_post,
+    (
+			SELECT rankpm.post_id FROM $wpdb->postmeta as rankpm
+			LEFT JOIN $wpdb->posts AS rankp ON rankp.ID=rankpm.post_id
+			WHERE rankpm.meta_key like '_rpwc2' AND rankpm.meta_value=%d AND rankp.post_type LIKE %s AND rankpm.meta_id > (SELECT meta_id FROM $wpdb->postmeta WHERE post_id=%d AND meta_key LIKE '_rpwc2' AND meta_value=%d) ORDER BY rankpm.meta_id ASC LIMIT 0,1
+		) as next_post", $term_id, $post_type, $post_id, $term_id, $term_id, $post_type, $post_id, $term_id);
+    return $wpdb->get_row($sql);
+  }
+}
+function get_adjacent_rpwc2_posts($post_id, $term_id, $post_type, $taxonomy){
+	return Reorder_Post_Within_Categories_Public::get_adjacent_post($post_id, $term_id, $post_type, $taxonomy);
 }

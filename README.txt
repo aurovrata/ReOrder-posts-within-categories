@@ -2,7 +2,7 @@
 Contributors: aurovrata, aurelien
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
-Requires at least: 3.4
+Requires at least: 4.4
 Tested up to: 5.5.1
 Requires PHP: 5.6
 Stable tag: trunk
@@ -26,7 +26,7 @@ It works with a selected category, each category can have different order of sam
 
 New enhanced **version 2.0** with grid-layout and multi-drag interface to ease sorting of large list of posts.  Makes use of [SortableJS](https://sortablejs.github.io/Sortable/) plugin.  If you are using this plugin for a commercial website, please consider making a donation to the authors of the SortableJS plugin to continue its development.
 
-= Thanks to =
+== Thanks to ==
 [Nikita Spivak](https://wordpress.org/support/users/nikitasp/) for the Russian translation.
 [Tor-Bjorn Fjellner](https://profiles.wordpress.org/tobifjellner/) for the swedish translation and i18n clean-up.
 [alekseo](https://wordpress.org/support/users/alekseo/) for support for the plugin.
@@ -302,11 +302,26 @@ use the WordPress core functions,
 [get_the_posts_navigation()](https://developer.wordpress.org/reference/functions/get_the_posts_navigation/),
 or [get_previous_posts_link()](https://developer.wordpress.org/reference/functions/get_previous_posts_link/) and [get_next_posts_link()](https://developer.wordpress.org/reference/functions/get_next_posts_link/).
 
-= Thanks to =
+= 16. How to get adjacent posts IDs? =
+ Unlike the the posts navigation links, the function `get_adjacent_post()` can be called outside a paged query, and will not return the correct post IDs in your manual sorted posts.
+
+ as of v2.8, a new function is provided to expose this functionality, however you will need to provide the post ID, the taxonomy term and the post type which identifies this post as being part of a manually sorted list of posts for that term.
+
+ `
+$adj = get_adjacent_rpwc2_posts($post_id, $term_id, $post_type, $taxonomy);
+//if the post is part of a manually ranked list,
+$adj->prev_post; //this is the previous post ID, null is the post is the first in the list.
+$adj->next_post; //this is the next post ID, null is the post is the last in the list.
+
+ `
+
+== Thanks to ==
 @maddogprod for helping resolve custom taxonomy front-end ordering.
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 @alexjamesbishop/ for helping fix the 'orderby' bug.
 == Changelog ==
+= 2.8.0 =
+* expose functionaliy to get adjacent posts.
 = 2.7.8 =
 * fix new term order seetings update.
 = 2.7.7 =
