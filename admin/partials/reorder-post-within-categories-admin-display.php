@@ -122,17 +122,17 @@
           </label><br/>
           <label for="override-orderby">
             <input type="checkbox" <?=$disabled?><?=$override?>id="override-orderby" class="settings"/>
-            <span><?=__('Override &apos;orderby&apos; query attribute, (more <a href="https://wordpress.org/plugins/reorder-post-within-categories/#%0A10.%20my%20posts%20are%20not%20being%20ranked%20on%20the%20front-end%0A">detail</a>)', 'reorder-post-within-categories')?></span>
+            <span><?=__("Override 'orderby' query attribute", 'reorder-post-within-categories')?></span>
           </label>
 					<p>
-						<?=__('<strong>Caution: </strong>Overriding &apos;orderby&apos; query attribute can have important consequences on WooCommerce listings where themes can display products ranked on various parameters such as price.  This option overrides all other sortings, read these <a href="https://wordpress.org/plugins/reorder-post-within-categories/#%0A10.%20my%20posts%20are%20not%20being%20ranked%20on%20the%20front-end%0A">details</a> to see how to gain a finer control over this.','reorder-post-within-categories')?>
+						<?=__('<strong>Caution: </strong>Overriding &apos;orderby&apos; query attribute can have important consequences on WooCommerce listings where themes can display products ranked on various parameters such as price.  This option overrides all other sortings, read <a href="https://wordpress.org/plugins/reorder-post-within-categories/#faq">FAQ #10</a> to see how to gain a finer control over this.','reorder-post-within-categories')?>
 					</p>
         </br/>
           <div id="reset-order">
 						<h4 style="margin:5px 0"><?=__('Reset the order!', 'reorder-post-within-categories')?></h4>
             <label for="reset-button">
-              <input type="checkbox" value="reset-button" id="enable-reset"/>
-              <?=__('reset order for all posts, <strong>careful</strong>, this cannot be undone!','reorder-post-within-categories')?>
+              <input type="checkbox" value="reset-button" id="enable-reset" />
+								<?=_e('reset order for all posts, <strong>careful</strong>, this cannot be undone!','reorder-post-within-categories')?>
             </label>
             <div>
 							<a class="button disabled"><?=__('Reset order','reorder-post-within-categories')?></a>
@@ -141,6 +141,9 @@
 					<input type="hidden" name="termID" id="termIDCat" value="<?=$cat_to_retrieve_post?>">
 					<span class="spinner" id="spinnerAjaxRadio"></span>
 				</div>
+			<?php if($this->old_ranking_exists):?>
+				<p class="warning"><?= __('NOTE: the plugin has detected that you have a v1.X legacy data table with an existing ranking for this term and has loaded the manual order found.  However, please delete the legacy ranking data once you have successfully ranked all your posts, for more information (see <a href="https://wordpress.org/plugins/reorder-post-within-categories/#faq">FAQ #17</a>)','reorder-post-within-categories')?></p>
+			<?php endif;?>
 				<h3 class="floatLeft"><?=sprintf( __('Grid of %s, classified as %s:', 'reorder-post-within-categories'), $post_type_detail->labels->name, $term_selected)?></h3>
 				<span id="spinnerAjaxUserOrdering" class="spinner"></span>
 				<div class="clearBoth"></div>

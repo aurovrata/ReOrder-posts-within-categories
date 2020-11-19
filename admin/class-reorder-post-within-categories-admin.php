@@ -46,6 +46,8 @@ class Reorder_Post_Within_Categories_Admin {
 	public $adminOptionsName = "deefuse_ReOrderSettingAdminOptions";
 
 	public $old_table_name = "reorder_post_rel";
+	/** @since 2.9.0 flag terms with v1.x rankings */
+	private $old_ranking_exists =false;
 	/**
 	* Save plugin settings, to keep track of ugrades.
 	* @since 2.0.0
@@ -419,6 +421,8 @@ class Reorder_Post_Within_Categories_Admin {
 	*/
 	protected function _get_order($post_type, $term_id, $start=0, $length=null){
 		global $wpdb;
+		$this->old_ranking_exists = false;
+
 		$query = $wpdb->prepare("SELECT rpwc_pm.post_id
 			FROM {$wpdb->postmeta} as rpwc_pm, {$wpdb->posts} as rpwc_p
 			WHERE rpwc_pm.meta_key ='_rpwc2'
@@ -442,6 +446,8 @@ class Reorder_Post_Within_Categories_Admin {
 					FROM {$table_name} as rpwc
 					LEFT JOIN {$wpdb->posts} as wp on wp.ID = rpwc.post_id
 					WHERE rpwc.category_id = %d AND wp.post_type=%s order by rpwc.id", $term_id, $post_type));
+				/** @since 2.9.0 display admin notice warning. */
+        $this->old_ranking_exists = !empty($ranking);
 			}
 			// debug_msg($ranking, "ranking " );
 			if(empty($ranking)){
@@ -700,6 +706,7 @@ class Reorder_Post_Within_Categories_Admin {
 					);
 					$posts_array = get_posts($args);
 					/** @since 2.4.1 better for multi post type */
+					// debug_msg($post_type_detail->name, $cat_to_retrieve_post);
 					$total = $this->count_posts_in_term($post_type_detail->name, $cat_to_retrieve_post);
           $total = $total[$cat_to_retrieve_post];
 					foreach($posts_array as $post) $posts[$post->ID]=$post;

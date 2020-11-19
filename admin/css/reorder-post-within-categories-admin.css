@@ -2,6 +2,12 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
+ p.warning {
+	padding: 10px;
+	border: solid 1px #ff9f9f;
+	background-color: #e3e3e0;
+	color: black;
+}
  .sortable-items:hover > .title.future::before,
  .sortable-items:hover > .title.private::before,
  .sortable-items:hover > .title.draft::before,

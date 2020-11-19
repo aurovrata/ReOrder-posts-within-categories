@@ -16,7 +16,7 @@ Due to a [bug](https://core.trac.wordpress.org/ticket/50070) in WordPress core, 
 
 v2.3 is now multi-post taxonomy enabled.  A taxonomy registered with multiple post types can has its term's posts in each type ranked manually and separately.
 
-**UPGRADE NOTE** if you are upgrading from v1.x, your old ranking data remains unaffected in the custom table used by the v1.x plugin.  However, in v2.x all the ranking is now stored as post meta.  While upgrading, some users have complained of missing posts/lost rankings.  If this is the case, you can reset your order for given term using the reset checkbox/button provided in the admin page (see screenshot #4).  It will reload the ranking from the v1.x custom table.  For more details please read this [post](https://wordpress.org/support/topic/how-to-upgrade-to-v-2-x/).
+**UPGRADE NOTE** if you are upgrading from v1.x, your old ranking data remains unaffected in the custom table used by the v1.x plugin.  However, in v2.x all the ranking is now stored as post meta.  While upgrading, some users have complained of missing posts/lost rankings.  If this is the case, you can reset your order for given term using the reset checkbox/button provided in the admin page (see screenshot #4).  It will reload the ranking from the v1.x custom table.  Please read FAQ #17 for more information on how to migrate your data.
 
 If your term was not sorted in the v1.x table or you are upgrading from v2.0.x or v2.1.x, then the reset button will reload the post order as per the default WP post table listing, which can be changed using the filtrs provided (see FAQ #7).
 
@@ -314,12 +314,26 @@ $adj->prev_post; //this is the previous post ID, null is the post is the first i
 $adj->next_post; //this is the next post ID, null is the post is the last in the list.
 
  `
+= 17. I have upgraded from v1.X, should I delete the old table ? =
+
+The old plugin (v1.X) used a custom table to stored the manual order of posts.  This legacy data will be imported into the new plugin when you upgrade.  However, it is important that you delete the old table once you have successfully imported your ranking data.
+
+**How so I know if the data was successfully imported?**
+Go to your posts reorder admin pages, for each manually sorted term, check that your posts are in the correct order and that none are missing. If the lists of posts are correct (the right number of posts in the right order), **then move the 2nd posts to the first position and back to the 2nd position**.  This will automatically save the ranked list into your database usign the latest format.  Repeat for all manually sorted terms.  Once they are all saved with the new format, you will need to delete the legacy table.
+
+If you have spurious post listings then it is possible the imported data has been corrupted, you can reset it using the provided reset button, however, if the list of posts is still showing erroneous results then you will need to reset the manual ranking for that term one you have deleted the legacy table, and manually re-order your posts.
+
+**How do I delete the legacy data? **
+In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the bottom of the page and proceed to the delete the legacy table under the section title: **'Delete old custom table from plugin v1.x'**.
 
 == Thanks to ==
 @maddogprod for helping resolve custom taxonomy front-end ordering.
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 @alexjamesbishop/ for helping fix the 'orderby' bug.
 == Changelog ==
+= 2.9.0 =
+* improved front-end query filter logic.
+* improved upgrade messaging for legacy data.
 = 2.8.0 =
 * expose functionaliy to get adjacent posts.
 = 2.7.8 =

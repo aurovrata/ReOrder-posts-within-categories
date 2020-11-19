@@ -31,6 +31,16 @@ class Reorder_Post_Within_Categories_Public {
 	 */
 	private $plugin_name;
 
+  /**
+	 * The store the manually ranked terms.
+	 *
+	 * @since    2.9.0
+	 * @access   private
+	 * @var      Array    $ranked_terms   term IDs => post_types.
+	 * @var      Array    $tax_options  plugin's stored options.
+	 */
+	static private $ranked_terms;
+	static private $tax_options;
 	/**
 	 * The version of this plugin.
 	 *
@@ -54,51 +64,6 @@ class Reorder_Post_Within_Categories_Public {
 
 	}
 
-	/**
-	 * Register the stylesheets for the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Reorder_Post_Within_Categories_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Reorder_Post_Within_Categories_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/reorder-post-within-categories-public.css', array(), $this->version, 'all' );
-
-	}
-
-	/**
-	 * Register the JavaScript for the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_scripts() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Reorder_Post_Within_Categories_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Reorder_Post_Within_Categories_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/reorder-post-within-categories-public.js', array( 'jquery' ), $this->version, false );
-
-	}
 	/**
 	* filter post_join query.
 	* hooked on 'posts_join'.
@@ -175,9 +140,23 @@ class Reorder_Post_Within_Categories_Public {
 	*/
 	static private function is_ranked($taxonomy, $term_id, &$type, $wp_query=null, $print_dbg=false){
     if(empty($wp_query) && empty($type)) return false;
-		$tax_options = get_option(RPWC_OPTIONS_2, array());
 
-		// debug_msg($wp_query, 'query ');
+		/** @since 2.9.0 speedup ranking check */
+		if(!isset(self::$tax_options)){
+			self::$tax_options = get_option(RPWC_OPTIONS_2, array());
+			self::$ranked_terms = array();
+			foreach(self::$tax_options as $p=>$terms){
+				if($p){
+					foreach($terms as $tid=>$r){
+						if( isset(self::$ranked_terms[$tid]) ) array_push(self::$ranked_terms[$tid], $p);
+						else self::$ranked_terms[$tid] = array($p);
+					}
+				}
+			}
+		}
+		if(isset(self::$ranked_terms[$term_id])) $type = self::$ranked_terms[$term_id];
+		else return false; //term id is not manually ranked.
+
 		switch(true){
       case 'any' == $type:
         return false; //multi type search cannot be done.
@@ -227,21 +206,20 @@ class Reorder_Post_Within_Categories_Public {
 						if(empty($type)){
 							//find if any post types has multiple posts in this term.
 	            foreach($post_type as $pt){
-								if(self::count_posts($pt, $term_id, $taxonomy) > 1){
-									$types_with_posts[]=$pt;
-	                switch(true){
-	                  case ('attachment' == $pt): //unlikely being displayed.
-	                    break;
-	                  default:
-	                    if(empty($type)){
-												if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, using type '{$pt}'.");
-												$type = $pt;
-											}else{
-												if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, ignoring type '{$pt}', if this is the post type you are trying to sort, use the 'rpwc2_filter_multiple_post_type' hook as detailed in FAQ #10.");
-											}
-	                    break;
-	                }
-								}
+								// if(self::count_posts($pt, $term_id, $taxonomy) > 1){ already counted in admin.
+								$types_with_posts[]=$pt;
+                switch(true){
+                  case ('attachment' == $pt): //unlikely being displayed.
+                    break;
+                  default:
+                    if(empty($type)){
+											if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, using type '{$pt}'.");
+											$type = $pt;
+										}else{
+											if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, ignoring type '{$pt}', if this is the post type you are trying to sort, use the 'rpwc2_filter_multiple_post_type' hook as detailed in FAQ #10.");
+										}
+                    break;
+                }
 							}
 						}
             if(empty($type) || !is_string($type)){
