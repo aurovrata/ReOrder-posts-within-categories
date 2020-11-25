@@ -71,7 +71,8 @@ class Reorder_Post_Within_Categories_Admin {
 		//load settings.
 		self::$settings = get_option(self::$settings_option_name, array());
 
-		$this->_upgrade_to_v2();//if required.
+    $this->_upgrade();
+		// $this->_upgrade_to_v2();//if required.
 		$this->upgrade_options();
 	}
 
@@ -222,20 +223,20 @@ class Reorder_Post_Within_Categories_Admin {
 	* Update to new process: extract order from old custom table and insert into postmeta table.
 	* @since 2.0.0
 	*/
-   private function _upgrade_to_v2(){
-     /** simplified @since 2.1.2 */
-		if (function_exists('is_multisite') && is_multisite()) {
-			global $wpdb;
-			$old_blog = $wpdb->blogid;
-			$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
-			/** simplified @since 2.1.2 */
-			foreach ($blogids as $blog_id) {
-				switch_to_blog($blog_id);
-        $this->_upgrade();
-			}
-			switch_to_blog($old_blog);
-    }else $this->_upgrade();
-  }
+  //  private function _upgrade_to_v2(){
+  //    /** simplified @since 2.1.2 */
+	// 	if (function_exists('is_multisite') && is_multisite()) {
+	// 		global $wpdb;
+	// 		$old_blog = $wpdb->blogid;
+	// 		$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+	// 		/** simplified @since 2.1.2 */
+	// 		foreach ($blogids as $blog_id) {
+	// 			switch_to_blog($blog_id);
+  //       $this->_upgrade();
+	// 		}
+	// 		switch_to_blog($old_blog);
+  //   }else $this->_upgrade();
+  // }
 	/**
 	* Update to new process: extract order from old custom table and insert into postmeta table.
 	* @since 2.0.0
