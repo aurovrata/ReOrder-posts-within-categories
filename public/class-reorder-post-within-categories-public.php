@@ -236,11 +236,11 @@ class Reorder_Post_Within_Categories_Public {
 		if($print_dbg) debug_msg("RPWC2 SORT VALIDATION, found post_type '{$type}' / taxonomy '{$taxonomy}'({$term_id})");
 
 		$is_ranked=false;
-		if( isset($tax_options[$type]) && isset($tax_options[$type][$term_id]) ){
-			$is_ranked = $tax_options[$type][$term_id]['order'];
+		if( isset(self::$tax_options[$type]) && isset(self::$tax_options[$type][$term_id]) ){
+			$is_ranked = self::$tax_options[$type][$term_id]['order'];
 			/** @since 2.5.9 allow custom ranking 'orderby' override. */
 			if( $is_ranked && isset($wp_query) && !empty($wp_query->query_vars['orderby']) ){
-				$override = $tax_options[$type][$term_id]['override'];
+				$override = self::$tax_options[$type][$term_id]['override'];
 				$is_ranked = apply_filters('rpwc2_allow_custom_sort_orderby_override', $override, $wp_query, $taxonomy, $term_id, $type);
 				if($print_dbg){
 					if( !$is_ranked )  debug_msg("RPWC2 SORT VALIDATION ABORTED, for orderby: {$wp_query->query_vars['orderby']}");
