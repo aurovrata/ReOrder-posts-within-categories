@@ -334,6 +334,7 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 = 2.9.0 =
 * improved front-end query filter logic.
 * improved upgrade messaging for legacy data.
+* removed multisite upgrade.
 = 2.8.0 =
 * expose functionaliy to get adjacent posts.
 = 2.7.8 =
