@@ -131,7 +131,7 @@
 					let low= ui.value, hi = ui.values[1]-1;
 					if(ui.values[1]-ui.values[0]>gridw){
 						if(ui.value == ui.values[1]){
-							low = ui.values[0]+1;
+							low = ++ui.values[0];
 							hi = ui.value;
 						}
 						$(this).slider('option','values',[low, hi]);
