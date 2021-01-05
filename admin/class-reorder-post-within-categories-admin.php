@@ -247,6 +247,8 @@ class Reorder_Post_Within_Categories_Admin {
 		/** @since 2.0.1*/
 		$upgrade = false;
 		switch(true){
+			case isset(self::$settings['version']) && self::$settings['version'] == $this->version:
+				return; //no need to get any further.
 			case empty(self::$settings): //either first install or new upgrade.
 				$upgrade = true;
 				break;
@@ -270,6 +272,7 @@ class Reorder_Post_Within_Categories_Admin {
 				$table_name = $wpdb->prefix . $this->old_table_name;
 				$categories = array();
 				if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name){
+					self::$settings['upgraded']=true; //upgrade settings.
 					$categories = $wpdb->get_col("SELECT DISTINCT category_id FROM {$table_name}");
 				}
         //debug_msg($categories, 'found categories ');
@@ -287,7 +290,6 @@ class Reorder_Post_Within_Categories_Admin {
 						$wpdb->query($sql);
             //debug_msg($values, 'stored existing order for cid: '.$cid);
 					}
-					self::$settings['upgraded']=true; //upgrade settings.
 				}
 				break;
 		}

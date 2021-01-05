@@ -115,9 +115,26 @@ class Reorder_Post_Within_Categories_Public {
 	*/
 	private function is_manual_sort_query($wp_query, $print_dbg=false){
 		$queriedObj = $wp_query->get_queried_object();
+
     if (isset($queriedObj->taxonomy) && isset($queriedObj->term_id)) {
+			/** @since 2.9.1 fix multi-term queries bug */
+			$validate = true;
+			switch(true){
+				case $wp_query->is_category and ($wp_query->is_tag || $wp_query->is_tax):
+				case $wp_query->is_tag and ($wp_query->is_category || $wp_query->is_tax):
+				case $wp_query->is_tax and ($wp_query->is_category || $wp_query->is_tag):
+					$validate = false; //multiple taxonomy queried.
+					break;
+				case isset($wp_query->tax_query):
+					foreach($wp_query->tax_query->queries as $t){
+						if(count($t['terms'])>1) $validate = false; //multiple terms queried.
+					}
+					break;
+			}
+			if(!$validate) return 0;
       $term_id = $queriedObj->term_id;
 			$taxonomy = $queriedObj->taxonomy;
+			 // debug_msg($wp_query->tax_query->queries, "$taxonomy is ranked $term_id ");
     } else {
       return 0;
     }
@@ -156,7 +173,6 @@ class Reorder_Post_Within_Categories_Public {
 		}
 		if(isset(self::$ranked_terms[$term_id])) $type = self::$ranked_terms[$term_id];
 		else return false; //term id is not manually ranked.
-
 		switch(true){
       case 'any' == $type:
         return false; //multi type search cannot be done.

@@ -3,7 +3,7 @@ Contributors: aurovrata, aurelien
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
-Tested up to: 5.5.1
+Tested up to: 5.6.0
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -331,6 +331,8 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 @alexjamesbishop/ for helping fix the 'orderby' bug.
 == Changelog ==
+= 2.9.1 =
+* fix multi-term queries from being ranked.
 = 2.9.0 =
 * improved front-end query filter logic.
 * improved upgrade messaging for legacy data.

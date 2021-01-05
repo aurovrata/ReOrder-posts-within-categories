@@ -104,8 +104,8 @@ $settingsOptions = $this->get_admin_options();?>
       <input id="delete-data" class="button" type="submit" value="<?=__('Clear all ranking data', 'reorder-post-within-categories')?>" name="delete_data" disabled="disabled"/>
     </p>
     <?php
-    $settings = get_option(self::$settings_option_name, array());
-    if(isset($settings['upgraded']) && $settings['upgraded']):?>
+    // self::$settings = get_option(self::$settings_option_name, array());
+    if(isset(self::$settings['upgraded']) && self::$settings['upgraded']):?>
       <h3><?=__('Delete old custom table from plugin v1.x', 'reorder-post-within-categories')?></h3>
       <p class="delete-table submit">
         <label>
