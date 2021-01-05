@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: aurovrata, aurelien
+Contributors: aurovrata, aurelien, pondermatic
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
@@ -329,10 +329,13 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 == Thanks to ==
 @maddogprod for helping resolve custom taxonomy front-end ordering.
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
-@alexjamesbishop/ for helping fix the 'orderby' bug.
+@alexjamesbishop for helping fix the 'orderby' bug.
+@pondermatic for fixing the min-range bug.
+
 == Changelog ==
 = 2.9.1 =
 * fix multi-term queries from being ranked.
+* fix min-range value when ranking large number of posts.
 = 2.9.0 =
 * improved front-end query filter logic.
 * improved upgrade messaging for legacy data.
