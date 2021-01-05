@@ -44,7 +44,7 @@
 				// console.log(event);
  			},
  	 		onUpdate: function( event ) {
- 	 			$('#spinnerAjaxUserOrdering').show();
+ 	 			$('#spinnerAjaxUserOrdering').addClass('is-active');
 
   				let data = {
   					'action'					: 'user_ordering',
@@ -56,7 +56,7 @@
   					'deefuseNounceUserOrdering'	: rpwc2.deefuseNounceUserOrdering
   				}
   				$.post(ajaxurl, data, function (response){
-  					$('#spinnerAjaxUserOrdering').hide();
+  					$('#spinnerAjaxUserOrdering').removeClass('is-active');
   				});
   			},
  			onRemove:function(event){
@@ -81,7 +81,7 @@
 	 */
 	 function updatePosts(start, end, reset=false){
 
-		 $('#spinnerAjaxUserOrdering').show();
+		 $('#spinnerAjaxUserOrdering').addClass('is-active');
 		 let total = $sortable.data('count');
 		 let data = {
 			 'action'					: 'get_more_posts',
@@ -94,7 +94,7 @@
 		 }
      if(reset) data['reset'] = true;
 		$.post(ajaxurl, data, function (response){
-			$('#spinnerAjaxUserOrdering').hide();
+			$('#spinnerAjaxUserOrdering').removeClass('is-active');
 			updateSortableList(response);
 		 });
 	 }
@@ -131,7 +131,7 @@
 					let low= ui.value, hi = ui.values[1]-1;
 					if(ui.values[1]-ui.values[0]>gridw){
 						if(ui.value == ui.values[1]){
-							low = ui.values[0]+1;
+							low = ++ui.values[0];
 							hi = ui.value;
 						}
 						$(this).slider('option','values',[low, hi]);
@@ -227,7 +227,7 @@
 				$this.val('');
 				return;
 			}else{ //if value is valid, remove items and move them
-				$('#spinnerAjaxUserOrdering').show();
+				$('#spinnerAjaxUserOrdering').addClass('is-active');
 				let items=[], first, last, move='';
 				let $selected = $sortable.children('.selected');
 				if(0==$selected.length){
@@ -262,7 +262,7 @@
 	 				'deefuseNounceUserOrdering'	: rpwc2.deefuseNounceUserOrdering
 	 			}
 	 			$.post(ajaxurl, data, function (response){
-	 				$('#spinnerAjaxUserOrdering').hide();
+	 				$('#spinnerAjaxUserOrdering').removeClass('is-active');
           //update sortable items.
 					updateSortableList(response);
 					$this.val('');
