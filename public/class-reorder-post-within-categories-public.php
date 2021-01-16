@@ -127,7 +127,7 @@ class Reorder_Post_Within_Categories_Public {
 					break;
 				case isset($wp_query->tax_query):
 					foreach($wp_query->tax_query->queries as $t){
-						if(count($t['terms'])>1) $validate = false; //multiple terms queried.
+						if(is_array($t['terms']) && count($t['terms'])>1) $validate = false; //multiple terms queried.
 					}
 					break;
 			}

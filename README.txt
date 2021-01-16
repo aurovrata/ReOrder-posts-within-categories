@@ -333,6 +333,8 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 @pondermatic for fixing the min-range bug.
 
 == Changelog ==
+= 2.9.2 =
+* fix count warnings.
 = 2.9.1 =
 * fix multi-term queries from being ranked.
 * fix min-range value when ranking large number of posts.
