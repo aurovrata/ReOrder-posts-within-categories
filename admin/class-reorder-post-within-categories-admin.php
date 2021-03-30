@@ -711,7 +711,8 @@ class Reorder_Post_Within_Categories_Admin {
 					/** @since 2.4.1 better for multi post type */
 					// debug_msg($post_type_detail->name, $cat_to_retrieve_post);
 					$total = $this->count_posts_in_term($post_type_detail->name, $cat_to_retrieve_post);
-          $total = $total[$cat_to_retrieve_post];
+          if(!empty($total)) $total = $total[$cat_to_retrieve_post]; /** @ssince 2.9.3 */
+          else $total = 0;
 					foreach($posts_array as $post) $posts[$post->ID]=$post;
 				}
 			}
@@ -843,8 +844,6 @@ class Reorder_Post_Within_Categories_Admin {
 			$ranked_ids += array_intersect($post_terms, $ranked_terms);
 		}
 
-		if(empty($ranked_ids)) return; //no terms to rank.
-
 		$public =array('publish', 'private', 'future');
     $draft = array( 'draft', 'pending');
 
@@ -899,6 +898,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @param type $post_id
 	 */
 	public function unrank_post($post_id, $term_id=''){
+		// debug_msg("unranking post $post_id from term $term_id");
 		delete_post_meta($post_id, '_rpwc2', $term_id);
 	}
 	/**

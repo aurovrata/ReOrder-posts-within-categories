@@ -3,7 +3,7 @@ Contributors: aurovrata, aurelien, pondermatic
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
-Tested up to: 5.6.0
+Tested up to: 5.7.0
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -174,7 +174,7 @@ function ranking_post_type($type, $wp_query){
 **There are several reasons why this might happen,**
 
 **1. You are using a custom query get_posts()...**
-If you are displaying your posts using a **custom query with the function get_posts()** you should be aware that it sets the attribute 'suppress_filters' to false by default (see the [codex page](https://developer.wordpress.org/reference/functions/get_posts/#parameters)).  The ranked order is applied using filters on the query, hence you need to explictly set this attribute to true to get your results ranked properly.
+If you are displaying your posts using a **custom query with the function get_posts()** you should be aware that it sets the attribute 'suppress_filters' to true by default (see the [codex page](https://developer.wordpress.org/reference/functions/get_posts/#parameters)).  The ranked order is applied using filters on the query, hence you need to explictly set this attribute to `false` to get your results ranked properly.
 
 **2. Your theme or custom query explictly set the 'orderby' query attribute. **
 If your **query explicitly sets the 'orderby'** [attribute](https://developer.wordpress.org/reference/classes/wp_query/#order-orderby-parameters), and the override checkbox is checked (see [screenshot](https://wordpress.org/plugins/reorder-post-within-categories/#screenshots) #5), then the plugin will override your query and rank the results as per your manual order.  However, if you uncheck the ovverride setting (ie override is set to false), your query will be ordered as per the orderby directive.  However, you can programmatically override the `orderby` directive with the following hook should you need finer control,
@@ -333,6 +333,8 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 @pondermatic for fixing the min-range bug.
 
 == Changelog ==
+= 2.9.3 =
+* fix bug stoping custom post types being unranked from removed terms.
 = 2.9.2 =
 * fix count warnings.
 = 2.9.1 =
