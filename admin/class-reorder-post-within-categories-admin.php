@@ -810,6 +810,7 @@ class Reorder_Post_Within_Categories_Admin {
 	/**
 	 * When a new post is created several actions are required
 	 * We need to inspect all associated taxonomies
+   * hooked on 'transition_post_status'
 	 * @param type $post_id
 	 */
 	public function save_post( $new_status, $old_status, $post){
