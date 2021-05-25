@@ -3,7 +3,7 @@ Contributors: aurovrata, aurelien, pondermatic
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
-Tested up to: 5.7.0
+Tested up to: 5.7.2
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -63,7 +63,7 @@ Keep in mind that you will now see `Pages` as a post type to re-order, selecting
 
 = 3.I want limit/enable roles that can re-order posts =
 
-Since v1.3.0 a new filter has been added that allows you to do that.  Make sure you return a [valid capability](https://codex.wordpress.org/Roles_and_Capabilities#Capabilities),
+Since v1.3.0 a new filter has been added that allows you to do that.  Make sure you return a [valid capability](https://wordpress.org/support/article/roles-and-capabilities/#roles),
 
 `add_filter('reorder_post_within_categories_capability', 'enable_editors', 10,2);
 function enable_editors($capability, $post_type){
@@ -333,8 +333,10 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 @pondermatic for fixing the min-range bug.
 
 == Changelog ==
+= 2.9.4 =
+* fix admin reorder page load for non-admins.
 = 2.9.3 =
-* fix bug stoping custom post types being unranked from removed terms.
+* fix bug stopping custom post types being unranked from removed terms.
 = 2.9.2 =
 * fix count warnings.
 = 2.9.1 =
