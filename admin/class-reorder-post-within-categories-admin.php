@@ -773,6 +773,10 @@ class Reorder_Post_Within_Categories_Admin {
 				case 'attachment'==$post_type:
 					$the_page = add_submenu_page('upload.php', 'Re-order', 'Reorder', $capability, 're-orderPost-'.$post_type, array(&$this,'print_order_page'));
 					break;
+				case 'post'==$post_type:
+					$the_page = add_submenu_page('edit.php', 'Re-order', 'Reorder', $capability, 're-orderPost-'.$post_type, array(&$this,'print_order_page'));
+					// debug_msg("page hook: $the_page");
+					break;
 				case 'lp_course'==$post_type && is_plugin_active('learnpress/learnpress.php'): /** @since 2.5.6 learnpress fix.*/
 						$the_page =  add_submenu_page('learn_press', 'Re-order', 'Reorder', 'edit_lp_courses', 're-orderPost-'.$post_type, array(&$this,'print_order_page'));
 					break;
@@ -784,6 +788,15 @@ class Reorder_Post_Within_Categories_Admin {
 			add_action('admin_head-'. $the_page, array($this,'enqueue_styles'));
 			add_action('admin_head-'. $the_page, array($this,'enqueue_scripts'));
 		}
+	}
+	/**
+	* Reset global $typenow to ensure post sub-menu reorder pages are not broken.
+	*
+	*@since 2.9.4
+	*/
+	public function reset_typenow(){
+		global $pagenow, $typenow;
+		if('edit.php'==$pagenow && 'post'==$typenow) $typenow='';
 	}
 
 	/**
