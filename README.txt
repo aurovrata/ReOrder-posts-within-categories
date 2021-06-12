@@ -3,7 +3,7 @@ Contributors: aurovrata, aurelien, pondermatic
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
-Tested up to: 5.7.2
+Tested up to: 5.7.3
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -333,6 +333,8 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 @pondermatic for fixing the min-range bug.
 
 == Changelog ==
+= 2.10.0 =
+* improve taxonomy term dropdown list.
 = 2.9.4 =
 * fix admin reorder page load for non-admins.
 = 2.9.3 =
