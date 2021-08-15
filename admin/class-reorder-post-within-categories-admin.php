@@ -498,6 +498,32 @@ class Reorder_Post_Within_Categories_Admin {
 		return array_splice($ranking, $start, $length);
 	}
   /**
+  * Display hierarchy of terms for a taxonomy in the admin reorder page dropdown list.
+  *
+  *@since 2.10.0
+  *@param string $param text_description
+  *@return string text_description
+  */
+  public function display_child_terms($post_name, $taxonomy, $parent_id, $get_id, $level=1){
+    $term_query = array('taxonomy'=>$taxonomy, 'hide_empty'=>false, 'parent'=> $parent_id);
+    $list_terms = get_terms($term_query);
+		if(count($list_terms) ==0) return;
+    $post_counts = $this->count_posts_in_term($post_name, wp_list_pluck($list_terms, 'term_id'));
+    foreach ($list_terms as $term){
+      $selected = '';
+      if (isset($get_id) && ($get_id == $term->term_id)) {
+        $selected = ' selected = "selected"';
+        $term_selected = $term->name;
+      }
+      $disabled = '';
+      if ( isset($post_counts[$term->term_id]) && $post_counts[$term->term_id] < 2) {
+        $disabled = ' disabled = "disabled"';
+      }
+			echo '<option '.$selected.$disabled.' value="'.$term->term_id.'">'. str_repeat('-',$level). $term->name. '</option>'.PHP_EOL;
+			$this->display_child_terms($post_name, $taxonomy, $term->term_id, $get_id, $level+1);
+		}
+  }
+  /**
   * funciton to return the total count of posts in a given term for a given post type.
   *
   *@since 2.4.1
@@ -683,6 +709,7 @@ class Reorder_Post_Within_Categories_Admin {
 		$post_type = get_post_types(array('name' => $cpt_name), 'objects');
 		$post_type_detail  = $post_type[$cpt_name];
 		unset($post_type, $page_name, $cpt_name);
+		$cat_to_retrieve_post = -1;
 
 		// On charge les prÃ©fÃ©rences
 		$settingsOptions = $this->get_admin_options();
@@ -691,7 +718,6 @@ class Reorder_Post_Within_Categories_Admin {
 		 check_admin_referer('loadPostInCat', 'nounceLoadPostCat') &&
 		 isset($_POST['nounceLoadPostCat']) &&
 		 wp_verify_nonce($_POST['nounceLoadPostCat'], 'loadPostInCat')) {
-
 			if (isset($_POST['cat_to_retrive']) && !empty($_POST['cat_to_retrive']) && $_POST['cat_to_retrive'] != null) {
 				$cat_to_retrieve_post = $_POST['cat_to_retrive'];
 				$taxonomySubmitted = $_POST['taxonomy'];
