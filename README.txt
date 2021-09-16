@@ -335,6 +335,8 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 @isinica for fixing the disappearing ranked post when editing them.
 
 == Changelog ==
+= 2.10.2 =
+* fix ranked id merger bug.
 = 2.10.1 =
 * fix disappearing ranked posts when editing them.
 * fix illegal offset warnings.
