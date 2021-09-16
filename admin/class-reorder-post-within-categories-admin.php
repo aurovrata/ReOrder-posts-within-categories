@@ -878,7 +878,7 @@ class Reorder_Post_Within_Categories_Admin {
 		$ranked_ids = array();
 		foreach($ranked_tax as $tax){
 			$post_terms = wp_get_post_terms($post->ID, $tax, array( 'fields' => 'ids' ));
-			$ranked_ids = array_merge(array_intersect($post_terms, $ranked_terms));
+			$ranked_ids = array_merge($ranked_ids, array_intersect($post_terms, $ranked_terms));
 		}
 
 		$public =array('publish', 'private', 'future');
