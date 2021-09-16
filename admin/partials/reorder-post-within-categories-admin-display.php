@@ -30,7 +30,6 @@
     <select id="selectCatToRetrieve" name="cat_to_retrive" disabled="true">
       <option value="null" disabled="disabled" selected="selected"><?= __('Select','reorder-post-within-categories')?></option>
     <?php
-			$catDisabled = false;
 			foreach ($listCategories as $idx=>$categorie) :
 				$taxonomies = get_taxonomies(array('name'=> $categorie), 'object');
 				if(!isset($taxonomies[$categorie])){ //this taxonomy no longer exists.
@@ -40,7 +39,7 @@
 				}
 				$taxonomy = $taxonomies[$categorie];
 				// On liste maintenant les terms disponibles pour la taxonomie concernÃ©e
-				$term_query = array('taxonomy'=>$taxonomy->name, 'hide_empty'=>false);
+				$term_query = array('taxonomy'=>$taxonomy->name, 'hide_empty'=>false, 'parent'=> 0);
 				$list_terms = get_terms($term_query);
 				if (count($list_terms) > 0) :?>
 			<optgroup id="<?=$taxonomy->name?>" label="<?=$taxonomy->labels->name?>">
@@ -49,25 +48,25 @@
           $post_counts = $this->count_posts_in_term($post_type_detail->name, wp_list_pluck($list_terms, 'term_id'));
 					foreach ($list_terms as $term):
 						$selected = '';
-						if (isset($cat_to_retrieve_post) && ($cat_to_retrieve_post == $term->term_id)) {
+						if ($cat_to_retrieve_post == $term->term_id) {
 							$selected = ' selected = "selected"';
 							$term_selected = $term->name;
 						}
 						$disabled = '';
 						if ( isset($post_counts[$term->term_id]) && $post_counts[$term->term_id] < 2) {
 							$disabled = ' disabled = "disabled"';
-							$catDisabled = true;
 						}?>
 			  <option <?=$selected.$disabled?> value="<?=$term->term_id?>"><?=$term->name?></option>
-			<?php endforeach; //foreach ($list_terms as $term).?>
+      	<?php
+            $this->display_child_terms($post_type_detail->name, $taxonomy->name, $term->term_id, $cat_to_retrieve_post);
+          endforeach; //foreach ($list_terms as $term).?>
 			</optgroup>
     <?php
       endif; //if (count($list_terms) > 0).
     endforeach; //foreach ($listCategories as $categorie).?>
 		</select>
-  <?php if ($catDisabled):?>
 		<br/><span class="description"><?= __('Greyed-out categories contain too few posts and aren’t available for sorting.', "reorder-post-within-categories")?></span>
-	<?php endif;
+	<?php
     $valueTaxonomyField = (isset($taxonomySubmitted) ? $taxonomySubmitted : '');?>
 		<input type="hidden" id="taxonomyHiddenField" name="taxonomy" value="<?=$valueTaxonomyField?>"/>
   <?php endif;//if (count($listCategories) > 0).?>

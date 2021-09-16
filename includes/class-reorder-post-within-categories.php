@@ -177,7 +177,9 @@ class Reorder_Post_Within_Categories {
 
 		$this->loader->add_action('transition_post_status', $plugin_admin, 'save_post', 10, 3);
 		// $this->loader->add_action('before_delete_post', $plugin_admin, 'unrank_post');
-		$this->loader->add_action('trashed_post', $plugin_admin, 'unrank_post');
+    $this->loader->add_action('trashed_post', $plugin_admin, 'unrank_post');
+    /** @since 2.9.4 reset $typenow for post admin pages. */
+		$this->loader->add_action('admin_init', $plugin_admin, 'reset_typenow', PHP_INT_MAX);
 
 	}
 

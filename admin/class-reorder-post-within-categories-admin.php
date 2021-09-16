@@ -498,6 +498,32 @@ class Reorder_Post_Within_Categories_Admin {
 		return array_splice($ranking, $start, $length);
 	}
   /**
+  * Display hierarchy of terms for a taxonomy in the admin reorder page dropdown list.
+  *
+  *@since 2.10.0
+  *@param string $param text_description
+  *@return string text_description
+  */
+  public function display_child_terms($post_name, $taxonomy, $parent_id, $get_id, $level=1){
+    $term_query = array('taxonomy'=>$taxonomy, 'hide_empty'=>false, 'parent'=> $parent_id);
+    $list_terms = get_terms($term_query);
+		if(count($list_terms) ==0) return;
+    $post_counts = $this->count_posts_in_term($post_name, wp_list_pluck($list_terms, 'term_id'));
+    foreach ($list_terms as $term){
+      $selected = '';
+      if (isset($get_id) && ($get_id == $term->term_id)) {
+        $selected = ' selected = "selected"';
+        $term_selected = $term->name;
+      }
+      $disabled = '';
+      if ( isset($post_counts[$term->term_id]) && $post_counts[$term->term_id] < 2) {
+        $disabled = ' disabled = "disabled"';
+      }
+			echo '<option '.$selected.$disabled.' value="'.$term->term_id.'">'. str_repeat('-',$level). $term->name. '</option>'.PHP_EOL;
+			$this->display_child_terms($post_name, $taxonomy, $term->term_id, $get_id, $level+1);
+		}
+  }
+  /**
   * funciton to return the total count of posts in a given term for a given post type.
   *
   *@since 2.4.1
@@ -683,6 +709,7 @@ class Reorder_Post_Within_Categories_Admin {
 		$post_type = get_post_types(array('name' => $cpt_name), 'objects');
 		$post_type_detail  = $post_type[$cpt_name];
 		unset($post_type, $page_name, $cpt_name);
+		$cat_to_retrieve_post = -1;
 
 		// On charge les prÃ©fÃ©rences
 		$settingsOptions = $this->get_admin_options();
@@ -691,7 +718,6 @@ class Reorder_Post_Within_Categories_Admin {
 		 check_admin_referer('loadPostInCat', 'nounceLoadPostCat') &&
 		 isset($_POST['nounceLoadPostCat']) &&
 		 wp_verify_nonce($_POST['nounceLoadPostCat'], 'loadPostInCat')) {
-
 			if (isset($_POST['cat_to_retrive']) && !empty($_POST['cat_to_retrive']) && $_POST['cat_to_retrive'] != null) {
 				$cat_to_retrieve_post = $_POST['cat_to_retrive'];
 				$taxonomySubmitted = $_POST['taxonomy'];
@@ -711,7 +737,8 @@ class Reorder_Post_Within_Categories_Admin {
 					/** @since 2.4.1 better for multi post type */
 					// debug_msg($post_type_detail->name, $cat_to_retrieve_post);
 					$total = $this->count_posts_in_term($post_type_detail->name, $cat_to_retrieve_post);
-          $total = $total[$cat_to_retrieve_post];
+          if(!empty($total)) $total = $total[$cat_to_retrieve_post]; /** @ssince 2.9.3 */
+          else $total = 0;
 					foreach($posts_array as $post) $posts[$post->ID]=$post;
 				}
 			}
@@ -774,6 +801,7 @@ class Reorder_Post_Within_Categories_Admin {
 					break;
 				case 'post'==$post_type:
 					$the_page = add_submenu_page('edit.php', 'Re-order', 'Reorder', $capability, 're-orderPost-'.$post_type, array(&$this,'print_order_page'));
+					// debug_msg("page hook: $the_page");
 					break;
 				case 'lp_course'==$post_type && is_plugin_active('learnpress/learnpress.php'): /** @since 2.5.6 learnpress fix.*/
 						$the_page =  add_submenu_page('learn_press', 'Re-order', 'Reorder', 'edit_lp_courses', 're-orderPost-'.$post_type, array(&$this,'print_order_page'));
@@ -786,6 +814,15 @@ class Reorder_Post_Within_Categories_Admin {
 			add_action('admin_head-'. $the_page, array($this,'enqueue_styles'));
 			add_action('admin_head-'. $the_page, array($this,'enqueue_scripts'));
 		}
+	}
+	/**
+	* Reset global $typenow to ensure post sub-menu reorder pages are not broken.
+	*
+	*@since 2.9.4
+	*/
+	public function reset_typenow(){
+		global $pagenow, $typenow;
+		if('edit.php'==$pagenow && 'post'==$typenow) $typenow='';
 	}
 
 	/**
@@ -809,6 +846,7 @@ class Reorder_Post_Within_Categories_Admin {
 	/**
 	 * When a new post is created several actions are required
 	 * We need to inspect all associated taxonomies
+   * hooked on 'transition_post_status'
 	 * @param type $post_id
 	 */
 	public function save_post( $new_status, $old_status, $post){
@@ -842,8 +880,6 @@ class Reorder_Post_Within_Categories_Admin {
 			$post_terms = wp_get_post_terms($post->ID, $tax, array( 'fields' => 'ids' ));
 			$ranked_ids += array_intersect($post_terms, $ranked_terms);
 		}
-
-		if(empty($ranked_ids)) return; //no terms to rank.
 
 		$public =array('publish', 'private', 'future');
     $draft = array( 'draft', 'pending');
@@ -899,6 +935,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @param type $post_id
 	 */
 	public function unrank_post($post_id, $term_id=''){
+		// debug_msg("unranking post $post_id from term $term_id");
 		delete_post_meta($post_id, '_rpwc2', $term_id);
 	}
 	/**
