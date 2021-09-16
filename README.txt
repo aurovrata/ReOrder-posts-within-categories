@@ -331,8 +331,13 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
 @alexjamesbishop for helping fix the 'orderby' bug.
 @pondermatic for fixing the min-range bug.
+@andreicnegrea for fixing the offset warnings.
+@isinica for fixing the disappearing ranked post when editing them.
 
 == Changelog ==
+= 2.10.1 =
+* fix disappearing ranked posts when editing them.
+* fix illegal offset warnings.
 = 2.10.0 =
 * improve taxonomy term dropdown list.
 = 2.9.4 =
