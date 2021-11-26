@@ -426,7 +426,7 @@ class Reorder_Post_Within_Categories_Admin {
 		global $wpdb;
 		$this->old_ranking_exists = false;
 
-		$query = $wpdb->prepare("SELECT UNIQUE rpwc_pm.post_id
+		$query = $wpdb->prepare("SELECT rpwc_pm.post_id
 			FROM {$wpdb->postmeta} as rpwc_pm, {$wpdb->posts} as rpwc_p
 			WHERE rpwc_pm.meta_key ='_rpwc2'
 			AND rpwc_pm.meta_value=%d

@@ -335,6 +335,8 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 @isinica for fixing the disappearing ranked post when editing them.
 
 == Changelog ==
+= 2.10.4 =
+* undo change to v2.10.3
 = 2.10.3 =
 * set post id select query as unique.
 = 2.10.2 =
