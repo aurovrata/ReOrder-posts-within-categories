@@ -1,3 +1,38 @@
+= 2.9.4 =
+* fix admin reorder page load for non-admins.
+= 2.9.3 =
+* fix bug stopping custom post types being unranked from removed terms.
+= 2.9.2 =
+* fix count warnings.
+= 2.9.1 =
+* fix multi-term queries from being ranked.
+* fix min-range value when ranking large number of posts.
+= 2.9.0 =
+* improved front-end query filter logic.
+* improved upgrade messaging for legacy data.
+* removed multisite upgrade.
+= 2.8.0 =
+* expose functionaliy to get adjacent posts.
+= 2.7.8 =
+* fix new term order seetings update.
+= 2.7.7 =
+* fix SortableJs for reset button.
+= 2.7.6 =
+* fix SortableJs plugin initialisation on some setups.
+= 2.7.5 =
+* fix post count in admin.
+= 2.7.4 =
+* fix post count.
+= 2.7.3 =
+* fix multi-post_type queries.
+= 2.7.2 =
+* improved handling of term post counts.
+= 2.7.1 =
+* fix term counts for private/scheduled posts.
+= 2.7.0 =
+* added filter 'rpwc2_manual_sort_override'.
+* fixed orderby query_vars bug.
+* update settins link.
 = 2.6.3 =
 * handle is_tax/is_category in same code.
 = 2.6.2 =
