@@ -426,19 +426,8 @@ class Reorder_Post_Within_Categories_Admin {
 		global $wpdb;
 		$this->old_ranking_exists = false;
 
-		$query = $wpdb->prepare("SELECT rpwc_pm.post_id
-			FROM {$wpdb->postmeta} as rpwc_pm, {$wpdb->posts} as rpwc_p
-			WHERE rpwc_pm.meta_key ='_rpwc2'
-			AND rpwc_pm.meta_value=%d
-			AND rpwc_pm.post_id=rpwc_p.ID
-			AND rpwc_p.post_type=%s
-      ORDER BY rpwc_pm.meta_id", $term_id, $post_type);
+		$ranking = self::get_order($post_type, $term_id);
 
-		/** @since 2.4.3 */
-		$this->filter_query($query, "SELECT rpwc_pm.post_id");
-		$ranking = $wpdb->get_col($query);
-			// debug_msg($wpdb->last_query);
-			// debug_msg($ranking, $term_id.':'.$start.'->'.$length);
 		if(empty($ranking)){ //retrieve the default ranking.
 			//check if v1.x table exists.
 			$table_name = $wpdb->prefix . $this->old_table_name;
@@ -477,7 +466,7 @@ class Reorder_Post_Within_Categories_Admin {
 					AND rpwc_tt.term_id=%d
 					ORDER BY {$orderby} {$order}", $post_type, $term_id);
 				/** @since 2.4.3 filter the ranking query with the hook at the end of the queue.*/
-				$this->filter_query($sql, "SELECT rpwc_p.ID");
+				self::filter_query($sql, "SELECT rpwc_p.ID");
 				$ranking = $wpdb->get_col($sql);
         /** @since 2.4.0 enable programmatic default ranking */
         $filtered_ranking = apply_filters('rpwc2_filter_default_ranking', $ranking, $term_id, $_POST['taxonomy'], $post_type);
@@ -496,6 +485,28 @@ class Reorder_Post_Within_Categories_Admin {
 		}
 		if( empty($length) || $length> sizeof($ranking)) $length=sizeof($ranking);
 		return array_splice($ranking, $start, $length);
+	}
+	/**
+	* Expose rank retrieval for a given post type and term id
+	*
+	*@since 2.11.0
+	*@param String $post_type post type
+	*@param String $term_id term ID
+	*@return Array array of ranked post IDs
+	*/
+	public static function get_order($post_type, $term_id){
+		global $wpdb;
+		$query = $wpdb->prepare("SELECT rpwc_pm.post_id
+			FROM {$wpdb->postmeta} as rpwc_pm, {$wpdb->posts} as rpwc_p
+			WHERE rpwc_pm.meta_key ='_rpwc2'
+			AND rpwc_pm.meta_value=%d
+			AND rpwc_pm.post_id=rpwc_p.ID
+			AND rpwc_p.post_type=%s
+      ORDER BY rpwc_pm.meta_id", $term_id, $post_type);
+
+		/** @since 2.4.3 */
+		self::filter_query($query, "SELECT rpwc_pm.post_id");
+		return $wpdb->get_col($query);
 	}
   /**
   * Display hierarchy of terms for a taxonomy in the admin reorder page dropdown list.
@@ -578,7 +589,7 @@ class Reorder_Post_Within_Categories_Admin {
 		// debug_msg($order, 'saving order ');
 		$query =$wpdb->prepare("SELECT rpwc_pm.meta_id, rpwc_p.ID FROM {$wpdb->posts} as rpwc_p LEFT JOIN {$wpdb->postmeta} as rpwc_pm on rpwc_p.ID = rpwc_pm.post_id WHERE rpwc_p.post_type like '%s' AND rpwc_pm.meta_key ='_rpwc2' AND rpwc_pm.meta_value=%d ORDER BY rpwc_pm.meta_id ASC", $post_type, $term_id);
 		/** @since 2.4.3 */
-		$this->filter_query($query, "SELECT rpwc_pm.meta_id, rpwc_p.ID");
+		self::filter_query($query, "SELECT rpwc_pm.meta_id, rpwc_p.ID");
 		$ranked_rows = $wpdb->get_results($query);
 
 		if (empty($ranked_rows)) {
@@ -586,7 +597,7 @@ class Reorder_Post_Within_Categories_Admin {
 					$value[] = "($post_id, '_rpwc2', $term_id)";
 			}
 			$sql = sprintf("INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES %s", implode(",", $value));
-			//$this->filter_query($query, "SELECT rpwc_pm.meta_id, rpwc_pm.post_id");
+			//self::filter_query($query, "SELECT rpwc_pm.meta_id, rpwc_pm.post_id");
 			$wpdb->query($sql);
 		} else {
 			// $ranked_id=array();
@@ -619,7 +630,7 @@ class Reorder_Post_Within_Categories_Admin {
 	*@param string $query to set
 	*@param string $match string to search in query to validate.
 	*/
-	protected function filter_query($query, $match){
+	protected static function filter_query($query, $match){
 		add_filter('query', function($q) use ($query, $match) {
 			if(strpos($q, $match)!==false) $q = $query;
 			return $q;
@@ -647,7 +658,7 @@ class Reorder_Post_Within_Categories_Admin {
 		global $wpdb;
 		$query = "SELECT DISTINCT rpwc_pm.meta_value FROM $wpdb->postmeta as rpwc_pm WHERE rpwc_pm.meta_key LIKE '_rpwc2'";
 		/** @since 2.4.3 */
-		$this->filter_query($query, "SELECT DISTINCT rpwc_pm.meta_value");
+		self::filter_query($query, "SELECT DISTINCT rpwc_pm.meta_value");
 		$terms_ordered = $wpdb->get_col($query);
 		/** @TODO delete ranking by post type */
 		foreach($terms_ordered as $term_id){
@@ -960,5 +971,17 @@ class Reorder_Post_Within_Categories_Admin {
 		}
 		// debug_msg($sql, 'deleted '.$post_type.' term '.$term_id);
 		return true;
+	}
+}
+/**
+* funciton to retrieve ranked post IDs for a given post type and term ID.
+* @since 2.11.0
+* @param String $post_type post type
+* @param String $term_id term ID
+* @return Array array of ranked post IDs
+*/
+if(!function_exists('get_rpwc2_order')){
+	function get_rpwc2_order($post_type, $term_id){
+		return Reorder_Post_Within_Categories_Admin::get_order($post_type, $term_id);
 	}
 }

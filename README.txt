@@ -3,7 +3,7 @@ Contributors: aurovrata, aurelien, pondermatic
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
-Tested up to: 5.8.2
+Tested up to: 5.8.3
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -326,6 +326,16 @@ If you have spurious post listings then it is possible the imported data has bee
 **How do I delete the legacy data? **
 In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the bottom of the page and proceed to the delete the legacy table under the section title: **'Delete old custom table from plugin v1.x'**.
 
+= 18. How can I access the ranking order of a post within a term ? =
+
+v2.11 introduced the `get_rpwc2_order()` function to do this.
+
+`
+//the function returns an array of post IDs for a given post type and term ID
+$ranking = get_rpwc2_order($post_type, $term_id);
+//the ranking will refelct the manual sort order that was saved in the admin reOrder page.
+$zero_based_rank = array_search($post_ID, $ranking);
+`
 == Thanks to ==
 @maddogprod for helping resolve custom taxonomy front-end ordering.
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
@@ -335,6 +345,8 @@ In your dashboard, navigate to the Settings->Reorder Posts page, scroll to the b
 @isinica for fixing the disappearing ranked post when editing them.
 
 == Changelog ==
+= 2.11.0 =
+* expose functionality `get_rpwc2_order()` to retrieve rank for given post_type in given term.
 = 2.10.4 =
 * undo change to v2.10.3
 = 2.10.3 =
