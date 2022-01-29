@@ -119,13 +119,20 @@
             <input type="radio" <?=$checkedRadio2?>class="option_order settings" id="no" value="false" name="useForThisCat"/>
             <span><?=__('No', 'reorder-post-within-categories')?></span>
           </label><br/>
+          <?php
+					$message = __('<strong>Caution: </strong>Overriding &apos;orderby&apos; query attribute can have important consequences on WooCommerce listings where themes can display products ranked on various parameters such as price.  This option overrides all other sortings, read <a href="https://wordpress.org/plugins/reorder-post-within-categories/#faq">FAQ #10</a> to see how to gain a finer control over this.','reorder-post-within-categories');
+          /** @since 2.12.0 force override by default for WooCommerce products */
+          if(is_plugin_active('woocommerce/woocommerce.php') && $type==='product'){
+            $disabled='disabled="disabled" ';
+            $override ='checked="checked" ';
+						$message = __('<strong>NOTE: </strong> On WooCommerce listings, the override is now set by default to ensure your manual sorting is refelcted on your product page. The plugin will only override the default sorting directive.  WooCommerce themes that provide sorting by other factors (price, popularity...) should not be affected.  Please read <a href="https://wordpress.org/plugins/reorder-post-within-categories/#faq">FAQ #10</a> to see how to gain a finer control over this.','reorder-post-within-categories');
+          }
+           ?>
           <label for="override-orderby">
             <input type="checkbox" <?=$disabled?><?=$override?>id="override-orderby" class="settings"/>
             <span><?=__("Override 'orderby' query attribute", 'reorder-post-within-categories')?></span>
           </label>
-					<p>
-						<?=__('<strong>Caution: </strong>Overriding &apos;orderby&apos; query attribute can have important consequences on WooCommerce listings where themes can display products ranked on various parameters such as price.  This option overrides all other sortings, read <a href="https://wordpress.org/plugins/reorder-post-within-categories/#faq">FAQ #10</a> to see how to gain a finer control over this.','reorder-post-within-categories')?>
-					</p>
+					<p><?=$message?></p>
         </br/>
           <div id="reset-order">
 						<h4 style="margin:5px 0"><?=__('Reset the order!', 'reorder-post-within-categories')?></h4>

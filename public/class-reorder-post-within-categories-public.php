@@ -1,4 +1,4 @@
-<?php
+posts_orderby<?php
 
 /**
  * The public-facing functionality of the plugin.
@@ -407,7 +407,22 @@ class Reorder_Post_Within_Categories_Public {
 		) as next_post", $term_id, $post_type, $post_id, $term_id, $term_id, $post_type, $post_id, $term_id);
     return $wpdb->get_row($sql);
   }
+
+  /**
+  * Override wooCommerce products
+  * Hooked on 'rpwc2_allow_custom_sort_orderby_override'
+  *@since 2.12.0
+  *@param string $param text_description
+  *@return string text_description
+  */
+  public function override_woocommerce_products($override, $wp_query, $taxonomy, $term_id, $type){
+    return is_plugin_active('woocommerce/woocommerce.php')
+     && $type==='product'
+     && $wp_query->query_vars['orderby']==='meta_value';
+  }
 }
-function get_adjacent_rpwc2_posts($post_id, $term_id, $post_type, $taxonomy){
-	return Reorder_Post_Within_Categories_Public::get_adjacent_post($post_id, $term_id, $post_type, $taxonomy);
+if(!function_exists('get_adjacent_rpwc2_posts')){
+	function get_adjacent_rpwc2_posts($post_id, $term_id, $post_type, $taxonomy){
+		return Reorder_Post_Within_Categories_Public::get_adjacent_post($post_id, $term_id, $post_type, $taxonomy);
+	}
 }

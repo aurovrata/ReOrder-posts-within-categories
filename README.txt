@@ -343,8 +343,11 @@ $zero_based_rank = array_search($post_ID, $ranking);
 @pondermatic for fixing the min-range bug.
 @andreicnegrea for fixing the offset warnings.
 @isinica for fixing the disappearing ranked post when editing them.
+@sarahjsouris from [playimports.com.au](https://www.playimports.com.au) for sponsoring WooCommerce plugin upgrade.
 
 == Changelog ==
+= 2.12.0 =
+* WooCommerce products orderby overriden by default.
 = 2.11.0 =
 * expose functionality `get_rpwc2_order()` to retrieve rank for given post_type in given term.
 = 2.10.4 =
