@@ -346,6 +346,8 @@ $zero_based_rank = array_search($post_ID, $ranking);
 @sarahjsouris from [playimports.com.au](https://www.playimports.com.au) for sponsoring WooCommerce plugin upgrade.
 
 == Changelog ==
+= 2.12.1 =
+* typo fix
 = 2.12.0 =
 * WooCommerce products orderby overriden by default.
 = 2.11.0 =
