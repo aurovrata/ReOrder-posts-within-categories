@@ -730,8 +730,13 @@ class Reorder_Post_Within_Categories_Admin {
 		 isset($_POST['nounceLoadPostCat']) &&
 		 wp_verify_nonce($_POST['nounceLoadPostCat'], 'loadPostInCat')) {
 			if (isset($_POST['cat_to_retrive']) && !empty($_POST['cat_to_retrive']) && $_POST['cat_to_retrive'] != null) {
-				$cat_to_retrieve_post = $_POST['cat_to_retrive'];
-				$taxonomySubmitted = $_POST['taxonomy'];
+				$cat_to_retrieve_post = sanitize_text_field($_POST['cat_to_retrive']);
+				$taxonomySubmitted = sanitize_text_field( $_POST['taxonomy']);
+        $start_submitted = sanitize_text_field($_POST['post_start']);
+        $end_submitted = sanitize_text_field($_POST['post_end']);
+        if(empty($start_submitted)) $start_submitted =1;
+        if(empty($end_submitted)) $end_submitted =20;
+
 				$term = get_term($cat_to_retrieve_post);
 
 				// Si il y a une catÃ©gorie

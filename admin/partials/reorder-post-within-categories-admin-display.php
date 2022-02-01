@@ -68,7 +68,9 @@
 		<br/><span class="description"><?= __('Greyed-out categories contain too few posts and aren’t available for sorting.', "reorder-post-within-categories")?></span>
 	<?php
     $valueTaxonomyField = (isset($taxonomySubmitted) ? $taxonomySubmitted : '');?>
-		<input type="hidden" id="taxonomyHiddenField" name="taxonomy" value="<?=$valueTaxonomyField?>"/>
+    <input type="hidden" id="taxonomyHiddenField" name="taxonomy" value="<?=$valueTaxonomyField?>"/>
+    <input type="hidden" id="rpwc2-post-start" name="post_start" value="<?=$start_submitted?>"/>
+		<input type="hidden" id="rpwc2-post-end" name="post_end" value="<?=$end_submitted?>"/>
   <?php endif;//if (count($listCategories) > 0).?>
 	</form>
 	<form id="form_result" method="post">

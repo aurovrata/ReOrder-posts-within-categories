@@ -3,7 +3,7 @@ Contributors: aurovrata, aurelien, pondermatic
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
-Tested up to: 5.8.3
+Tested up to: 5.9.0
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -346,6 +346,8 @@ $zero_based_rank = array_search($post_ID, $ranking);
 @sarahjsouris from [playimports.com.au](https://www.playimports.com.au) for sponsoring WooCommerce plugin upgrade.
 
 == Changelog ==
+= 2.12.3 =
+* fix slider range reload bug.
 = 2.12.2 =
 * fix non-woocommerce override.
 = 2.12.1 =

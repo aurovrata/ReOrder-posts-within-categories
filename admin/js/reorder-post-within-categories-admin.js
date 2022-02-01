@@ -105,7 +105,7 @@
 	  * - Au clic sur un des boutons radio, on enregistre la préférence concernée *
 	  */
 	function initMainForm(){
-    let sliderChange, upperRange,
+    let sliderChange, lowerRange=1, upperRange=20,
 			$removeItems=$('#remove-items'),
 			$rangeMin = $( "#range-min" ),
 			$rangeMax = $( "#range-max" ),
@@ -113,16 +113,19 @@
 			$reset = $('input#enable-reset'),
 			$resetButton = $('div#reset-order').find('div a.button'),
 			totalPosts = $( "#slider-range" ).data('max'),
-			$override = $('#override-orderby');
+			$override = $('#override-orderby'),
+			$start = $('#rpwc2-post-start'),
+			$end = $('#rpwc2-post-end');
 
-    upperRange = 20;
+		lowerRange = $start.val()*1.0;
+    upperRange = $end.val()*1.0;
 		sliderChange = false;
-    if(totalPosts>upperRange){
+    if(totalPosts>(upperRange-lowerRange+1)){
       $( "#slider-range" ).slider({
         range: true,
         min: 1,
         max: totalPosts,
-        values: [ 1, 20 ],
+        values: [ lowerRange, upperRange ],
         slide: function( event, ui ) {
 					sliderChange = true;
 					let gridw = $sortable.width()/$sortable.children().first().outerWidth(true);
@@ -137,7 +140,10 @@
 						$(this).slider('option','values',[low, hi]);
 					}
 					$( "#range-min" ).val( ui.values[ 0 ]);
+					$start.val((ui.values[ 0 ]));
           $( "#range-max" ).val( ui.values[ 1 ]);
+					$end.val(ui.values[ 1 ]);
+
         },
 				stop: function( event, ui) {
 					updatePosts(ui.values[ 0 ], ui.values[ 1 ]);
