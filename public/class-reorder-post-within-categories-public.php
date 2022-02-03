@@ -417,8 +417,11 @@ class Reorder_Post_Within_Categories_Public {
   */
   public function override_woocommerce_products($override, $wp_query, $taxonomy, $term_id, $type){
 		if(!is_plugin_active('woocommerce/woocommerce.php')) return $override; /** @since 2.12.2*/
-    else return $type==='product'
-     && in_array($wp_query->query_vars['orderby'],array('menu_order','meta_value'));
+    else{
+      $ob = explode(' ', trim($wp_query->query_vars['orderby']));
+      return $type==='product'
+     && !empty(array_intersect(array('menu_order','meta_value'), $ob));
+   }
   }
 }
 if(!function_exists('get_adjacent_rpwc2_posts')){
