@@ -347,7 +347,7 @@ $zero_based_rank = array_search($post_ID, $ranking);
 
 == Changelog ==
 = 2.12.4 =
-* handle multi orderb directive.
+* handle multi orderby directive.
 = 2.12.3 =
 * fix slider range reload bug.
 = 2.12.2 =
