@@ -419,7 +419,8 @@ class Reorder_Post_Within_Categories_Public {
 		if(!is_plugin_active('woocommerce/woocommerce.php')) return $override; /** @since 2.12.2*/
     else{
       $ob = $wp_query->query_vars['orderby'];
-      if(is_string($ob)) $ob = explode(' ', trim($ob)); /** @since 2.12.4*/
+      if(is_array($ob)) $ob = array_keys($ob); /** @since 2.12.4*/
+      else if(is_string($ob)) $ob = explode(' ', trim($ob));
       return $type==='product'
      && !empty(array_intersect(array('menu_order','meta_value'), $ob));
    }
