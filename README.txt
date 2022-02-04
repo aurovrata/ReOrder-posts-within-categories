@@ -346,6 +346,8 @@ $zero_based_rank = array_search($post_ID, $ranking);
 @sarahjsouris from [playimports.com.au](https://www.playimports.com.au) for sponsoring WooCommerce plugin upgrade.
 
 == Changelog ==
+= 2.12.5 =
+* handle array orderby directives.
 = 2.12.4 =
 * handle multi orderby directive.
 = 2.12.3 =
