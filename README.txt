@@ -284,7 +284,9 @@ function allow_draft_in_initial_order($status, $post_type, $term_id){
 
 = 14. Is it possible to control when the manual sorting is applied programmatically ? =
 In v2.7 a new filter has been added to do just that, allowing you to override the sorting of anually ranked posts,
-`add_filter('rpwc2_manual_sort_override', 'override_manual_sorting', 10,5);
+
+`
+add_filter('rpwc2_manual_sort_override', 'override_manual_sorting', 10,5);
 function  override_manual_sorting($apply_sorting, $wp_query, $taxonomy, $term_id, $type){
     //$apply_sorting a boolean to filter, true by default, which will apply the manual sorting.
     //the current queried $taxonomy with $term_id for post_type $type.
@@ -294,7 +296,8 @@ function  override_manual_sorting($apply_sorting, $wp_query, $taxonomy, $term_id
       $apply_sorting = false; //do not sort using the manual ranking.
     }
     return $apply_sorting;
-}`
+}
+`
 
 = 15. How to enable post navigation (prev/next) on a page based on the manual order? =
 use the WordPress core functions,
@@ -344,6 +347,7 @@ $zero_based_rank = array_search($post_ID, $ranking);
 @andreicnegrea for fixing the offset warnings.
 @isinica for fixing the disappearing ranked post when editing them.
 @sarahjsouris from [playimports.com.au](https://www.playimports.com.au) for sponsoring WooCommerce plugin upgrade.
+@howdy_mcgee - helping fix array orderby directives for WooCommerce.
 
 == Changelog ==
 = 2.12.5 =
