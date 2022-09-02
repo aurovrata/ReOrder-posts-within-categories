@@ -171,8 +171,7 @@
 					<?php
 					foreach ($ranking as $idx=>$post_id):
 						$post = $posts[$post_id];
-						$img = get_the_post_thumbnail_url( $post, 'thumbnail' );
-						if(!$img) $img = plugin_dir_url(__DIR__).'../assets/logo.png';
+						$img = Reorder_Post_Within_Categories_Admin::get_thumbnail_url($post);
 						?>
 
 					<div data-id="<?=$post_id?>" class="sortable-items">
