@@ -325,6 +325,19 @@ class Reorder_Post_Within_Categories_Admin {
     wp_die();
   }
 	/**
+	 * get thumbnail image.
+	 *@since 
+	 */
+	public static function get_thumbnail_url(\WP_Post $post, $size = 'thumbnail'): string
+	{
+		$img = get_the_post_thumbnail_url($post, $size);
+		// support attachments with/without featured images
+		if (!$img && $post->post_type === 'attachment')
+			$img = wp_get_attachment_url($post->ID, $size);
+		if (!$img) $img = plugin_dir_url(__DIR__) . 'assets/logo.png';
+		return $img;
+	}
+	/**
 	* function to get ranked posts details for ajax call.
 	*@since 2.0.0
 	*/
@@ -340,8 +353,7 @@ class Reorder_Post_Within_Categories_Admin {
     ));
 		$results = array_fill(0, count($ranking), '');
     foreach($posts as $post) {
-      $img = get_the_post_thumbnail_url( $post, 'thumbnail' );
-			if(!$img) $img = plugin_dir_url(__DIR__).'assets/logo.png';
+			$img = self::get_thumbnail_url($post);
 			$rank = array_search($post->ID, $ranking);
       $results[$rank]=array(
 				'id'=>$post->ID,
