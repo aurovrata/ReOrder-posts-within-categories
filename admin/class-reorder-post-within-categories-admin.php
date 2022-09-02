@@ -415,6 +415,31 @@ class Reorder_Post_Within_Categories_Admin {
 		wp_send_json_success($results);
     wp_die();
 	}
+
+	/**
+	 * allow for various post status to be filtered
+	 * @since 2.6.1
+	 * @param string $post_type
+	 * @param integer $term_id
+	 * @return string
+	 */
+	protected function _get_status($post_type, $term_id) {
+		$default_status = array('publish', 'private', 'future');
+		$status = apply_filters(
+			'rpwc2_initial_rank_posts_status',
+			$default_status,
+			$post_type,
+			$term_id
+		);
+		if (!is_array($status)) $status = array($status);
+		$allowed_statuses = apply_filters(
+			'rpwc2_initial_rank_posts_allowed_statuses',
+			array('publish', 'private', 'future', 'pending', 'draft')
+		);
+		$status = array_intersect($status, $allowed_statuses);
+		return "('" . implode("','", $status) . "')";
+	}
+
 	/**
 	* function to retrieve the current order of posts.
 	* @since 2.0.0.
@@ -451,13 +476,7 @@ class Reorder_Post_Within_Categories_Admin {
 				if(apply_filters('reorder_posts_within_category_initial_order', false, $post_type, $term_id)){
 					$order = 'ASC';
 				}
-				/** @since 2.6.1 allow for various post status to be filtered */
-				$status = array('publish','private','future');
-				$status = apply_filters('rpwc2_initial_rank_posts_status', $status, $post_type, $term_id);
-				if( !is_array($status) ) $status = array($status);
-				$status = array_intersect($status, array('publish','private','future', 'pending', 'draft'));
-				$status = "('".implode("','",$status)."')";
-
+				$status = $this->_get_status($post_type, $term_id);
 				$sql = $wpdb->prepare("SELECT rpwc_p.ID FROM {$wpdb->posts} as rpwc_p
 					LEFT JOIN {$wpdb->term_relationships} AS rpwc_tr ON rpwc_p.ID=rpwc_tr.object_id
 					LEFT JOIN {$wpdb->term_taxonomy} AS rpwc_tt ON rpwc_tr.term_taxonomy_id = rpwc_tt.term_taxonomy_id
@@ -547,13 +566,7 @@ class Reorder_Post_Within_Categories_Admin {
     if(! is_array($term_id)) $term_id = array($term_id);
     $terms = "(".implode(',',$term_id).")";
 		global $wpdb;
-		/** @since 2.6.1 allow for various post status to be filtered */
-		$status = array('publish','private','future');
-		$status = apply_filters('rpwc2_initial_rank_posts_status', $status, $post_type, $term_id);
-		if( !is_array($status) ) $status = array($status);
-		$status = array_intersect($status, array('publish','private','future', 'pending', 'draft'));
-		$status = "('".implode("','",$status)."')";
-
+		$status = $this->_get_status($post_type, $term_id);
     $sql = $wpdb->prepare("SELECT rpwc_tt.term_id, COUNT(rpwc_p.ID) as total FROM {$wpdb->posts} as rpwc_p
 		  LEFT JOIN {$wpdb->term_relationships} AS rpwc_tr ON rpwc_p.ID=rpwc_tr.object_id
       LEFT JOIN {$wpdb->term_taxonomy} AS rpwc_tt ON rpwc_tr.term_taxonomy_id = rpwc_tt.term_taxonomy_id
