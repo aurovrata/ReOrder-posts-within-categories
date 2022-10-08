@@ -64,8 +64,8 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @param      string    $plugin_name       The name of this plugin.
 	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $version ) {
-
+	// public function __construct( string $plugin_name, string $version ) { //php 8
+		public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		//load settings.
@@ -75,7 +75,7 @@ class Reorder_Post_Within_Categories_Admin {
 		// $this->_upgrade_to_v2();//if required.
 		$this->upgrade_options();
 	}
-
+	
 	/**
 	 * Register the stylesheets for the admin area.
 	 *
@@ -223,24 +223,6 @@ class Reorder_Post_Within_Categories_Admin {
 	* Update to new process: extract order from old custom table and insert into postmeta table.
 	* @since 2.0.0
 	*/
-  //  private function _upgrade_to_v2(){
-  //    /** simplified @since 2.1.2 */
-	// 	if (function_exists('is_multisite') && is_multisite()) {
-	// 		global $wpdb;
-	// 		$old_blog = $wpdb->blogid;
-	// 		$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
-	// 		/** simplified @since 2.1.2 */
-	// 		foreach ($blogids as $blog_id) {
-	// 			switch_to_blog($blog_id);
-  //       $this->_upgrade();
-	// 		}
-	// 		switch_to_blog($old_blog);
-  //   }else $this->_upgrade();
-  // }
-	/**
-	* Update to new process: extract order from old custom table and insert into postmeta table.
-	* @since 2.0.0
-	*/
 	private function _upgrade(){
 		//self::$settings = get_option(self::$settings_option_name, array());
 		// debug_msg($settings, 'upgrading...');
@@ -325,11 +307,11 @@ class Reorder_Post_Within_Categories_Admin {
     wp_die();
   }
 	/**
-	 * get thumbnail image.
-	 *@since 
+	 * get thumbnail image for dashboard post reorder list.
+	 *@since 2.13.0
 	 */
-	public static function get_thumbnail_url(\WP_Post $post, $size = 'thumbnail'): string
-	{
+	// public static function get_thumbnail_url(\WP_Post $post, $size = 'thumbnail'): string php 8
+	public static function get_thumbnail_url($post, $size = 'thumbnail'){
 		$img = get_the_post_thumbnail_url($post, $size);
 		// support attachments with/without featured images
 		if (!$img && $post->post_type === 'attachment')
@@ -341,6 +323,7 @@ class Reorder_Post_Within_Categories_Admin {
 	* function to get ranked posts details for ajax call.
 	*@since 2.0.0
 	*/
+	// private function _get_ranked_posts(string $post_type, int $term_id, int $start, int $offset){ php 8
 	private function _get_ranked_posts($post_type, $term_id, $start, $offset){
 		$results = array();
 		$ranking = $this->_get_order($post_type, $term_id, $start, $offset);
@@ -435,6 +418,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @param integer $term_id
 	 * @return string
 	 */
+	// protected function _get_status(string $post_type, $term_id) { php 8
 	protected function _get_status($post_type, $term_id) {
 		$default_status = array('publish', 'private', 'future');
 		$status = apply_filters(
@@ -459,6 +443,7 @@ class Reorder_Post_Within_Categories_Admin {
 	* @param int $term_id the id of the category term for which the order is required.
 	* @return array an array of post_id from the postmeta table in ranking order.
 	*/
+	// protected function _get_order(string $post_type, int $term_id, int $start=0, int $length=null){ php 8
 	protected function _get_order($post_type, $term_id, $start=0, $length=null){
 		global $wpdb;
 		$this->old_ranking_exists = false;
@@ -525,7 +510,8 @@ class Reorder_Post_Within_Categories_Admin {
 	*@param String $term_id term ID
 	*@return Array array of ranked post IDs
 	*/
-	public static function get_order($post_type, $term_id){
+	// public static function get_order(string $post_type, int $term_id){ php 8
+		public static function get_order( $post_type,  $term_id){
 		global $wpdb;
 		$query = $wpdb->prepare("SELECT rpwc_pm.post_id
 			FROM {$wpdb->postmeta} as rpwc_pm, {$wpdb->posts} as rpwc_p
@@ -570,10 +556,11 @@ class Reorder_Post_Within_Categories_Admin {
   *
   *@since 2.4.1
   *@param string $post_type post type
-  *@param mixed array of or single value $term_id id of term to get count of posts.
+  *@param mixed $term_id array of or single value $term_id id of term to get count of posts.
   *@return mixed int count of posts for single term, $term_id=>$count pairs for multiple terms..
   */
-  protected function count_posts_in_term($post_type, $term_id){
+  // protected function count_posts_in_term(string $post_type, $term_id){ php 8
+	protected function count_posts_in_term($post_type, $term_id){
     /** @since 2.7.1 count posts in multiple terms */
     if(! is_array($term_id)) $term_id = array($term_id);
     $terms = "(".implode(',',$term_id).")";
@@ -608,7 +595,8 @@ class Reorder_Post_Within_Categories_Admin {
 	* @param array $order an array of $post_id in ranked order.
 	* @param int $term_id the id of the category term for which the posts need to be ranked.
 	*/
-	protected function _save_order($post_type, $order=array(), $term_id=0, $start=0){
+	// protected function _save_order( string $post_type, array $order=array(), int $term_id=0, int $start=0){ php 8
+		protected function _save_order( $post_type, $order=array(), $term_id=0, $start=0){
 		if(empty($order) || 0==$term_id) return false;
 		global $wpdb;
 		// debug_msg($order, 'saving order ');
@@ -655,7 +643,8 @@ class Reorder_Post_Within_Categories_Admin {
 	*@param string $query to set
 	*@param string $match string to search in query to validate.
 	*/
-	protected static function filter_query($query, $match){
+	// protected static function filter_query(string $query, string $match){ php 8
+	protected static function filter_query( $query, $match){
 		add_filter('query', function($q) use ($query, $match) {
 			if(strpos($q, $match)!==false) $q = $query;
 			return $q;
@@ -665,6 +654,7 @@ class Reorder_Post_Within_Categories_Admin {
 	* function to remove postmeta for terms not manually ordered.
 	* @since 2.0.0
 	*/
+	// private function _unrank_posts_unused_taxonomy(bool $all = false, array $post_types=array()){ php 8
 	private function _unrank_posts_unused_taxonomy($all = false, $post_types=array()){
     $terms_used = array();
 		$settings = $this->get_admin_options();
@@ -730,6 +720,7 @@ class Reorder_Post_Within_Categories_Admin {
 	*@since 2.5.0
 	*@param array $settings array of settings.
 	*/
+	// public function save_admin_options(array $settings){ php 8
 	public function save_admin_options($settings){
 		update_option($this->adminOptionsName, $settings);
 	}
@@ -750,6 +741,8 @@ class Reorder_Post_Within_Categories_Admin {
 		// On charge les prÃ©fÃ©rences
 		$settingsOptions = $this->get_admin_options();
 		// Si le formulaire a Ã©tÃ© soumis
+		$start_submitted =1;
+		$end_submitted =20;
 		if (!empty($_POST) &&
 		 check_admin_referer('loadPostInCat', 'nounceLoadPostCat') &&
 		 isset($_POST['nounceLoadPostCat']) &&
@@ -868,7 +861,9 @@ class Reorder_Post_Within_Categories_Admin {
 
 	/**
 	 * Dispplay a link to setting page inside the plugin description
+	 * hooked to 'plugin_action_links_{$plugin_name}'
 	 */
+	// public function display_settings_link(array $links){ //php 8
 	public function display_settings_link($links){
 		$settings_link = '<a href="options-general.php?page=class-reorder-post-within-categories-admin.php">' . __('Settings', 'reorder-post-within-categories') . '</a>';
 		array_push($links, $settings_link);
@@ -890,7 +885,8 @@ class Reorder_Post_Within_Categories_Admin {
    * hooked on 'transition_post_status'
 	 * @param type $post_id
 	 */
-	public function save_post( $new_status, $old_status, $post){
+	// public function save_post(string $new_status, string $old_status, \WP_Post $post){ //php 8
+	public function save_post($new_status, $old_status, $post){
 		// Liste des taxonomies associÃ©e Ã  ce post
 		$taxonomies = get_object_taxonomies($post->post_type);
     // debug_msg($taxonomies, $post->post_type);
@@ -963,6 +959,7 @@ class Reorder_Post_Within_Categories_Admin {
 	*@param string $param text_description
 	*@return string text_description
 	*/
+	// public function rank_post(\WP_Post $post, int $term_id){ //php 8
 	public function rank_post($post, $term_id){
 		if(apply_filters('reorder_post_within_categories_new_post_first', false, $post, $term_id)){
 			$ranking = $this->_get_order($post->post_type, $term_id);
@@ -975,9 +972,11 @@ class Reorder_Post_Within_Categories_Admin {
 	 * When a post is deleted we remove all entries from the custom table
 	 * @param type $post_id
 	 */
-	public function unrank_post($post_id, $term_id=''){
+	// public function unrank_post(int $post_id, int $term_id=-1){ //php 8
+		public function unrank_post($post_id, $term_id=-1){
 		// debug_msg("unranking post $post_id from term $term_id");
-		delete_post_meta($post_id, '_rpwc2', $term_id);
+		if($term_id<0) delete_post_meta($post_id, '_rpwc2');
+		else delete_post_meta($post_id, '_rpwc2', $term_id);
 	}
 	/**
 	* Delete all ranks for a given term.
@@ -986,6 +985,7 @@ class Reorder_Post_Within_Categories_Admin {
 	* @param $post_type post type for which to unrank posts.
 	* @return boolean false if there was an issue.
 	*/
+	// protected function _unrank_all_posts(int $term_id, string $post_type){ //php 8
 	protected function _unrank_all_posts($term_id, $post_type){
 		if(empty($term_id) || empty($post_type)){
 			debug_msg('UNABLE to Unrank, not term ID and/or post_type defined');
@@ -1011,6 +1011,7 @@ class Reorder_Post_Within_Categories_Admin {
 * @return Array array of ranked post IDs
 */
 if(!function_exists('get_rpwc2_order')){
+	// function get_rpwc2_order(string $post_type, int $term_id){ //php 8
 	function get_rpwc2_order($post_type, $term_id){
 		return Reorder_Post_Within_Categories_Admin::get_order($post_type, $term_id);
 	}

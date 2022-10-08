@@ -155,7 +155,8 @@ class Reorder_Post_Within_Categories {
 
 		$plugin_admin = new Reorder_Post_Within_Categories_Admin( $this->get_plugin_name(), $this->get_version() );
 
-		// $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
+		// $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'register_styles_on_plugin_php' );
+		// $this->loader->add_action( 'after_plugin_row_ReOrder-posts-within-categories/reorder-post-within-categories.php', $plugin_admin, 'enable_warning_on_plugin_update',10,3 );
 		// $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 		$this->loader->add_filter("plugin_action_links_{$this->plugin_name}", $plugin_admin, 'display_settings_link');

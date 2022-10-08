@@ -1,9 +1,9 @@
 === Plugin Name ===
-Contributors: aurovrata, aurelien, pondermatic
+Contributors: aurovrata, aurelien, pondermatic, robrecord
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
-Tested up to: 5.9.0
+Tested up to: 6.0.3
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
@@ -339,6 +339,31 @@ $ranking = get_rpwc2_order($post_type, $term_id);
 //the ranking will refelct the manual sort order that was saved in the admin reOrder page.
 $zero_based_rank = array_search($post_ID, $ranking);
 `
+
+= 19. Can I order attahment posts types ? =
+As of v2.13 this is now possible thanks to the contribution from @robrecord.  You will need to add the 'inherit' post status to the allowed status to make it work using the following filters in your `functions.php` file,
+
+`
+add_filter(
+    'rpwc2_initial_rank_posts_allowed_statuses',
+    function ($statuses) {
+        $statuses[] = 'inherit';
+        return $statuses;
+    }
+);
+
+add_filter(
+    'rpwc2_initial_rank_posts_status',
+    function ($status, $post_type, $term_id) {
+        if ('attachment' === $post_type) {
+            $status[] = 'inherit';
+        }
+        return $status;
+    },
+    10,
+    3
+);
+`
 == Thanks to ==
 @maddogprod for helping resolve custom taxonomy front-end ordering.
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
@@ -350,6 +375,10 @@ $zero_based_rank = array_search($post_ID, $ranking);
 @howdy_mcgee - helping fix array orderby directives for WooCommerce.
 
 == Changelog ==
+= 2.13.0 =
+* enable attachment posts (see FAQ #19)
+* enable upgrade warnings before major upgrades.
+* fix null start/end in admin page.
 = 2.12.5 =
 * handle array orderby directives.
 = 2.12.4 =
