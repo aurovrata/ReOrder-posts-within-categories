@@ -3,7 +3,7 @@ Contributors: aurovrata, aurelien, pondermatic, robrecord
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
-Tested up to: 6.0.3
+Tested up to: 6.1.1
 Requires PHP: 5.6
 Stable tag: trunk
 License: GPLv2
