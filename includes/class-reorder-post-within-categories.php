@@ -199,9 +199,10 @@ class Reorder_Post_Within_Categories {
 		// $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		//filter post queries.
 		if ((defined('DOING_AJAX') && DOING_AJAX) || !is_admin()) {
-			$this->loader->add_filter('posts_join', $plugin_public, 'filter_posts_join', 5, 2);
 			$this->loader->add_filter('posts_where', $plugin_public, 'filter_posts_where', 10, 2);
+			$this->loader->add_filter('posts_join', $plugin_public, 'filter_posts_join', 5, 2);
       $this->loader->add_filter('posts_orderby', $plugin_public, 'filter_posts_orderby', 10 , 2);
+      $this->loader->add_filter('posts_request', $plugin_public, 'debug_sql_query', PHP_INT_MAX , 2);
 			// $this->loader->add_filter('posts_request', $plugin_public, 'filter_posts_request', 10, 2);
       /** @since 2.4.4 adjacent post query */
       $this->loader->add_filter('get_previous_post_join', $plugin_public, 'filter_adjacent_post_join', 5, 5);

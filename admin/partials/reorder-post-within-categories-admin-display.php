@@ -127,7 +127,7 @@
           if(is_plugin_active('woocommerce/woocommerce.php') && $type==='product'){
             $disabled='disabled="disabled" ';
             $override ='checked="checked" ';
-						$message = __('<strong>NOTE: </strong> On WooCommerce listings, the override is now set by default to ensure your manual sorting is refelcted on your product page. The plugin will only override the default sorting directive.  WooCommerce themes that provide sorting by other factors (price, popularity...) should not be affected.  Please read <a href="https://wordpress.org/plugins/reorder-post-within-categories/#faq">FAQ #10</a> to see how to gain a finer control over this.','reorder-post-within-categories');
+						$message = __('<strong>NOTE: </strong> On WooCommerce listings, the override is now set by default to ensure your manual sorting is reflected on your product page. The plugin will only override the default sorting directive.  WooCommerce themes that provide sorting by other factors (price, popularity...) should not be affected.  Please read <a href="https://wordpress.org/plugins/reorder-post-within-categories/#faq">FAQ #10</a> to see how to gain a finer control over this.','reorder-post-within-categories');
           }
            ?>
           <label for="override-orderby">

@@ -50,6 +50,17 @@ class Reorder_Post_Within_Categories_Public {
 	 */
 	private $version;
 
+  /**
+	 * The version of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      WP_Query    $current_query    cache the query that is being ranked when checked with the posts_where fiter.
+	 * @var      String    $ranked_term_id    cache the term id being ranked.
+	 */
+	private $current_query;
+	private $ranked_term_id;
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -61,41 +72,45 @@ class Reorder_Post_Within_Categories_Public {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+    $this->current_query = null;
+    $this->ranked_term_id = 0;
 
 	}
+  /**
+	* filter posts_where query.
+	* @since 1.0.0
+	*/
+  public function filter_posts_where($args, $wp_query){
+		if( ($term_id = $this->is_manual_sort_query( $wp_query, true)) ){
+      $this->current_query = $wp_query; //cache query to speed up check.
+      $this->ranked_term_id = $term_id;
 
+			/** @since 2.3.0 check if term id is ranked for this post type. */
+			$args .= " AND rankpm.meta_value={$term_id} AND rankpm.meta_key='_rpwc2' ";
+      debug_msg("RPWC2 (query filter: posts_where query), sorting posts in term: {$term_id}, WHERE {$args}");
+		}
+    return $args;
+  }
 	/**
 	* filter post_join query.
 	* hooked on 'posts_join'.
 	* @since 1.0.0.
 	*/
   public function filter_posts_join($args, $wp_query){
-		if( $this->is_manual_sort_query($wp_query) ){
+		if( $this->is_manual_sort_query($wp_query, false) ){
 			global $wpdb;
 			/** @since 2.2.1 chnage from INNER JOIN to JOIN to see if fixes front-end queries*/
       $args .= " LEFT JOIN {$wpdb->postmeta} AS rankpm ON {$wpdb->posts}.ID = rankpm.post_id ";
+      debug_msg("RPWC2 (query filter: posts_join query), {$args}");
     }
     return $args;
   }
 	/**
-	* filter posts_hwere query.
-	* @since 1.0.0
-	*/
-  public function filter_posts_where($args, $wp_query){
-		if( ($term_id = $this->is_manual_sort_query( $wp_query)) ){
-			/** @since 2.3.0 check if term id is ranked for this post type. */
-			$args .= " AND rankpm.meta_value={$term_id} AND rankpm.meta_key='_rpwc2' ";
-			debug_msg("RPWC2 SORT VALIDATION, sorting posts in term: {$term_id}");
-		}
-    return $args;
-  }
-
-	/**
-	* filter posts_where query.
+	* filter posts_orderby query.
 	* @since 1.0.0.
 	*/
   public function filter_posts_orderby($args, $wp_query){
-		if( $this->is_manual_sort_query($wp_query, true) ){
+		if( $this->is_manual_sort_query($wp_query, false) ){
         $args = "rankpm.meta_id ASC";
         add_filter('posts_clauses', function($pieces) use ($args){
 					if( false !== strstr($pieces['where'],'rankpm') ){
@@ -103,8 +118,25 @@ class Reorder_Post_Within_Categories_Public {
 					}
 					return $pieces;
         });
-    }
+        debug_msg("RPWC2 (query filter: posts_orderby query) ORDER BY {$args}");
+      }
     return $args;
+  }
+  /** filter posts_request sql query for debug purpose 
+   * @since 2.14.0
+   * @param String $sql query
+   * @param WP_Query $wp_query object
+   * @return String sql query
+  */
+  public function debug_sql_query($sql,$wp_query){
+    if(defined('WP_DEBUG') && WP_DEBUG){
+      if( $this->is_manual_sort_query($wp_query, false) ){
+        debug_msg($sql,'PWC2 (query filter: posts_request), final SQL query: ');
+      }
+    }
+    $this->current_query = null;  //reset the query cache
+    $this->ranked_term_id = 0;
+    return $sql;
   }
 	/**
 	* function to validate manual sorting queries.
@@ -114,6 +146,10 @@ class Reorder_Post_Within_Categories_Public {
 	*@return boolean true is manual sorting required.
 	*/
 	private function is_manual_sort_query($wp_query, $print_dbg=false){
+    /** @since 2.14.0 improve the speed of check. */
+    if(isset($this->current_query) && $this->current_query===$wp_query){ 
+      return $this->ranked_term_id;
+    }
 		$queriedObj = $wp_query->get_queried_object();
 
     if (isset($queriedObj->taxonomy) && isset($queriedObj->term_id)) {
@@ -127,7 +163,7 @@ class Reorder_Post_Within_Categories_Public {
 					break;
 				case isset($wp_query->tax_query):
 					foreach($wp_query->tax_query->queries as $t){
-						if(is_array($t) && is_array($t['terms']) && count($t['terms'])>1) $validate = false; //multiple terms queried.
+						if(is_array($t) && isset($t['terms']) && is_array($t['terms']) && count($t['terms'])>1) $validate = false; //multiple terms queried.
 					}
 					break;
 			}

@@ -364,6 +364,15 @@ add_filter(
     3
 );
 `
+= 20. Can I debug the manual ranking process ? =
+Sure, if you enable `WP_DEBUG` and `WP_GURUS_DEBUG` in your `wp-config.php` file,
+
+`
+define('WP_DEBUG', true);
+define('WP_GURUS_DEBUG', true);
+`
+the plugin will printout debug messages, along with the final SQL query for your manually ranked posts.  This is useful in order to determine if another plugin is also filtering your posts queries and overriding the ranking of the resuls.
+
 == Thanks to ==
 @maddogprod for helping resolve custom taxonomy front-end ordering.
 @menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
@@ -375,6 +384,9 @@ add_filter(
 @howdy_mcgee - helping fix array orderby directives for WooCommerce.
 
 == Changelog ==
+= 2.14.0 =
+* enable full SQL print in debug mode.
+* cache ranked queries to speed up front-end queries.
 = 2.13.0 =
 * enable attachment posts (see FAQ #19)
 * enable upgrade warnings before major upgrades.
