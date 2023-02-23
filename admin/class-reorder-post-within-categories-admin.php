@@ -334,10 +334,12 @@ class Reorder_Post_Within_Categories_Admin {
       'ignore_sticky_posts'=>false,
       'posts_per_page'=>-1
     ));
-		$results = array_fill(0, count($ranking), '');
+    /** @since 2.14.1 WPML  */
+		$results = [];//array_fill(0, count($ranking), '');
     foreach($posts as $post) {
 			$img = self::get_thumbnail_url($post);
 			$rank = array_search($post->ID, $ranking);
+      if($rank === false) continue; 
       $results[$rank]=array(
 				'id'=>$post->ID,
         'link'=>admin_url('post.php?post='.$post->ID.'&action=edit'),
