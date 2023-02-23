@@ -193,7 +193,6 @@ class Reorder_Post_Within_Categories_Public {
 	*/
 	static private function is_ranked($taxonomy, $term_id, &$type, $wp_query=null, $print_dbg=false){
     if(empty($wp_query) && empty($type)) return false;
-
 		/** @since 2.9.0 speedup ranking check */
 		if(!isset(self::$tax_options)){
 			self::$tax_options = get_option(RPWC_OPTIONS_2, array());
@@ -207,8 +206,10 @@ class Reorder_Post_Within_Categories_Public {
 				}
 			}
 		}
-		if(isset(self::$ranked_terms[$term_id])) $type = self::$ranked_terms[$term_id];
-		else return false; //term id is not manually ranked.
+		if(!isset(self::$ranked_terms[$term_id])) return false; //term id is not manually ranked.
+
+    if(empty($type)) $type = self::$ranked_terms[$term_id]; //try the one cached
+
 		switch(true){
       case 'any' == $type:
         return false; //multi type search cannot be done.
@@ -452,6 +453,7 @@ class Reorder_Post_Within_Categories_Public {
   *@return string text_description
   */
   public function override_woocommerce_products($override, $wp_query, $taxonomy, $term_id, $type){
+    include_once ABSPATH . 'wp-admin/includes/plugin.php';
 		if(!is_plugin_active('woocommerce/woocommerce.php')) return $override; /** @since 2.12.2*/
     else{
       $ob = $wp_query->query_vars['orderby'];
