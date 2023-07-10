@@ -384,6 +384,8 @@ the plugin will printout debug messages, along with the final SQL query for your
 @howdy_mcgee - helping fix array orderby directives for WooCommerce.
 
 == Changelog ==
+= 2.14.3 =
+* added localisation for admin menu labels.
 = 2.14.2 =
 * fix admin page refresh post selection.
 * fix for PHPCS WP Code security std.

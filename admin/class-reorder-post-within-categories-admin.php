@@ -932,19 +932,21 @@ class Reorder_Post_Within_Categories_Admin {
 					$capability = 'manage_categories';
 				}
 			}
+			/* translators: menu label */
+			$menu_label = __( 'Reorder', 'reorder-post-within-categories' ) ;
 			switch ( true ) {
 				case 'attachment' == $post_type:
-					$the_page = add_submenu_page( 'upload.php', 'Re-order', 'Reorder', $capability, 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
+					$the_page = add_submenu_page( 'upload.php', 'Re-order', $menu_label , $capability, 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
 					break;
 				case 'post' == $post_type:
-					$the_page = add_submenu_page( 'edit.php', 'Re-order', 'Reorder', $capability, 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
+					$the_page = add_submenu_page( 'edit.php', 'Re-order', $menu_label, $capability, 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
 					// debug_msg("page hook: $the_page");
 					break;
 				case 'lp_course' == $post_type && is_plugin_active( 'learnpress/learnpress.php' ): /** @since 2.5.6 learnpress fix.*/
-						$the_page = add_submenu_page( 'learn_press', 'Re-order', 'Reorder', 'edit_lp_courses', 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
+						$the_page = add_submenu_page( 'learn_press', 'Re-order', $menu_label, 'edit_lp_courses', 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
 					break;
 				default:
-					$the_page = add_submenu_page( 'edit.php?post_type=' . $post_type, 'Re-order', 'Reorder', $capability, 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
+					$the_page = add_submenu_page( 'edit.php?post_type=' . $post_type, 'Re-order', $menu_label, $capability, 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
 					break;
 			}
 			// enqueue styles on scripts on page specific hook.
