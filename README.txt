@@ -3,9 +3,9 @@ Contributors: aurovrata, aurelien, pondermatic, robrecord
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
-Tested up to: 6.2.0
+Tested up to: 6.3.0
 Requires PHP: 5.6
-Stable tag: 2.14.2
+Stable tag: 2.14.4
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -384,6 +384,9 @@ the plugin will printout debug messages, along with the final SQL query for your
 @howdy_mcgee - helping fix array orderby directives for WooCommerce.
 
 == Changelog ==
+= 2.14.4 =
+* cleanup html escaping logic.
+* fix misuse esc_attr_e() bug.
 = 2.14.3 =
 * added localisation for admin menu labels.
 = 2.14.2 =

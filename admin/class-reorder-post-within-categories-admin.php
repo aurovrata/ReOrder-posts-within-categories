@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -42,10 +41,10 @@ class Reorder_Post_Within_Categories_Admin {
 	/**
 	 * Options used to save the settings page, which taxonomy/post_type to be ordered.
 	 */
-	public $adminOptionsName = 'deefuse_ReOrderSettingAdminOptions';
+	public $admin_options_slug = 'deefuse_ReOrderSettingAdminOptions';
 
 	public $old_table_name = 'reorder_post_rel';
-	/** @since 2.9.0 flag terms with v1.x rankings */
+	/** NB @since 2.9.0 flag terms with v1.x rankings */
 	private $old_ranking_exists = false;
 	/**
 	 * Save plugin settings, to keep track of ugrades.
@@ -157,7 +156,7 @@ class Reorder_Post_Within_Categories_Admin {
 		if ( isset( $_POST['post_type'] ) ) {
 			$option[ $_POST['current_cat'] ] = array(
 				'order'    => ( 'true' == $_POST['valueForManualOrder'] ) ? 1 : 0,
-				'override' => ( 'true' == $_POST['override'] ) ? 1 : 0, /** @since 2.6.0 override orderby */
+				'override' => ( 'true' == $_POST['override'] ) ? 1 : 0, /** NB @since 2.6.0 override orderby */
 			);
 			$key                             = $_POST['post_type'];
 		}
@@ -175,7 +174,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 * Returns an array of admin options
 	 */
 	public function get_admin_options() {
-		return get_option( $this->adminOptionsName, array() );
+		return get_option( $this->admin_options_slug, array() );
 	}
 	/**
 	 * Upgrade plugin options.
@@ -234,7 +233,7 @@ class Reorder_Post_Within_Categories_Admin {
 	private function _upgrade() {
 		// self::$settings = get_option(self::$settings_option_name, array());
 		// debug_msg($settings, 'upgrading...');
-		/** @since 2.0.1*/
+		/** NB @since 2.0.1*/
 		$upgrade = false;
 		switch ( true ) {
 			case isset( self::$settings['version'] ) && self::$settings['version'] == $this->version:
@@ -323,7 +322,7 @@ class Reorder_Post_Within_Categories_Admin {
 		$results = array();
 		// debug_msg($post_type, $term_id.' type ');
 		if ( ! empty( $post_type ) && $term_id > 0 ) {
-			/** @since 2.1.0. allow rank reset*/
+			/** NB @since 2.1.0. allow rank reset*/
 			if ( $reset ) {
 				$this->_unrank_all_posts( $term_id, $post_type );
 			}
@@ -367,7 +366,7 @@ class Reorder_Post_Within_Categories_Admin {
 				'posts_per_page'      => -1,
 			)
 		);
-		/** @since 2.14.1 WPML  */
+		/** NB @since 2.14.1 WPML  */
 		$results = array();// array_fill(0, count($ranking), '');
 		foreach ( $posts as $post ) {
 			$img  = self::get_thumbnail_url( $post );
@@ -496,7 +495,7 @@ class Reorder_Post_Within_Categories_Admin {
 		if ( empty( $ranking ) ) { // retrieve the default ranking.
 			// check if v1.x table exists.
 			$table_name = $wpdb->prefix . $this->old_table_name;
-			/** @since 2.3.0 check for post_type properly */
+			/** NB @since 2.3.0 check for post_type properly */
 			// debug_msg($wpdb->get_var("SHOW TABLES LIKE '$table_name'"), "SHOW TABLES LIKE '$table_name': ");
 			if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) == $table_name ) { // cehck table exits.
 				$ranking = $wpdb->get_col(
@@ -509,7 +508,7 @@ class Reorder_Post_Within_Categories_Admin {
 						$post_type
 					)
 				);
-				/** @since 2.9.0 display admin notice warning. */
+				/** NB @since 2.9.0 display admin notice warning. */
 				$this->old_ranking_exists = ! empty( $ranking );
 			}
 			// debug_msg($ranking, "ranking " );
@@ -534,10 +533,10 @@ class Reorder_Post_Within_Categories_Admin {
 					$post_type,
 					$term_id
 				);
-				/** @since 2.4.3 filter the ranking query with the hook at the end of the queue.*/
+				/** NB @since 2.4.3 filter the ranking query with the hook at the end of the queue.*/
 				self::filter_query( $sql, 'SELECT rpwc_p.ID' );
 				$ranking = $wpdb->get_col( $sql );
-				/** @since 2.4.0 enable programmatic default ranking */
+				/** NB @since 2.4.0 enable programmatic default ranking */
 				$filtered_ranking = apply_filters( 'rpwc2_filter_default_ranking', $ranking, $term_id, $_POST['taxonomy'], $post_type );
 				if ( ! empty( $filtered_ranking ) && is_array( $filtered_ranking ) ) {
 					$new_ranking = array();
@@ -580,7 +579,7 @@ class Reorder_Post_Within_Categories_Admin {
 			$post_type
 		);
 
-		/** @since 2.4.3 */
+		/** NB @since 2.4.3 */
 		self::filter_query( $query, 'SELECT rpwc_pm.post_id' );
 		return $wpdb->get_col( $query );
 	}
@@ -626,7 +625,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 */
 	// protected function count_posts_in_term(string $post_type, $term_id){ php 8
 	protected function count_posts_in_term( $post_type, $term_id ) {
-		/** @since 2.7.1 count posts in multiple terms */
+		/** NB @since 2.7.1 count posts in multiple terms */
 		if ( ! is_array( $term_id ) ) {
 			$term_id = array( $term_id );
 		}
@@ -674,7 +673,7 @@ class Reorder_Post_Within_Categories_Admin {
 		global $wpdb;
 		// debug_msg($order, 'saving order ');
 		$query = $wpdb->prepare( "SELECT rpwc_pm.meta_id, rpwc_p.ID FROM {$wpdb->posts} as rpwc_p LEFT JOIN {$wpdb->postmeta} as rpwc_pm on rpwc_p.ID = rpwc_pm.post_id WHERE rpwc_p.post_type like '%s' AND rpwc_pm.meta_key ='_rpwc2' AND rpwc_pm.meta_value=%d ORDER BY rpwc_pm.meta_id ASC", $post_type, $term_id );
-		/** @since 2.4.3 */
+		/** NB @since 2.4.3 */
 		self::filter_query( $query, 'SELECT rpwc_pm.meta_id, rpwc_p.ID' );
 		$ranked_rows = $wpdb->get_results( $query );
 
@@ -687,7 +686,7 @@ class Reorder_Post_Within_Categories_Admin {
 			$wpdb->query( $sql );
 		} else {
 			// $ranked_id=array();
-			/** @since 2.0.0 allow for partial ranking.*/
+			/** NB @since 2.0.0 allow for partial ranking.*/
 			$old_start = 0;
 			$values    = array();
 			$end       = sizeof( $order );
@@ -739,7 +738,7 @@ class Reorder_Post_Within_Categories_Admin {
 		$terms_used = array();
 		$settings   = $this->get_admin_options();
 		if ( $all ) {
-			delete_option( $this->adminOptionsName );
+			delete_option( $this->admin_options_slug );
 		} else {
 			$taxonomy_checked = array();
 			foreach ( $post_types as $post_type ) {
@@ -752,7 +751,7 @@ class Reorder_Post_Within_Categories_Admin {
 		}
 		global $wpdb;
 		$query = "SELECT DISTINCT rpwc_pm.meta_value FROM $wpdb->postmeta as rpwc_pm WHERE rpwc_pm.meta_key LIKE '_rpwc2'";
-		/** @since 2.4.3 */
+		/** NB @since 2.4.3 */
 		self::filter_query( $query, 'SELECT DISTINCT rpwc_pm.meta_value' );
 		$terms_ordered = $wpdb->get_col( $query );
 		/** @TODO delete ranking by post type */
@@ -799,8 +798,8 @@ class Reorder_Post_Within_Categories_Admin {
 					$categories_checked = $_POST['selection'];
 			}
 
-			$settingsOptions['categories_checked'] = $categories_checked;
-			$this->save_admin_options( $settingsOptions );
+			$settings_options['categories_checked'] = $categories_checked;
+			$this->save_admin_options( $settings_options );
 		}
 	}
 	/**
@@ -811,7 +810,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 */
 	// public function save_admin_options(array $settings){ php 8
 	public function save_admin_options( $settings ) {
-		update_option( $this->adminOptionsName, $settings );
+		update_option( $this->admin_options_slug, $settings );
 	}
 	/**
 	 * callback funciton to display the order page.
@@ -828,20 +827,20 @@ class Reorder_Post_Within_Categories_Admin {
 		unset( $post_type, $page_name, $cpt_name );
 		$cat_to_retrieve_post = -1;
 
-		// On charge les prÃ©fÃ©rences
-		$settingsOptions = $this->get_admin_options();
-		// Si le formulaire a Ã©tÃ© soumis
+		// On charge les prÃ©fÃ©rences.
+		$settings_options = $this->get_admin_options();
+		// Si le formulaire a Ã©tÃ© soumis.
 		$start_submitted = 1;
 		$end_submitted   = 20;
 		if ( ! empty( $_POST ) &&
 		 check_admin_referer( 'loadPostInCat', 'nounceLoadPostCat' ) &&
 		 isset( $_POST['nounceLoadPostCat'] ) &&
-		 wp_verify_nonce( $_POST['nounceLoadPostCat'], 'loadPostInCat' ) ) {
-			if ( isset( $_POST['cat_to_retrive'] ) && ! empty( $_POST['cat_to_retrive'] ) && $_POST['cat_to_retrive'] != null ) {
-				$cat_to_retrieve_post = sanitize_text_field( $_POST['cat_to_retrive'] );
-				$taxonomySubmitted    = sanitize_text_field( $_POST['taxonomy'] );
-				$start_submitted      = sanitize_text_field( $_POST['post_start'] );
-				$end_submitted        = sanitize_text_field( $_POST['post_end'] );
+		 wp_verify_nonce( sanitize_key( $_POST['nounceLoadPostCat'] ), 'loadPostInCat' ) ) {
+			if ( isset( $_POST['cat_to_retrive'] ) && ! empty( $_POST['cat_to_retrive'] ) && null !== $_POST['cat_to_retrive'] ) {
+				$cat_to_retrieve_post = sanitize_key( $_POST['cat_to_retrive'] );
+				// $taxonomy_submitted   = sanitize_key( $_POST['taxonomy'] ).
+				$start_submitted      = isset( $_POST['post_start'] ) ? sanitize_key( $_POST['post_start'] ) : 1;
+				$end_submitted        = isset( $_POST['post_end'] ) ? sanitize_key( $_POST['post_end'] ) : 20;
 				if ( empty( $start_submitted ) ) {
 					$start_submitted = 1;
 				}
@@ -851,10 +850,10 @@ class Reorder_Post_Within_Categories_Admin {
 
 				$term = get_term( $cat_to_retrieve_post );
 
-				// Si il y a une catÃ©gorie
+				// Si il y a une catÃ©gorie.
 				if ( ! empty( $term ) ) {
 					$ranking = $this->_get_order( $post_type_detail->name, $cat_to_retrieve_post, ( $start_submitted - 1 ), $end_submitted );
-					// $total = $term->count;
+					// $total = $term->count.
 					$args        = array(
 						'post_type'           => $post_type_detail->name,
 						'post_status'         => 'any',
@@ -863,11 +862,10 @@ class Reorder_Post_Within_Categories_Admin {
 						'posts_per_page'      => -1,
 					);
 					$posts_array = get_posts( $args );
-					/** @since 2.4.1 better for multi post type */
-					// debug_msg($post_type_detail->name, $cat_to_retrieve_post);
+					/** NB @since 2.4.1 better for multi post type */
 					$total = $this->count_posts_in_term( $post_type_detail->name, $cat_to_retrieve_post );
 					if ( ! empty( $total ) ) {
-						$total = $total[ $cat_to_retrieve_post ]; /** @ssince 2.9.3 */
+						$total = $total[ $cat_to_retrieve_post ]; /** NB @since 2.9.3 */
 					} else {
 						$total = 0;
 					}
@@ -902,15 +900,15 @@ class Reorder_Post_Within_Categories_Admin {
 	 */
 	public function add_order_pages() {
 		// On liste toutes les catÃ©gorie dont on veut avoir la main sur le trie
-		$settingsOptions = $this->get_admin_options();
+		$settings_options = $this->get_admin_options();
 
-		if ( ! isset( $settingsOptions['categories_checked'] ) ) {
+		if ( ! isset( $settings_options['categories_checked'] ) ) {
 				return;
 		}
 		// Pour chaque post_type, on regarde s'il y a des options de trie associÃ©
-		// debug_msg($settingsOptions);
+		// debug_msg($settings_options);
 
-		foreach ( $settingsOptions['categories_checked'] as $post_type => $taxonomies ) {
+		foreach ( $settings_options['categories_checked'] as $post_type => $taxonomies ) {
 			/**
 			*filter to allow other capabilities for managing orders.
 			 *
@@ -942,7 +940,7 @@ class Reorder_Post_Within_Categories_Admin {
 					$the_page = add_submenu_page( 'edit.php', 'Re-order', $menu_label, $capability, 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
 					// debug_msg("page hook: $the_page");
 					break;
-				case 'lp_course' == $post_type && is_plugin_active( 'learnpress/learnpress.php' ): /** @since 2.5.6 learnpress fix.*/
+				case 'lp_course' == $post_type && is_plugin_active( 'learnpress/learnpress.php' ): /** NB @since 2.5.6 learnpress fix.*/
 						$the_page = add_submenu_page( 'learn_press', 'Re-order', $menu_label, 'edit_lp_courses', 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
 					break;
 				default:
@@ -1048,7 +1046,7 @@ class Reorder_Post_Within_Categories_Admin {
 			case in_array( $new_status, $public ):
 				// status->publish = rank this post.
 				foreach ( $ranked_ids as $term_id ) {
-					/** @since 2.5.0 give more control of which post status to rank */
+					/** NB @since 2.5.0 give more control of which post status to rank */
 					$rank_post = apply_filters( 'rpwc2_rank_published_posts', true, $term_id, $new_status, $old_status, $term_id, $post );
 					if ( ! in_array( $term_id, $post_ranks ) && $rank_post ) {
 						$this->rank_post( $post, $term_id );
@@ -1060,7 +1058,7 @@ class Reorder_Post_Within_Categories_Admin {
 			case in_array( $new_status, $draft ):
 				// status->draft
 				foreach ( $ranked_ids as $term_id ) {
-					/** @since 2.5.0 give more control of which post status to rank */
+					/** NB @since 2.5.0 give more control of which post status to rank */
 					$rank_post = apply_filters( 'rpwc2_rank_draft_posts', false, $new_status, $old_status, $term_id );
 
 					if ( ! in_array( $term_id, $post_ranks ) && $rank_post ) {
