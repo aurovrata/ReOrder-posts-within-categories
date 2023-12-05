@@ -31,6 +31,15 @@ New enhanced **version 2.0** with grid-layout and multi-drag interface to ease s
 [Tor-Bjorn Fjellner](https://profiles.wordpress.org/tobifjellner/) for the swedish translation and i18n clean-up.
 [alekseo](https://wordpress.org/support/users/alekseo/) for support for the plugin.
 [Andrei Negrea](https://github.com/andreicnegrea) for post delete bug fix.
+[maddogprod](https://profiles.wordpress.org/maddogprod/) for helping resolve custom taxonomy front-end ordering.
+[menard1965](https://profiles.wordpress.org/menard1965/) for helping resolve `get_adjacent_post` prev/next ranked posts.
+[alexjamesbishop](https://profiles.wordpress.org/alexjamesbishop/) for helping fix the 'orderby' bug.
+[pondermatic](https://profiles.wordpress.org/pondermatic/) for fixing the min-range bug.
+[andreicnegrea](https://profiles.wordpress.org/andreicnegrea/) for fixing the offset warnings.
+[isinica](https://profiles.wordpress.org/isinica/) for fixing the disappearing ranked post when editing them.
+[sarahjsouris](https://profiles.wordpress.org/sarahjsouris/) from [playimports.com.au](https://www.playimports.com.au) for sponsoring WooCommerce plugin upgrade.
+[howdy_mcgee](https://profiles.wordpress.org/howdy_mcgee/) - helping fix array orderby directives for WooCommerce.
+[pavelkovar](https://profiles.wordpress.org/pavelkovar/) - helping fix html escaping issues on admin pages.
 
 == Installation ==
 
@@ -372,16 +381,6 @@ define('WP_DEBUG', true);
 define('WP_GURUS_DEBUG', true);
 `
 the plugin will printout debug messages, along with the final SQL query for your manually ranked posts.  This is useful in order to determine if another plugin is also filtering your posts queries and overriding the ranking of the resuls.
-
-== Thanks to ==
-@maddogprod for helping resolve custom taxonomy front-end ordering.
-@menard1965 for helping resolve `get_adjacent_post` prev/next ranked posts.
-@alexjamesbishop for helping fix the 'orderby' bug.
-@pondermatic for fixing the min-range bug.
-@andreicnegrea for fixing the offset warnings.
-@isinica for fixing the disappearing ranked post when editing them.
-@sarahjsouris from [playimports.com.au](https://www.playimports.com.au) for sponsoring WooCommerce plugin upgrade.
-@howdy_mcgee - helping fix array orderby directives for WooCommerce.
 
 == Changelog ==
 = 2.14.4 =
