@@ -150,7 +150,7 @@ class Reorder_Post_Within_Categories_Admin {
 		if ( ! isset( $_POST['deefuseNounceOrder'] ) || ! wp_verify_nonce( $_POST['deefuseNounceOrder'], 'nonce-CatOrderedChange' ) ) {
 			wp_die( 'nonce failed, reload your page' );
 		}
-		// debug_msg($_POST, 'ajax save rank ');
+		/** NB wpg_debug($_POST, 'ajax save rank '); */
 		$key    = $_POST['current_cat'];
 		$option = array();
 		if ( isset( $_POST['post_type'] ) ) {
@@ -184,7 +184,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @return string text_description
 	 */
 	private function upgrade_options() {
-		// debug_msg(self::$settings);
+		// wpg_debug(self::$settings);
 		if ( ! isset( self::$settings['options'] ) ) {
 			self::$settings['options'] = $this->version;
 			update_option( self::$settings_option_name, self::$settings );
@@ -232,7 +232,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 */
 	private function _upgrade() {
 		// self::$settings = get_option(self::$settings_option_name, array());
-		// debug_msg($settings, 'upgrading...');
+		// wpg_debug($settings, 'upgrading...');
 		/** NB @since 2.0.1*/
 		$upgrade = false;
 		switch ( true ) {
@@ -243,7 +243,7 @@ class Reorder_Post_Within_Categories_Admin {
 				break;
 			case isset( self::$settings['version'] ) && self::$settings['version'] == '2.0.0': // reset order.
 				global $wpdb;
-				// debug_msg('deleting all ranks');
+				// wpg_debug('deleting all ranks');
 				$wpdb->delete( $wpdb->postmeta, array( 'meta_key' => '_rpwc2' ), array( '%s' ) );
 				$upgrade = true;
 				break;
@@ -266,13 +266,13 @@ class Reorder_Post_Within_Categories_Admin {
 					self::$settings['upgraded'] = true; // upgrade settings.
 					$categories                 = $wpdb->get_col( "SELECT DISTINCT category_id FROM {$table_name}" );
 				}
-				// debug_msg($categories, 'found categories ');
+				// wpg_debug($categories, 'found categories ');
 				if ( ! empty( $wpdb->last_error ) ) {
-					debug_msg( $wpdb->last_error, 'SQL ERROR: ' );
+					wpg_debug( $wpdb->last_error, 'SQL ERROR: ' );
 				} else { // update db.
 					foreach ( $categories as $cid ) {
 						$ranking = $wpdb->get_results( $wpdb->prepare( "select * from {$table_name} where category_id = %d order by id", $cid ) );
-						// debug_msg($wpdb->last_query, 'query old table');
+						// wpg_debug($wpdb->last_query, 'query old table');
 						$values = array();
 						foreach ( $ranking as $idx => $row ) {
 							$values[] = "($row->post_id, '_rpwc2', $cid)";
@@ -280,7 +280,7 @@ class Reorder_Post_Within_Categories_Admin {
 						// for each category insert a meta_field for the post in the ranking order.
 						$sql = sprintf( "insert into $wpdb->postmeta (post_id, meta_key, meta_value) values %s", implode( ',', $values ) );
 						$wpdb->query( $sql );
-						// debug_msg($values, 'stored existing order for cid: '.$cid);
+						// wpg_debug($values, 'stored existing order for cid: '.$cid);
 					}
 				}
 				break;
@@ -293,34 +293,36 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @since 2.0.0
 	 */
 	public function load_posts() {
+		wpg_debug( $_POST, 'posted ' );
 		if ( ! isset( $_POST['deefuseNounceUserOrdering'] ) || ! wp_verify_nonce( $_POST['deefuseNounceUserOrdering'], 'nonce-UserOrderingChange' ) ) {
 			wp_die( 'nonce failed, reload your page' );
 		}
-		$start = 0;
-		if ( isset( $_POST['start'] ) ) {
-			$start = $_POST['start'];
+		$start  = 0;
+		$posted = wp_unslash( $_POST );
+		if ( isset( $posted['start'] ) ) {
+			$start = $posted['start'];
 		}
 		$offset = 20;
-		if ( isset( $_POST['offset'] ) ) {
-			$offset = $_POST['offset'];
+		if ( isset( $posted['offset'] ) ) {
+			$offset = $posted['offset'];
 		}
 		if ( $offset < 0 ) {
 			$offset = 20;
 		}
 		$post_type = '';
-		if ( isset( $_POST['post-type'] ) ) {
-			$post_type = $_POST['post-type'];
+		if ( isset( $posted['post-type'] ) ) {
+			$post_type = $posted['post-type'];
 		}
 		$term_id = 0;
-		if ( isset( $_POST['term'] ) ) {
-			$term_id = $_POST['term'];
+		if ( isset( $posted['term'] ) ) {
+			$term_id = $posted['term'];
 		}
 		$reset = false;
-		if ( isset( $_POST['reset'] ) ) {
-			$reset = $_POST['reset'];
+		if ( isset( $posted['reset'] ) ) {
+			$reset = $posted['reset'];
 		}
 		$results = array();
-		// debug_msg($post_type, $term_id.' type ');
+
 		if ( ! empty( $post_type ) && $term_id > 0 ) {
 			/** NB @since 2.1.0. allow rank reset*/
 			if ( $reset ) {
@@ -394,7 +396,7 @@ class Reorder_Post_Within_Categories_Admin {
 				wp_die( 'nonce failed, reload your page' );
 		}
 		$post_type = $_POST['post_type'];
-		// debug_msg($_POST['order'], 'saving order ');
+		// wpg_debug($_POST['order'], 'saving order ');
 		$this->_save_order( $post_type, explode( ',', $_POST['order'] ), $_POST['category'], $_POST['start'] );
 
 		wp_die();
@@ -417,7 +419,7 @@ class Reorder_Post_Within_Categories_Admin {
 		$term_id   = $_POST['category'];
 		$post_type = $_POST['post'];
 		$move      = $_POST['move'];
-		// debug_msg($_POST);
+		// wpg_debug($_POST);
 		if ( empty( $items ) || empty( $start ) ||
 			empty( $end ) || empty( $term_id ) ||
 			empty( $post_type ) || empty( $move ) ) {
@@ -432,7 +434,7 @@ class Reorder_Post_Within_Categories_Admin {
 				unset( $order[ $idx ] ); // remove from order.
 			}
 		}
-		// debug_msg($order, 'purgesd orers ');
+		// wpg_debug($order, 'purgesd orers ');
 
 		switch ( $move ) {
 			case 'up':
@@ -442,7 +444,7 @@ class Reorder_Post_Within_Categories_Admin {
 				$order = array_merge( $order, $items );
 				break;
 		}
-		// debug_msg($order, 'new order ');
+		// wpg_debug($order, 'new order ');
 		$this->_save_order( $post_type, $order, $term_id, $start - 1 );
 		$results = $this->_get_ranked_posts( $post_type, $term_id, $_POST['range_start'], $_POST['offset'] );
 		wp_send_json_success( $results );
@@ -496,7 +498,7 @@ class Reorder_Post_Within_Categories_Admin {
 			// check if v1.x table exists.
 			$table_name = $wpdb->prefix . $this->old_table_name;
 			/** NB @since 2.3.0 check for post_type properly */
-			// debug_msg($wpdb->get_var("SHOW TABLES LIKE '$table_name'"), "SHOW TABLES LIKE '$table_name': ");
+			// wpg_debug($wpdb->get_var("SHOW TABLES LIKE '$table_name'"), "SHOW TABLES LIKE '$table_name': ");
 			if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) == $table_name ) { // cehck table exits.
 				$ranking = $wpdb->get_col(
 					$wpdb->prepare(
@@ -511,7 +513,7 @@ class Reorder_Post_Within_Categories_Admin {
 				/** NB @since 2.9.0 display admin notice warning. */
 				$this->old_ranking_exists = ! empty( $ranking );
 			}
-			// debug_msg($ranking, "ranking " );
+			// wpg_debug($ranking, "ranking " );
 			if ( empty( $ranking ) ) {
 				$orderby = 'rpwc_p.post_date';
 				if ( apply_filters( 'reorder_posts_within_category_initial_orderby', false, $post_type, $term_id ) ) {
@@ -643,7 +645,7 @@ class Reorder_Post_Within_Categories_Admin {
 			$post_type
 		);
 		$count  = $wpdb->get_results( $sql );
-		// debug_msg($sql);
+		// wpg_debug($sql);
 		$return = array();
 		switch ( true ) {
 			case empty( $count ):
@@ -671,7 +673,7 @@ class Reorder_Post_Within_Categories_Admin {
 			return false;
 		}
 		global $wpdb;
-		// debug_msg($order, 'saving order ');
+		// wpg_debug($order, 'saving order ');
 		$query = $wpdb->prepare( "SELECT rpwc_pm.meta_id, rpwc_p.ID FROM {$wpdb->posts} as rpwc_p LEFT JOIN {$wpdb->postmeta} as rpwc_pm on rpwc_p.ID = rpwc_pm.post_id WHERE rpwc_p.post_type like '%s' AND rpwc_pm.meta_key ='_rpwc2' AND rpwc_pm.meta_value=%d ORDER BY rpwc_pm.meta_id ASC", $post_type, $term_id );
 		/** NB @since 2.4.3 */
 		self::filter_query( $query, 'SELECT rpwc_pm.meta_id, rpwc_p.ID' );
@@ -691,17 +693,17 @@ class Reorder_Post_Within_Categories_Admin {
 			$values    = array();
 			$end       = sizeof( $order );
 			$last      = sizeof( $ranked_rows ); // the last rows retain the same order.
-			// debug_msg($ranked_rows, 'current ranked rows ');
+			// wpg_debug($ranked_rows, 'current ranked rows ');
 			foreach ( $ranked_rows as $idx => $row ) {
 				if ( $idx >= $start && ( $idx - $start ) < $end ) { // replace current order.
 					$values[] = "({$row->meta_id}, {$order[$idx-$start]}, '_rpwc2', {$term_id})";
 				}
 			}
-			// debug_msg($values, 'saving rank '.$start.' to '.$end);
+			// wpg_debug($values, 'saving rank '.$start.' to '.$end);
 			$sql = sprintf( "REPLACE INTO {$wpdb->postmeta} VALUES %s", implode( ',', $values ) );
 			$wpdb->query( $sql );
 			if ( ! empty( $wpdb->last_error ) ) {
-				debug_msg( $wpdb->last_error, 'SQL ERROR: ' );
+				wpg_debug( $wpdb->last_error, 'SQL ERROR: ' );
 				return false;
 			}
 		}
@@ -818,9 +820,9 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @since 1.0.0
 	 */
 	public function print_order_page() {
-		// On rÃ©cupÃ¨re le VPT sur lequel on travaille
+		// On rÃ©cupÃ¨re le VPT sur lequel on travaille.
 		$page_name = $_GET['page'];
-		// debug_msg('print order page '.$page_name);
+		// wpg_debug('print order page '.$page_name).
 		$cpt_name         = substr( $page_name, 13, strlen( $page_name ) );
 		$post_type        = get_post_types( array( 'name' => $cpt_name ), 'objects' );
 		$post_type_detail = $post_type[ $cpt_name ];
@@ -838,9 +840,9 @@ class Reorder_Post_Within_Categories_Admin {
 		 wp_verify_nonce( sanitize_key( $_POST['nounceLoadPostCat'] ), 'loadPostInCat' ) ) {
 			if ( isset( $_POST['cat_to_retrive'] ) && ! empty( $_POST['cat_to_retrive'] ) && null !== $_POST['cat_to_retrive'] ) {
 				$cat_to_retrieve_post = sanitize_key( $_POST['cat_to_retrive'] );
-				// $taxonomy_submitted   = sanitize_key( $_POST['taxonomy'] ).
-				$start_submitted      = isset( $_POST['post_start'] ) ? sanitize_key( $_POST['post_start'] ) : 1;
-				$end_submitted        = isset( $_POST['post_end'] ) ? sanitize_key( $_POST['post_end'] ) : 20;
+				// $taxonomy_submitted   = sanitize_key( $_POST['taxonomy'] );
+				$start_submitted = isset( $_POST['post_start'] ) ? sanitize_key( $_POST['post_start'] ) : 1;
+				$end_submitted   = isset( $_POST['post_end'] ) ? sanitize_key( $_POST['post_end'] ) : 20;
 				if ( empty( $start_submitted ) ) {
 					$start_submitted = 1;
 				}
@@ -852,7 +854,8 @@ class Reorder_Post_Within_Categories_Admin {
 
 				// Si il y a une catÃ©gorie.
 				if ( ! empty( $term ) ) {
-					$ranking = $this->_get_order( $post_type_detail->name, $cat_to_retrieve_post, ( $start_submitted - 1 ), $end_submitted );
+					$cat_to_retrieve_post = $term->term_id; /** NB @since 2.14.5 to fix === validation */
+					$ranking              = $this->_get_order( $post_type_detail->name, $cat_to_retrieve_post, ( $start_submitted - 1 ), $end_submitted );
 					// $total = $term->count.
 					$args        = array(
 						'post_type'           => $post_type_detail->name,
@@ -906,7 +909,7 @@ class Reorder_Post_Within_Categories_Admin {
 				return;
 		}
 		// Pour chaque post_type, on regarde s'il y a des options de trie associÃ©
-		// debug_msg($settings_options);
+		// wpg_debug($settings_options);
 
 		foreach ( $settings_options['categories_checked'] as $post_type => $taxonomies ) {
 			/**
@@ -931,14 +934,14 @@ class Reorder_Post_Within_Categories_Admin {
 				}
 			}
 			/* translators: menu label */
-			$menu_label = __( 'Reorder', 'reorder-post-within-categories' ) ;
+			$menu_label = __( 'Reorder', 'reorder-post-within-categories' );
 			switch ( true ) {
 				case 'attachment' == $post_type:
-					$the_page = add_submenu_page( 'upload.php', 'Re-order', $menu_label , $capability, 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
+					$the_page = add_submenu_page( 'upload.php', 'Re-order', $menu_label, $capability, 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
 					break;
 				case 'post' == $post_type:
 					$the_page = add_submenu_page( 'edit.php', 'Re-order', $menu_label, $capability, 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
-					// debug_msg("page hook: $the_page");
+					// wpg_debug("page hook: $the_page");
 					break;
 				case 'lp_course' == $post_type && is_plugin_active( 'learnpress/learnpress.php' ): /** NB @since 2.5.6 learnpress fix.*/
 						$the_page = add_submenu_page( 'learn_press', 'Re-order', $menu_label, 'edit_lp_courses', 're-orderPost-' . $post_type, array( &$this, 'print_order_page' ) );
@@ -996,7 +999,7 @@ class Reorder_Post_Within_Categories_Admin {
 	public function save_post( $new_status, $old_status, $post ) {
 		// Liste des taxonomies associÃ©e Ã  ce post
 		$taxonomies = get_object_taxonomies( $post->post_type );
-		// debug_msg($taxonomies, $post->post_type);
+		// wpg_debug($taxonomies, $post->post_type);
 		if ( empty( $taxonomies ) ) {
 			return;
 		}
@@ -1004,21 +1007,21 @@ class Reorder_Post_Within_Categories_Admin {
 		$settings = $this->get_admin_options();
 		if ( empty( $settings ) || ! isset( $settings['categories_checked'][ $post->post_type ] ) ) {
 			// if there are no taxonomies checked then this post cannot be manually ranked.
-			// debug_msg($settings, 'settings ');
+			// wpg_debug($settings, 'settings ');
 			return;
 		}
 		// taxonomies ranked for this post type.
 		$ranked_tax = $settings['categories_checked'][ $post->post_type ];
 		// taxonomies associated with this post that are manually ranked.
 		$ranked_tax = array_intersect( $ranked_tax, $taxonomies );
-		// debug_msg($ranked_tax, 'ranked tax ');
+		// wpg_debug($ranked_tax, 'ranked tax ');
 		if ( empty( $ranked_tax ) ) {
 			return;
 		}
 
 		// find if terms are currently being ranked.
 		$ranked_terms = get_option( RPWC_OPTIONS_2, array() );
-		// debug_msg($ranked_terms, 'ranked terms ');
+		// wpg_debug($ranked_terms, 'ranked terms ');
 
 		if ( ! isset( $ranked_terms[ $post->post_type ] ) ) {
 			return; // no terms ranked for this post type.
@@ -1098,7 +1101,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 */
 	// public function unrank_post(int $post_id, int $term_id=-1){ //php 8
 	public function unrank_post( $post_id, $term_id = -1 ) {
-		// debug_msg("unranking post $post_id from term $term_id");
+		// wpg_debug("unranking post $post_id from term $term_id");
 		if ( $term_id < 0 ) {
 			delete_post_meta( $post_id, '_rpwc2' );
 		} else {
@@ -1116,7 +1119,7 @@ class Reorder_Post_Within_Categories_Admin {
 	// protected function _unrank_all_posts(int $term_id, string $post_type){ //php 8
 	protected function _unrank_all_posts( $term_id, $post_type ) {
 		if ( empty( $term_id ) || empty( $post_type ) ) {
-			debug_msg( 'UNABLE to Unrank, not term ID and/or post_type defined' );
+			wpg_debug( 'UNABLE to Unrank, not term ID and/or post_type defined' );
 			return false;
 		}
 		if ( is_array( $post_type ) ) {
@@ -1126,10 +1129,10 @@ class Reorder_Post_Within_Categories_Admin {
 		$sql = $wpdb->prepare( "DELETE meta FROM {$wpdb->postmeta} as meta JOIN {$wpdb->posts} as post ON post.ID=meta.post_id WHERE meta.meta_key LIKE '_rpwc2' AND meta.meta_value LIKE %s AND post.post_type IN ('{$post_type}')", $term_id );
 		$wpdb->query( $sql );
 		if ( ! empty( $wpdb->last_error ) ) {
-			debug_msg( $wpdb->last_error, 'SQL ERROR:' );
+			wpg_debug( $wpdb->last_error, 'SQL ERROR:' );
 			return false;
 		}
-		// debug_msg($sql, 'deleted '.$post_type.' term '.$term_id);
+		// wpg_debug($sql, 'deleted '.$post_type.' term '.$term_id);
 		return true;
 	}
 }

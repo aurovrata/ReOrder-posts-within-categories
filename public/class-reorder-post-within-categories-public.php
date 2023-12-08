@@ -88,7 +88,7 @@ class Reorder_Post_Within_Categories_Public {
 
 			/** @since 2.3.0 check if term id is ranked for this post type. */
 			$args .= " AND rankpm.meta_value={$term_id} AND rankpm.meta_key='_rpwc2' ";
-			debug_msg( "RPWC2 (query filter: posts_where query), sorting posts in term: {$term_id}, WHERE {$args}" );
+			wpg_debug( "RPWC2 (query filter: posts_where query), sorting posts in term: {$term_id}, WHERE {$args}" );
 		}
 		return $args;
 	}
@@ -103,7 +103,7 @@ class Reorder_Post_Within_Categories_Public {
 			global $wpdb;
 			/** @since 2.2.1 chnage from INNER JOIN to JOIN to see if fixes front-end queries*/
 			$args .= " LEFT JOIN {$wpdb->postmeta} AS rankpm ON {$wpdb->posts}.ID = rankpm.post_id ";
-			debug_msg( "RPWC2 (query filter: posts_join query), {$args}" );
+			wpg_debug( "RPWC2 (query filter: posts_join query), {$args}" );
 		}
 		return $args;
 	}
@@ -124,7 +124,7 @@ class Reorder_Post_Within_Categories_Public {
 						return $pieces;
 				}
 			);
-			debug_msg( "RPWC2 (query filter: posts_orderby query) ORDER BY {$args}" );
+			wpg_debug( "RPWC2 (query filter: posts_orderby query) ORDER BY {$args}" );
 		}
 		return $args;
 	}
@@ -138,7 +138,7 @@ class Reorder_Post_Within_Categories_Public {
 	public function debug_sql_query( $sql, $wp_query ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			if ( $this->is_manual_sort_query( $wp_query, false ) ) {
-				debug_msg( $sql, 'PWC2 (query filter: posts_request), final SQL query: ' );
+				wpg_debug( $sql, 'PWC2 (query filter: posts_request), final SQL query: ' );
 			}
 		}
 		$this->current_query  = null;  // reset the query cache
@@ -181,7 +181,7 @@ class Reorder_Post_Within_Categories_Public {
 			}
 			$term_id  = $queriedObj->term_id;
 			$taxonomy = $queriedObj->taxonomy;
-			 // debug_msg($wp_query->tax_query->queries, "$taxonomy is ranked $term_id ");
+			 // wpg_debug($wp_query->tax_query->queries, "$taxonomy is ranked $term_id ");
 		} else {
 			return 0;
 		}
@@ -259,7 +259,7 @@ class Reorder_Post_Within_Categories_Public {
 				} else {
 					$post_type = $type;
 				}
-				// debug_msg($post_type, $taxonomy.' term '.$term_id);
+				// wpg_debug($post_type, $taxonomy.' term '.$term_id);
 				switch ( count( $post_type ) ) {
 					case 1:
 						$type = $post_type[0];
@@ -268,7 +268,7 @@ class Reorder_Post_Within_Categories_Public {
 						/** @since 2.5.9 assume types with posts to make it easier for non-devs */
 						$types_with_posts = array();
 						if ( $print_dbg ) {
-							debug_msg( $post_type, 'RPWC2 SORT VALIDATION, found multiple post types: ' );
+							wpg_debug( $post_type, 'RPWC2 SORT VALIDATION, found multiple post types: ' );
 						}
 						/** filter multiple post types.
 							   *
@@ -292,12 +292,12 @@ class Reorder_Post_Within_Categories_Public {
 									default:
 										if ( empty( $type ) ) {
 											if ( $print_dbg ) {
-												debug_msg( "RPWC2 SORT VALIDATION, using type '{$pt}'." );
+												wpg_debug( "RPWC2 SORT VALIDATION, using type '{$pt}'." );
 											}
 											$type = $pt;
 										} else {
 											if ( $print_dbg ) {
-												debug_msg( "RPWC2 SORT VALIDATION, ignoring type '{$pt}', if this is the post type you are trying to sort, use the 'rpwc2_filter_multiple_post_type' hook as detailed in FAQ #10." );
+												wpg_debug( "RPWC2 SORT VALIDATION, ignoring type '{$pt}', if this is the post type you are trying to sort, use the 'rpwc2_filter_multiple_post_type' hook as detailed in FAQ #10." );
 											}
 										}
 										break;
@@ -306,7 +306,7 @@ class Reorder_Post_Within_Categories_Public {
 						}
 						if ( empty( $type ) || ! is_string( $type ) ) {
 							if ( $print_dbg ) {
-								debug_msg( $post_type, 'RPWC2 SORT VALIDATION ABORTED, found multiple post types, non suitable: ' );
+								wpg_debug( $post_type, 'RPWC2 SORT VALIDATION ABORTED, found multiple post types, non suitable: ' );
 							}
 							return false;
 						}
@@ -318,7 +318,7 @@ class Reorder_Post_Within_Categories_Public {
 				break;
 		}
 		if ( $print_dbg ) {
-			debug_msg( "RPWC2 SORT VALIDATION, found post_type '{$type}' / taxonomy '{$taxonomy}'({$term_id})" );
+			wpg_debug( "RPWC2 SORT VALIDATION, found post_type '{$type}' / taxonomy '{$taxonomy}'({$term_id})" );
 		}
 
 		$is_ranked = false;
@@ -330,9 +330,9 @@ class Reorder_Post_Within_Categories_Public {
 				$is_ranked = apply_filters( 'rpwc2_allow_custom_sort_orderby_override', $override, $wp_query, $taxonomy, $term_id, $type );
 				if ( $print_dbg ) {
 					if ( ! $is_ranked ) {
-						debug_msg( $wp_query->query_vars['orderby'], 'RPWC2 SORT VALIDATION ABORTED, for orderby: ' );
+						wpg_debug( $wp_query->query_vars['orderby'], 'RPWC2 SORT VALIDATION ABORTED, for orderby: ' );
 					} else {
-						debug_msg( $wp_query->query_vars['orderby'], 'RPWC2 SORT VALIDATION, overriding orderby: ' );
+						wpg_debug( $wp_query->query_vars['orderby'], 'RPWC2 SORT VALIDATION, overriding orderby: ' );
 					}
 				}
 			}
@@ -421,7 +421,7 @@ class Reorder_Post_Within_Categories_Public {
 		}
 
 		$term = $this->check_for_ranked_term( $excluded_terms, $taxonomy, $post );
-		// debug_msg($where, 'where ');
+		// wpg_debug($where, 'where ');
 		if ( ! empty( $term ) ) {
 			$compare = '>';
 			$order   = 'ASC';
@@ -430,7 +430,7 @@ class Reorder_Post_Within_Categories_Public {
 				$order   = 'DESC';
 			}
 			global $wpdb;
-			// debug_msg($wpdb->db_version(), 'version ');
+			// wpg_debug($wpdb->db_version(), 'version ');
 			$adj_id = $wpdb->get_var(
 				"SELECT (
 				SELECT rankpm.post_id FROM {$wpdb->postmeta} as rankpm LEFT JOIN {$wpdb->posts} AS rankp ON rankp.ID=rankpm.post_id
@@ -439,7 +439,7 @@ class Reorder_Post_Within_Categories_Public {
 				  WHERE selectp.meta_id = (SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id={$post->ID} AND meta_key LIKE '_rpwc2' AND meta_value={$term})"
 			);
 
-				// debug_msg($wpdb->last_query, $pos.' SQL QUERY:');
+				// wpg_debug($wpdb->last_query, $pos.' SQL QUERY:');
 			if ( ! empty( $adj_id ) ) {
 				$where = " WHERE p.ID= {$adj_id} ";
 			} else {

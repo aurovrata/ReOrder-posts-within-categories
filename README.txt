@@ -5,7 +5,7 @@ Tags: order, reorder, re-order, order by category,order custom post type, order 
 Requires at least: 4.4
 Tested up to: 6.3.0
 Requires PHP: 5.6
-Stable tag: 2.14.4
+Stable tag: 2.14.5
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -374,15 +374,17 @@ add_filter(
 );
 `
 = 20. Can I debug the manual ranking process ? =
-Sure, if you enable `WP_DEBUG` and `WP_GURUS_DEBUG` in your `wp-config.php` file,
+Sure, if you enable `WP_DEBUG` and `WPGURUS_DEBUG` in your `wp-config.php` file,
 
 `
 define('WP_DEBUG', true);
-define('WP_GURUS_DEBUG', true);
+define('WPGURUS_DEBUG', true);
 `
 the plugin will printout debug messages, along with the final SQL query for your manually ranked posts.  This is useful in order to determine if another plugin is also filtering your posts queries and overriding the ranking of the resuls.
 
 == Changelog ==
+= 2.14.5 =
+* fix term validation issue on admin reorder page.
 = 2.14.4 =
 * cleanup html escaping logic.
 * fix misuse esc_attr_e() bug.
