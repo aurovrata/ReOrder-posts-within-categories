@@ -3,9 +3,9 @@ Contributors: aurovrata, aurelien, pondermatic, robrecord
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=36PNU5KYMP738
 Tags: order, reorder, re-order, order by category,order custom post type, order by categories, order category, order categories, order by taxonomy, order by taxonomies, manual order, order posts
 Requires at least: 4.4
-Tested up to: 6.3.0
+Tested up to: 6.4.2
 Requires PHP: 5.6
-Stable tag: 2.14.5
+Stable tag: 2.15.0
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -383,6 +383,8 @@ define('WPGURUS_DEBUG', true);
 the plugin will printout debug messages, along with the final SQL query for your manually ranked posts.  This is useful in order to determine if another plugin is also filtering your posts queries and overriding the ranking of the resuls.
 
 == Changelog ==
+= 2.15.0 =
+* added admin filter rpwc2_get_thumbnail_url to customise post thumbnail
 = 2.14.5 =
 * fix term validation issue on admin reorder page.
 = 2.14.4 =

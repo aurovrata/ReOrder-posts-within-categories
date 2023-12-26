@@ -334,21 +334,24 @@ class Reorder_Post_Within_Categories_Admin {
 		wp_die();
 	}
 	/**
-	 * get thumbnail image for dashboard post reorder list.
+	 * Get thumbnail image for dashboard post reorder list.
 	 *
 	 * @since 2.13.0
+	 * @param WP_Post $post post object.
+	 * @param String $size thumbnail size handle.
+	 * @return String image url.
 	 */
-	// public static function get_thumbnail_url(\WP_Post $post, $size = 'thumbnail'): string php 8
 	public static function get_thumbnail_url( $post, $size = 'thumbnail' ) {
+		// public static function get_thumbnail_url(\WP_Post $post, $size = 'thumbnail'): string php 8.
 		$img = get_the_post_thumbnail_url( $post, $size );
-		// support attachments with/without featured images
-		if ( ! $img && $post->post_type === 'attachment' ) {
+		// support attachments with/without featured images.
+		if ( ! $img && 'attachment' === $post->post_type ) {
 			$img = wp_get_attachment_url( $post->ID, $size );
 		}
 		if ( ! $img ) {
 			$img = plugin_dir_url( __DIR__ ) . 'assets/logo.png';
 		}
-		return $img;
+		return apply_filters( 'rpwc2_get_thumbnail_url', $img, $post->ID );
 	}
 	/**
 	 * function to get ranked posts details for ajax call.
