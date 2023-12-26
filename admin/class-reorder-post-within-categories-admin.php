@@ -338,7 +338,7 @@ class Reorder_Post_Within_Categories_Admin {
 	 *
 	 * @since 2.13.0
 	 * @param WP_Post $post post object.
-	 * @param String $size thumbnail size handle.
+	 * @param String  $size thumbnail size handle.
 	 * @return String image url.
 	 */
 	public static function get_thumbnail_url( $post, $size = 'thumbnail' ) {
@@ -357,9 +357,14 @@ class Reorder_Post_Within_Categories_Admin {
 	 * function to get ranked posts details for ajax call.
 	 *
 	 * @since 2.0.0
+	 * @param String $post_type post type being ranked.
+	 * @param Int    $term_id term ID.
+	 * @param Int    $start post start.
+	 * @param Int    $offset post count to return.
+	 * @return Array of results.
 	 */
-	// private function _get_ranked_posts(string $post_type, int $term_id, int $start, int $offset){ php 8
 	private function _get_ranked_posts( $post_type, $term_id, $start, $offset ) {
+		// private function _get_ranked_posts(string $post_type, int $term_id, int $start, int $offset){ php 8.
 		$results = array();
 		$ranking = $this->_get_order( $post_type, $term_id, $start, $offset );
 		$posts   = get_posts(
@@ -372,11 +377,11 @@ class Reorder_Post_Within_Categories_Admin {
 			)
 		);
 		/** NB @since 2.14.1 WPML  */
-		$results = array();// array_fill(0, count($ranking), '');
+		$results = array(); // array_fill(0, count($ranking), '').
 		foreach ( $posts as $post ) {
 			$img  = self::get_thumbnail_url( $post );
 			$rank = array_search( $post->ID, $ranking );
-			if ( $rank === false ) {
+			if ( false === $rank ) {
 				continue;
 			}
 			$results[ $rank ] = array(
@@ -395,12 +400,26 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @since 1.0.0.
 	 */
 	public function save_order() {
-		if ( ! isset( $_POST['deefuseNounceUserOrdering'] ) || ! wp_verify_nonce( $_POST['deefuseNounceUserOrdering'], 'nonce-UserOrderingChange' ) ) {
+		$_post = wp_unslash( $_POST );
+		if ( ! isset( $_post['deefuseNounceUserOrdering'] ) || ! wp_verify_nonce( $_post['deefuseNounceUserOrdering'], 'nonce-UserOrderingChange' ) ) {
 				wp_die( 'nonce failed, reload your page' );
 		}
-		$post_type = $_POST['post_type'];
-		// wpg_debug($_POST['order'], 'saving order ');
-		$this->_save_order( $post_type, explode( ',', $_POST['order'] ), $_POST['category'], $_POST['start'] );
+		// wpg_debug($_POST['order'], 'saving order ').
+
+		if ( ! isset( $_post['order'] ) ) {
+			wp_die( 'Missing array of post IDs' );
+		}
+		if ( ! isset( $_post['category'] ) ) {
+			wp_die( 'Missing category term ID' );
+		}
+		if ( ! isset( $_post['start'] ) ) {
+			wp_die( 'Missing ranking start id' );
+		}
+		if ( ! isset( $_post['post_type'] ) ) {
+			wp_die( 'Missing post type handle' );
+		}
+
+		$this->_save_order( $_post['post_type'], explode( ',', $_post['order'] ), $_post['category'], $_post['start'] );
 
 		wp_die();
 	}
@@ -410,22 +429,24 @@ class Reorder_Post_Within_Categories_Admin {
 	 * @since 1.0.0.
 	 */
 	public function shuffle_order() {
-		if ( ! isset( $_POST['deefuseNounceUserOrdering'] ) || ! wp_verify_nonce( $_POST['deefuseNounceUserOrdering'], 'nonce-UserOrderingChange' ) ) {
+		$_post = wp_unslash( $_POST );
+		if ( ! isset( $_post['deefuseNounceUserOrdering'] ) || ! wp_verify_nonce( $_post['deefuseNounceUserOrdering'], 'nonce-UserOrderingChange' ) ) {
 				wp_die( 'nonce failed, reload your page' );
 		}
-		if ( ! isset( $_POST['items'] ) || ! isset( $_POST['start'] ) || ! isset( $_POST['end'] ) || ! isset( $_POST['category'] ) ) {
+		if ( ! isset( $_post['items'] ) || ! isset( $_post['start'] ) || ! isset( $_post['end'] ) || ! isset( $_post['category'] ) ) {
 			wp_die( 'missing data, try again.' );
 		}
-		$items     = $_POST['items'];
-		$start     = $_POST['start'];
-		$end       = $_POST['end'];
-		$term_id   = $_POST['category'];
-		$post_type = $_POST['post'];
-		$move      = $_POST['move'];
-		// wpg_debug($_POST);
-		if ( empty( $items ) || empty( $start ) ||
-			empty( $end ) || empty( $term_id ) ||
-			empty( $post_type ) || empty( $move ) ) {
+		$items       = $_post['items'];
+		$start       = $_post['start'];
+		$end         = $_post['end'];
+		$term_id     = $_post['category'];
+		$post_type   = $_post['post'];
+		$move        = $_post['move'];
+		$range_start = $_post['range_start'];
+		$offset      = $_post['offset'];
+		// wpg_debug($_post).
+		if ( empty( $items ) || empty( $start ) || empty( $end ) || empty( $term_id ) ||
+			empty( $post_type ) || empty( $move ) || empty( $range_start ) || empty( $offset ) ) {
 
 			wp_die( 'missing data, try again.' );
 		}
@@ -433,11 +454,12 @@ class Reorder_Post_Within_Categories_Admin {
 		$order = $this->_get_order( $post_type, $term_id, $start - 1, $end - $start + 1 );
 
 		foreach ( $items as $post_id ) {
-			if ( false !== ( $idx = array_search( $post_id, $order ) ) ) {
+			$idx = array_search( $post_id, $order );
+			if ( false !== $idx ) {
 				unset( $order[ $idx ] ); // remove from order.
 			}
 		}
-		// wpg_debug($order, 'purgesd orers ');
+		// wpg_debug($order, 'purgesd orers ').
 
 		switch ( $move ) {
 			case 'up':
@@ -447,23 +469,23 @@ class Reorder_Post_Within_Categories_Admin {
 				$order = array_merge( $order, $items );
 				break;
 		}
-		// wpg_debug($order, 'new order ');
+		// wpg_debug($order, 'new order ').
 		$this->_save_order( $post_type, $order, $term_id, $start - 1 );
-		$results = $this->_get_ranked_posts( $post_type, $term_id, $_POST['range_start'], $_POST['offset'] );
+		$results = $this->_get_ranked_posts( $post_type, $term_id, $range_start, $offset );
 		wp_send_json_success( $results );
 		wp_die();
 	}
 
 	/**
-	 * allow for various post status to be filtered
+	 * Allow for various post status to be filtered in the SQL query.
 	 *
 	 * @since 2.6.1
-	 * @param string $post_type
-	 * @param integer $term_id
-	 * @return string
+	 * @param String  $post_type post type handle.
+	 * @param Integer $term_id term ID.
+	 * @return String string formated array of states.
 	 */
-	// protected function _get_status(string $post_type, $term_id) { php 8
 	protected function _get_status( $post_type, $term_id ) {
+		// protected function _get_status(string $post_type, $term_id) { php 8.
 		$default_status = array( 'publish', 'private', 'future' );
 		$status         = apply_filters(
 			'rpwc2_initial_rank_posts_status',
@@ -483,7 +505,7 @@ class Reorder_Post_Within_Categories_Admin {
 	}
 
 	/**
-	 * function to retrieve the current order of posts.
+	 * Function to retrieve the current order of posts.
 	 *
 	 * @since 2.0.0.
 	 * @param string $post_type the post type for which to retrive an order.
